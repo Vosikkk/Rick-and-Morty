@@ -14,56 +14,64 @@ final class RMTabViewController: UITabBarController {
         setupTabs()
     }
 
-    
     private func setupTabs() {
-        let charactersVC = RMCharcterViewController()
-        let locationsVC = RMLocationViewController()
-        let episodesVC = RMEpisodeViewController()
-        let settingsVC = RMSettingsViewController()
-        
-        charactersVC.navigationItem.largeTitleDisplayMode = .automatic
-        locationsVC.navigationItem.largeTitleDisplayMode = .automatic
-        episodesVC.navigationItem.largeTitleDisplayMode = .automatic
-        settingsVC .navigationItem.largeTitleDisplayMode = .automatic
-        
-        let nv1 = UINavigationController(rootViewController: charactersVC)
-        let nv2 = UINavigationController(rootViewController: locationsVC)
-        let nv3 = UINavigationController(rootViewController: episodesVC)
-        let nv4 = UINavigationController(rootViewController: settingsVC)
-        
-        
-        nv1.tabBarItem = UITabBarItem(
-            title: "Characters",
-            image: UIImage(systemName: "person"),
-            tag: 1
-        )
-        
-        nv2.tabBarItem = UITabBarItem(
-            title: "Locations",
-            image: UIImage(systemName: "globe"),
-            tag: 2
-        )
-        
-        nv3.tabBarItem = UITabBarItem(
-            title: "Episodes",
-            image: UIImage(systemName: "tv "),
-            tag: 3
-        )
-        
-        nv4.tabBarItem = UITabBarItem(
-            title: "Settings",
-            image: UIImage(systemName: "gear"),
-            tag: 4
-        )
-        
-        for nav in  [nv1, nv2, nv3, nv4] {
-            nav.navigationBar.prefersLargeTitles = true
-        }
-        
-        setViewControllers(
-             [nv1, nv2, nv3, nv4],
-             animated: true)
+        let viewControllers = TabItems.allCases.map { createNavController(for: $0) }
+        setViewControllers(viewControllers, animated: true)
     }
-
+    
+    private func createNavController(for tab: TabItems) -> UINavigationController {
+        let vc = tab.viewController()
+        vc.title = tab.title
+        vc.navigationItem.largeTitleDisplayMode = .automatic
+        let nv = UINavigationController(rootViewController: vc)
+        nv.tabBarItem = UITabBarItem(
+            title: tab.title,
+            image: tab.image,
+            tag: tab.rawValue)
+        nv.navigationBar.prefersLargeTitles = true
+        return nv
+    }
 }
 
+enum TabItems: Int, CaseIterable {
+    case characters = 1, locations, episodes, settings
+    
+    var title: String {
+        switch self {
+        case .characters:
+            "Characters"
+        case .locations:
+            "Locations"
+        case .episodes:
+            "Episodes"
+        case .settings:
+            "Settings"
+        }
+    }
+    
+    var image: UIImage? {
+        switch self {
+        case .characters:
+            UIImage(systemName: "person")
+        case .locations:
+            UIImage(systemName: "globe")
+        case .episodes:
+            UIImage(systemName: "tv")
+        case .settings:
+            UIImage(systemName: "gear")
+        }
+    }
+    
+    func viewController() -> UIViewController {
+        switch self {
+        case .characters:
+            return RMCharcterViewController()
+        case .locations:
+            return RMLocationViewController()
+        case .episodes:
+            return RMEpisodeViewController()
+        case .settings:
+            return RMSettingsViewController()
+        }
+    }
+}
