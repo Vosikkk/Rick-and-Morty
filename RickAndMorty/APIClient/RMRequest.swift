@@ -15,12 +15,11 @@ public protocol Request {
 /// Object that represents a single API call
 public final class RMRequest: Request {
    
-    
     /// Desired endpoint
     private let endpoint: RMEndpoint
     
     /// Path components for API, if any
-    private let pathComponents: Set<String>
+    private let pathComponents: [String]
     
     /// Query  arguments for API, if any
     private let queryParameters: [URLQueryItem]
@@ -69,7 +68,7 @@ public final class RMRequest: Request {
     ///   - queryParameters: Collection of query parameters
     public init(
         endpoint: RMEndpoint,
-        pathComponents: Set<String> = [],
+        pathComponents: [String] = [],
         queryParameters: [URLQueryItem] = []
     ) {
         self.endpoint = endpoint
@@ -83,3 +82,4 @@ public final class RMRequest: Request {
         static let baseUrl = "https://rickandmortyapi.com/api"
     }
 }
+

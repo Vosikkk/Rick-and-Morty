@@ -14,13 +14,13 @@ final class RMCharacterViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
         
-        let request = RMRequest(
-            endpoint: .character,
-            queryParameters: [
-                URLQueryItem(name: "name", value: "rick"),
-                URLQueryItem(name: "status", value: "alive")
-            ]
-        )
-       
+        Task {
+            do {
+                let res = try await RMService().execute(RMRequest(endpoint: .character), expecting: String.self)
+                print(res)
+            } catch {
+                print(error)
+            }
+        }
     }
 }
