@@ -35,6 +35,60 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		3801296B2C25ADEE006B62B7 /* Controllers */ = {
+			isa = PBXGroup;
+			children = (
+				38E5BFB32C24E65C000EF594 /* ViewController.swift */,
+			);
+			path = Controllers;
+			sourceTree = "<group>";
+		};
+		3801296C2C25AE06006B62B7 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		3801296D2C25AE0C006B62B7 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		3801296E2C25AE1C006B62B7 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		3801296F2C25AE35006B62B7 /* APIClient */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = APIClient;
+			sourceTree = "<group>";
+		};
+		380129712C25AE63006B62B7 /* Managers */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Managers;
+			sourceTree = "<group>";
+		};
+		380129722C25AE6F006B62B7 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				38E5BFB82C24E65E000EF594 /* Assets.xcassets */,
+				38E5BFBA2C24E65E000EF594 /* LaunchScreen.storyboard */,
+				38E5BFAF2C24E65C000EF594 /* AppDelegate.swift */,
+				38E5BFB12C24E65C000EF594 /* SceneDelegate.swift */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
 		38E5BFA32C24E65C000EF594 = {
 			isa = PBXGroup;
 			children = (
@@ -54,11 +108,13 @@
 		38E5BFAE2C24E65C000EF594 /* RickAndMorty */ = {
 			isa = PBXGroup;
 			children = (
-				38E5BFAF2C24E65C000EF594 /* AppDelegate.swift */,
-				38E5BFB12C24E65C000EF594 /* SceneDelegate.swift */,
-				38E5BFB32C24E65C000EF594 /* ViewController.swift */,
-				38E5BFB82C24E65E000EF594 /* Assets.xcassets */,
-				38E5BFBA2C24E65E000EF594 /* LaunchScreen.storyboard */,
+				380129722C25AE6F006B62B7 /* Resources */,
+				380129712C25AE63006B62B7 /* Managers */,
+				3801296F2C25AE35006B62B7 /* APIClient */,
+				3801296E2C25AE1C006B62B7 /* ViewModels */,
+				3801296D2C25AE0C006B62B7 /* Views */,
+				3801296C2C25AE06006B62B7 /* Models */,
+				3801296B2C25ADEE006B62B7 /* Controllers */,
 				38E5BFBD2C24E65E000EF594 /* Info.plist */,
 			);
 			path = RickAndMorty;
