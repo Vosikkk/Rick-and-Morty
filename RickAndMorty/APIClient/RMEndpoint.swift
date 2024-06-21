@@ -12,5 +12,5 @@ import Foundation
 /// Represents unique API endpoint
 @frozen public enum RMEndpoint: String {
     /// Endpoints to get info of each kind of data
-    case charcter, location, episode
+    case character, location, episode
 }
