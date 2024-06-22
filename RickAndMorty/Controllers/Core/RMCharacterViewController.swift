@@ -16,8 +16,9 @@ final class RMCharacterViewController: UIViewController {
         
         Task {
             do {
-                let res = try await RMService().execute(RMRequest(endpoint: .character), expecting: String.self)
-                print(res)
+                let res = try await RMService().execute(RMRequest(endpoint: .character), expecting: RMGetCharactersResponse.self)
+                print("Total: \(res.info.pages)")
+                print("Page result count: \(res.results.count)")
             } catch {
                 print(error)
             }
