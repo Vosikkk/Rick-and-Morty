@@ -16,7 +16,7 @@ final class RMService: Service {
     ///   - request: Instance of Request opaque types
     ///   - type: The type of object we expect to getback
     ///   - completion: Call back with data or error
-    func execute<T: Codable>(
+    func execute<T: Decodable>(
         _ request: some Request,
         expecting type: T.Type,
         completion: @escaping (Result<T, Error>) -> Void) {

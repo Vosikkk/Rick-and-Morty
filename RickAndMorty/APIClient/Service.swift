@@ -9,7 +9,7 @@ import Foundation
 
 ///  Each who wants work with client have to implment the protocol
 public protocol Service {
-    func execute<T: Codable>(
+    func execute<T: Decodable>(
         _ request: some Request,
         expecting type: T.Type,
         completion: @escaping (Result<T, Error>) -> Void)
@@ -20,7 +20,7 @@ extension Service {
     /// /// Send Rick and Morty API call async
     ///  - Parameter request: Instance of Request opaque types
     ///  - Parameter type: The type of object we expect to getback
-    func execute<T: Codable>(
+    func execute<T: Decodable>(
         _ request: some Request,
         expecting type: T.Type)
     async throws -> T {

@@ -49,7 +49,7 @@ enum TabItems: Int, CaseIterable, TabItem {
     func viewController() -> UIViewController {
         switch self {
         case .characters:
-            return RMCharacterViewController()
+            return RMCharacterViewController(service: RMService())
         case .locations:
             return RMLocationViewController()
         case .episodes:

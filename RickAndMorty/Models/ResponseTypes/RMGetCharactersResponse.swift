@@ -7,9 +7,9 @@
 
 import Foundation
 
-struct RMGetCharactersResponse: Codable {
+struct RMGetCharactersResponse: Decodable {
     
-    struct Info: Codable {
+    struct Info: Decodable {
         let count: Int
         let pages: Int
         let next: String?

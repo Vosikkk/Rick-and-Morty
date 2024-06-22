@@ -1,5 +1,5 @@
 //
-//  CharacterListView.swift
+//  RMCharacterListView.swift
 //  RickAndMorty
 //
 //  Created by Саша Восколович on 22.06.2024.
@@ -9,9 +9,9 @@ import UIKit
 
 
 /// View that handles showing list of characters, loader, etc.
-final class CharacterListView: UIView {
+final class RMCharacterListView: UIView {
 
-    private let vm: CharacterListViewViewModel = CharacterListViewViewModel()
+    private let vm: RMCharacterListViewViewModel
     
     private let spinner: UIActivityIndicatorView = {
         let spinner = UIActivityIndicatorView(style: .large)
@@ -33,12 +33,16 @@ final class CharacterListView: UIView {
         collection.isHidden = true
         collection.alpha = 0
         collection.translatesAutoresizingMaskIntoConstraints = false
-        collection.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "cell")
+        collection.register(
+            RMCharacterCollectionViewCell.self,
+            forCellWithReuseIdentifier: RMCharacterCollectionViewCell.cellIdentifier
+        )
         return collection
     }()
     
     // MARK: - Init
-    override init(frame: CGRect) {
+     init(frame: CGRect, service: Service) {
+        vm = RMCharacterListViewViewModel(service: service)
         super.init(frame: frame)
         translatesAutoresizingMaskIntoConstraints = false
         addSubview(spinner)
@@ -46,12 +50,12 @@ final class CharacterListView: UIView {
         setConstraints()
         
         spinner.startAnimating()
-        
+        vm.delegate = self 
         vm.fetchCharacters()
         
         setupCollectionView()
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -59,16 +63,7 @@ final class CharacterListView: UIView {
     
     private func setupCollectionView() {
         collectionView.dataSource = vm
-        collectionView.delegate = vm 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            self.spinner.stopAnimating()
-            
-            self.collectionView.isHidden = false
-            
-            UIView.animate(withDuration: 0.4) {
-                self.collectionView.alpha = 1
-            }
-        }
+        collectionView.delegate = vm
     }
     
     private func setConstraints() {
@@ -95,6 +90,19 @@ final class CharacterListView: UIView {
             static let left: CGFloat = 10
             static let top: CGFloat = 0
             static let bottom: CGFloat = 0
+        }
+    }
+}
+
+
+extension RMCharacterListView: RMCharacterListViewViewModelDelegate {
+    
+    func didLoadInitialCharacters() {
+        spinner.stopAnimating()
+        collectionView.isHidden = false
+        collectionView.reloadData() // Initial fetch 
+        UIView.animate(withDuration: 0.4) {
+            self.collectionView.alpha = 1
         }
     }
 }
