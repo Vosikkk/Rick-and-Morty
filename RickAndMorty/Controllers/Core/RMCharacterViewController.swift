@@ -10,18 +10,24 @@ import UIKit
 /// Controller to show and search for Characters
 final class RMCharacterViewController: UIViewController {
 
+    
+    private let charactersListView: CharacterListView = CharacterListView()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
-        
-        Task {
-            do {
-                let res = try await RMService().execute(RMRequest(endpoint: .character), expecting: RMGetCharactersResponse.self)
-                print("Total: \(res.info.pages)")
-                print("Page result count: \(res.results.count)")
-            } catch {
-                print(error)
-            }
-        }
+        view.addSubview(charactersListView)
+        NSLayoutConstraint.activate([
+            charactersListView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            charactersListView.leftAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor, constant: Constants.leftOffset),
+            charactersListView.rightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.rightAnchor, constant: Constants.rightOffset),
+            charactersListView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+        ])
+    }
+    
+    
+    private struct Constants {
+        static let leftOffset: CGFloat = 0
+        static let rightOffset: CGFloat = 0
     }
 }
