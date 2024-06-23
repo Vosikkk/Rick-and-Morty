@@ -14,7 +14,7 @@ final class RMCharacterViewController: UIViewController {
     
     
     init(service: Service) {
-        charactersListView = RMCharacterListView(frame: .zero, service: service)
+        charactersListView = RMCharacterListView(service: service)
         super.init(nibName: nil, bundle: nil)
     }
     

@@ -45,11 +45,16 @@ final class RMCharacterListView: UIView {
             RMCharacterCollectionViewCell.self,
             forCellWithReuseIdentifier: RMCharacterCollectionViewCell.cellIdentifier
         )
+        collection.register(
+            RMFooterLoaderCollectionReusableView.self,
+            forSupplementaryViewOfKind: UICollectionView.elementKindSectionFooter,
+            withReuseIdentifier: RMFooterLoaderCollectionReusableView.identifier
+        )
         return collection
     }()
     
     // MARK: - Init
-     init(frame: CGRect, service: Service) {
+    init(frame: CGRect = .zero, service: Service) {
         characterListViewModel = RMCharacterListViewViewModel(service: service)
         super.init(frame: frame)
         translatesAutoresizingMaskIntoConstraints = false
