@@ -16,7 +16,6 @@ protocol RMCharacterListViewViewModelDelegate: AnyObject {
 
 final class RMCharacterListViewViewModel: NSObject {
    
-    
     public weak var delegate: RMCharacterListViewViewModelDelegate? 
     
     let service: Service

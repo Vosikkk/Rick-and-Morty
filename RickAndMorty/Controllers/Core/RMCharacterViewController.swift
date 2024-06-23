@@ -51,6 +51,8 @@ extension RMCharacterViewController: RMCharacterListViewDelegate {
         _ characterListView: RMCharacterListView,
         didSelectCharacter character: RMCharacter
     ) {
-        
+        let detailVC = RMCharacterDetailViewController(viewModel: .init(character: character))
+        detailVC.navigationItem.largeTitleDisplayMode = .never
+        navigationController?.pushViewController(detailVC, animated: true)
     }
 }

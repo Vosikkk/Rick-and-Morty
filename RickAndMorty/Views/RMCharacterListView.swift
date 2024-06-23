@@ -19,7 +19,7 @@ final class RMCharacterListView: UIView {
 
     public weak var delegate: RMCharacterListViewDelegate?
     
-    private let vm: RMCharacterListViewViewModel
+    private let characterListViewModel: RMCharacterListViewViewModel
     
     private let spinner: UIActivityIndicatorView = {
         let spinner = UIActivityIndicatorView(style: .large)
@@ -50,7 +50,7 @@ final class RMCharacterListView: UIView {
     
     // MARK: - Init
      init(frame: CGRect, service: Service) {
-        vm = RMCharacterListViewViewModel(service: service)
+        characterListViewModel = RMCharacterListViewViewModel(service: service)
         super.init(frame: frame)
         translatesAutoresizingMaskIntoConstraints = false
         addSubview(spinner)
@@ -58,8 +58,8 @@ final class RMCharacterListView: UIView {
         setConstraints()
         
         spinner.startAnimating()
-        vm.delegate = self 
-        vm.fetchCharacters()
+        characterListViewModel.delegate = self 
+        characterListViewModel.fetchCharacters()
         
         setupCollectionView()
     }
@@ -70,8 +70,8 @@ final class RMCharacterListView: UIView {
     
     
     private func setupCollectionView() {
-        collectionView.dataSource = vm
-        collectionView.delegate = vm
+        collectionView.dataSource = characterListViewModel
+        collectionView.delegate = characterListViewModel
     }
     
     private func setConstraints() {
