@@ -65,7 +65,7 @@ final class RMCharacterListView: UIView {
         spinner.startAnimating()
         characterListViewModel.delegate = self 
         characterListViewModel.fetchCharacters()
-        
+       
         setupCollectionView()
     }
 

@@ -68,12 +68,11 @@ final class RMCharacterCollectionViewCell: UICollectionViewCell {
     public func configure(with vm: RMCharacterCollectionViewCellViewModel) {
         nameLabel.text = vm.characterName
         statusLabel.text = vm.characterStatusText
-        
         vm.fetchImage { [weak self] res in
             switch res {
             case .success(let data):
+                let image = UIImage(data: data)
                 DispatchQueue.main.async {
-                    let image = UIImage(data: data)
                     self?.imageView.image = image
                 }
             case .failure(_):
@@ -83,19 +82,6 @@ final class RMCharacterCollectionViewCell: UICollectionViewCell {
     }
     
     
-    // async approach
-    private func asyncFetch(vm: RMCharacterCollectionViewCellViewModel) {
-        Task {
-            do {
-                let image = UIImage(data: try await vm.fetchImageAsync())
-                await MainActor.run {
-                    imageView.image = image
-                }
-            } catch {
-                print(error)
-            }
-        }
-    }
     
      private func setupLayer() {
         contentView.layer.cornerRadius = Constants.LayerSet.cornerRadiusFirst

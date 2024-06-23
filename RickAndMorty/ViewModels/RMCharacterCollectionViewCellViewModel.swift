@@ -6,7 +6,7 @@
 //
 
 import Foundation
-
+import UIKit
 
 final class RMCharacterCollectionViewCellViewModel {
     
@@ -40,32 +40,15 @@ final class RMCharacterCollectionViewCellViewModel {
             completion(.failure(URLError.init(.badURL)))
             return
         }
-        let request = URLRequest(url: characterImageUrl)
-        let task = URLSession.shared.dataTask(with: request) { data, _, error in
-            guard let data, error == nil else {
-                completion(.failure(error ?? URLError.init(.badServerResponse)))
-                return
-            }
-            completion(.success(data))
-        }
-        task.resume()
+        RMImageLoader.shared.downloadImage(characterImageUrl, completion: completion)
     }
 }
 
 
 
-extension RMCharacterCollectionViewCellViewModel {
-    
-    public func fetchImageAsync() async throws -> Data {
-        guard let characterImageUrl else {
-            throw URLError.init(.badURL)
-        }
-        guard let (data, _) = try? await URLSession.shared.data(from: characterImageUrl) else {
-            throw URLError.init(.badServerResponse)
-        }
-        return data
-    }
-}
+
+
+// MARK: - Hashable
 
 extension RMCharacterCollectionViewCellViewModel: Hashable, Equatable {
     

@@ -17,27 +17,6 @@ public protocol Service {
 
 extension Service {
    
-    /// /// Send Rick and Morty API call async
-    ///  - Parameter request: Instance of Request opaque types
-    ///  - Parameter type: The type of object we expect to getback
-    func execute<T: Decodable>(
-        _ request: some Request,
-        expecting type: T.Type)
-    async throws -> T {
-        guard let urlRequest = self.request(from: request) else {
-            throw RMServiceError.failedToCreateRequest
-        }
-        
-        guard let (data, _) = try? await URLSession.shared.data(for: urlRequest) else {
-            throw RMServiceError.failedToGetData
-        }
-        
-        guard let res = try? JSONDecoder().decode(type.self, from: data) else {
-            throw RMServiceError.failedDecodeData
-        }
-        return res
-    }
-    
     func request(from rmRequest: some Request) -> URLRequest? {
         guard let url = rmRequest.url,
               let rm = rmRequest as? RMRequest else { return nil }

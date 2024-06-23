@@ -51,6 +51,7 @@ final class RMCharacterListViewViewModel: NSObject {
         self.service = service
     }
     
+    
     ///  Fetch initial set of characters (20)
     public func fetchCharacters() {
         service.execute(RMRequest(endpoint: .character), expecting: RMGetCharactersResponse.self) { [weak self] res in
@@ -190,12 +191,13 @@ extension RMCharacterListViewViewModel: UIScrollViewDelegate {
               let url = URL(string: nextURLString) else { return }
         
         Timer.scheduledTimer(withTimeInterval: 0.2, repeats: false) { [weak self] t in
+            guard let self else { return }
             let offset = scrollView.contentOffset.y
             let totalContentHeight = scrollView.contentSize.height
             let totalScrollHeight = scrollView.frame.size.height
             
-            if offset >= totalContentHeight - totalScrollHeight - (self?.scrollInset ?? 0) {
-                self?.fetchAdditionalCharacters(url: url)
+            if offset >= totalContentHeight - totalScrollHeight - scrollInset {
+                fetchAdditionalCharacters(url: url)
             }
             t.invalidate()
         }
