@@ -7,10 +7,18 @@
 
 import UIKit
 
+protocol RMCharacterListViewDelegate: AnyObject {
+    func rmCharacterListView(
+        _ characterListView: RMCharacterListView,
+        didSelectCharacter character: RMCharacter
+    )
+}
 
 /// View that handles showing list of characters, loader, etc.
 final class RMCharacterListView: UIView {
 
+    public weak var delegate: RMCharacterListViewDelegate?
+    
     private let vm: RMCharacterListViewViewModel
     
     private let spinner: UIActivityIndicatorView = {
@@ -89,13 +97,18 @@ final class RMCharacterListView: UIView {
             static let right: CGFloat = 10
             static let left: CGFloat = 10
             static let top: CGFloat = 0
-            static let bottom: CGFloat = 0
+            static let bottom: CGFloat = 10
         }
     }
 }
 
 
 extension RMCharacterListView: RMCharacterListViewViewModelDelegate {
+    
+    func didSelectCharacter(_ character: RMCharacter) {
+        delegate?.rmCharacterListView(self, didSelectCharacter: character)
+    }
+    
     
     func didLoadInitialCharacters() {
         spinner.stopAnimating()
