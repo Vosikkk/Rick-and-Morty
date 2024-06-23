@@ -66,3 +66,21 @@ extension RMCharacterCollectionViewCellViewModel {
         return data
     }
 }
+
+extension RMCharacterCollectionViewCellViewModel: Hashable, Equatable {
+    
+    static func == (
+        lhs: RMCharacterCollectionViewCellViewModel,
+        rhs: RMCharacterCollectionViewCellViewModel
+    ) -> Bool {
+        lhs.hashValue == rhs.hashValue
+    }
+    
+     
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(characterName)
+        hasher.combine(characterStatus)
+        hasher.combine(characterImageUrl)
+    }
+  
+}

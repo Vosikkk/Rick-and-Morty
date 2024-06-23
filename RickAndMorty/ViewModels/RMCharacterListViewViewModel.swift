@@ -10,6 +10,7 @@ import UIKit
 
 protocol RMCharacterListViewViewModelDelegate: AnyObject {
     func didLoadInitialCharacters()
+    func didLoadMoreCharacters(with newIndexPaths: [IndexPath])
     func didSelectCharacter(_ character: RMCharacter)
 }
 
@@ -33,7 +34,9 @@ final class RMCharacterListViewViewModel: NSObject {
                     characterStatus: character.status,
                     characterImageUrl: URL(string: character.image)
                 )
-                cellViewModels.append(vm)
+                if !cellViewModels.contains(vm) {
+                    cellViewModels.append(vm)
+                }
             }
         }
     }
@@ -41,6 +44,8 @@ final class RMCharacterListViewViewModel: NSObject {
     private var cellViewModels: [RMCharacterCollectionViewCellViewModel] = []
     
     private var apiInfo: RMGetCharactersResponse.Info? = nil
+    
+    private var isLoadingMoreCharacters: Bool = false
     
     init(service: Service) {
         self.service = service
@@ -65,7 +70,43 @@ final class RMCharacterListViewViewModel: NSObject {
     }
     
     /// Paginate if additional characters are needed
-    public func fetchAdditionalCharacters() {}
+    public func fetchAdditionalCharacters(url: URL) {
+        guard !isLoadingMoreCharacters else { return }
+        
+        isLoadingMoreCharacters = true
+       
+        guard let request = RMRequest(url: url) else {
+            isLoadingMoreCharacters = false
+            return
+        }
+        
+        service.execute(request, expecting: RMGetCharactersResponse.self) { [weak self] res in
+            guard let self else { return }
+            switch res {
+            case .success(let responseModel):
+                let moreRes = responseModel.results
+                let info = responseModel.info
+                apiInfo = info
+                
+                let originalCount = characters.count
+                let newCount = moreRes.count
+                let total = originalCount + newCount
+                let startingIndex = total - newCount
+                let indexPathsToAdd: [IndexPath] = Array(startingIndex..<(startingIndex + newCount))
+                    .compactMap { IndexPath(row: $0, section: 0) }
+                
+                characters.append(contentsOf: moreRes)
+                
+                DispatchQueue.main.async {
+                    self.delegate?.didLoadMoreCharacters(with: indexPathsToAdd)
+                    self.isLoadingMoreCharacters = false
+                }
+            case .failure(let failure):
+                print(String(describing: failure))
+                isLoadingMoreCharacters = false
+            }
+        }
+    }
 }
 
 
@@ -96,7 +137,6 @@ extension RMCharacterListViewViewModel: UICollectionViewDataSource {
              ) as? RMFooterLoaderCollectionReusableView else {
              fatalError("Unsupported")
         }
-    
         footer.startAnimating()
         
         return footer
@@ -107,9 +147,7 @@ extension RMCharacterListViewViewModel: UICollectionViewDataSource {
         return CGSize(width: collectionView.frame.width, height: footerHeight)
     }
     
-    private var footerHeight: Double {
-        100
-    }
+    private var footerHeight: Double { 100 }
 }
 
 // MARK: - UICollectionViewDelegate
@@ -145,6 +183,23 @@ extension RMCharacterListViewViewModel: UICollectionViewDelegateFlowLayout {
 extension RMCharacterListViewViewModel: UIScrollViewDelegate {
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        guard shouldShowLoadIndicator else { return }
+        guard shouldShowLoadIndicator,
+              !isLoadingMoreCharacters,
+              !cellViewModels.isEmpty,
+              let nextURLString = apiInfo?.next,
+              let url = URL(string: nextURLString) else { return }
+        
+        Timer.scheduledTimer(withTimeInterval: 0.2, repeats: false) { [weak self] t in
+            let offset = scrollView.contentOffset.y
+            let totalContentHeight = scrollView.contentSize.height
+            let totalScrollHeight = scrollView.frame.size.height
+            
+            if offset >= totalContentHeight - totalScrollHeight - (self?.scrollInset ?? 0) {
+                self?.fetchAdditionalCharacters(url: url)
+            }
+            t.invalidate()
+        }
     }
+    
+    private var scrollInset: CGFloat { 120 }
 }
