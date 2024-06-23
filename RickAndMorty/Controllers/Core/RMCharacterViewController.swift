@@ -12,8 +12,10 @@ final class RMCharacterViewController: UIViewController {
 
     private let charactersListView: RMCharacterListView
     
+   // private let service: Service
     
     init(service: Service) {
+      //  self.service = service
         charactersListView = RMCharacterListView(service: service)
         super.init(nibName: nil, bundle: nil)
     }
