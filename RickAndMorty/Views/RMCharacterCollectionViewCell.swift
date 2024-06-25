@@ -109,25 +109,25 @@ final class RMCharacterCollectionViewCell: UICollectionViewCell {
             
             statusLabel.leftAnchor.constraint(
                 equalTo: contentView.leftAnchor,
-                constant: Constants.StatusLabelInsets.left
+                constant: Constants.StatusLabelInset.left
             ),
             statusLabel.rightAnchor.constraint(
                 equalTo: contentView.rightAnchor,
-                constant: Constants.StatusLabelInsets.right
+                constant: Constants.StatusLabelInset.right
             ),
             
             nameLabel.leftAnchor.constraint(
                 equalTo: contentView.leftAnchor,
-                constant: Constants.NameLabelInsets.left
+                constant: Constants.NameLabelInset.left
             ),
             nameLabel.rightAnchor.constraint(
                 equalTo: contentView.rightAnchor,
-                constant: Constants.NameLabelInsets.right
+                constant: Constants.NameLabelInset.right
             ),
             
             statusLabel.bottomAnchor.constraint(
                 equalTo: contentView.bottomAnchor,
-                constant: Constants.StatusLabelInsets.bottom
+                constant: Constants.StatusLabelInset.bottom
             ),
             
             nameLabel.bottomAnchor.constraint(equalTo: statusLabel.topAnchor),
@@ -156,13 +156,13 @@ private extension RMCharacterCollectionViewCell {
         
         static let imageViewBottomInset: CGFloat = -3
         
-        struct StatusLabelInsets {
+        struct StatusLabelInset {
             static let left: CGFloat = 7
             static let right: CGFloat = -7
             static let bottom: CGFloat = -3
         }
         
-        struct NameLabelInsets {
+        struct NameLabelInset {
             static let left: CGFloat = 7
             static let right: CGFloat = -7
         }

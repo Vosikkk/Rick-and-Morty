@@ -12,13 +12,14 @@ final class RMCharacterDetailViewController: UIViewController {
 
     private let detailVM: RMCharacterDetailViewViewModel
     
-    private let detailView = RMCharacterDetailView()
+    private let detailView: RMCharacterDetailView
     
   
     // MARK: - Init
     
     init(viewModel: RMCharacterDetailViewViewModel) {
         detailVM = viewModel
+        detailView = RMCharacterDetailView(frame: .zero, vm: detailVM)
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -39,6 +40,8 @@ final class RMCharacterDetailViewController: UIViewController {
             action: #selector(didTapShare)
         )
         setConstraints()
+        detailView.collectionView?.delegate = self
+        detailView.collectionView?.dataSource = self
     }
     
     @objc
@@ -57,5 +60,44 @@ final class RMCharacterDetailViewController: UIViewController {
             detailView.rightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.rightAnchor),
             detailView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
         ])
+    }
+}
+
+
+// MARK: - UICollectionViewDelegate
+extension RMCharacterDetailViewController: UICollectionViewDelegate {
+    
+}
+
+// MARK: - UICollectionViewDataSource
+extension RMCharacterDetailViewController: UICollectionViewDataSource {
+    
+    func numberOfSections(in collectionView: UICollectionView) -> Int {
+        detailVM.sections.count
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        switch section {
+        case 0:
+            return 1
+        case 1:
+            return 8
+        case 2:
+            return 20
+        default: return 1
+        }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cell", for: indexPath)
+        if indexPath.section == 0 {
+            cell.backgroundColor = .systemCyan
+        } else if indexPath.section == 1 {
+            cell.backgroundColor = .systemBlue
+        } else {
+            cell.backgroundColor = .systemRed
+        }
+       
+        return cell
     }
 }
