@@ -13,16 +13,19 @@ final class RMCharacterDetailViewViewModel {
     private let character: RMCharacter
     
     
-    enum SectionType: CaseIterable {
-        case photo, information, episodes
+    enum SectionType {
+        case photo(vm: RMCharacterPhotoCollectionViewCellViewModel)
+        case information(vms: [RMCharacterInfoCollectionViewCellViewModel])
+        case episodes(vms: [RMCharacterEpisodeCollectionViewCellViewModel])
     }
     
-    public let sections: SectionType.AllCases = SectionType.allCases
+    public var sections: [SectionType] = []
     
     
     // MARK: - Init
     init(character: RMCharacter) {
         self.character = character
+        setupSections()
     }
     
     private var requestUrl: URL? {
@@ -31,6 +34,26 @@ final class RMCharacterDetailViewViewModel {
     
     public var title: String {
         character.name.uppercased()
+    }
+    
+    
+    private func setupSections() {
+        sections = [
+            .photo(vm: .init()),
+            .information(vms: [
+                .init(),
+                .init(),
+                .init(),
+                .init(),
+            ]),
+            .episodes(vms: [
+                .init(),
+                .init(),
+                .init(),
+                .init(),
+            ])
+            
+        ]
     }
     
     
@@ -66,8 +89,6 @@ final class RMCharacterDetailViewViewModel {
         let section = NSCollectionLayoutSection(group: group)
         return section
     }
-    
-    
     
     public func createInfoSectionLayout() -> NSCollectionLayoutSection {
         let item = NSCollectionLayoutItem(

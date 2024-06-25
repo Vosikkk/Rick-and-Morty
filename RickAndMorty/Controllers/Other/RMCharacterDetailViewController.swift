@@ -77,27 +77,43 @@ extension RMCharacterDetailViewController: UICollectionViewDataSource {
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        switch section {
-        case 0:
+        let sectionType = detailVM.sections[section]
+        switch sectionType {
+        case .photo:
             return 1
-        case 1:
-            return 8
-        case 2:
-            return 20
-        default: return 1
+        case .information(let viewModels):
+            return viewModels.count
+        case .episodes(let viewModels):
+            return viewModels.count
         }
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cell", for: indexPath)
-        if indexPath.section == 0 {
-            cell.backgroundColor = .systemCyan
-        } else if indexPath.section == 1 {
-            cell.backgroundColor = .systemBlue
-        } else {
+        
+        let sectionType = detailVM.sections[indexPath.section]
+        switch sectionType {
+        case .photo(let viewModel):
+             let cell = dequeueCell(in: collectionView, of: RMCharacterPhotoCollectionViewCell.self, for: indexPath)
+            cell.configure(with: viewModel)
             cell.backgroundColor = .systemRed
+            return cell
+        case .information(let viewModels):
+            let cell = dequeueCell(in: collectionView, of: RMCharacterInfoCollectionViewCell.self, for: indexPath)
+            cell.configure(with: viewModels[indexPath.row])
+            cell.backgroundColor = .systemBlue
+            return cell
+        case .episodes(let viewModels):
+            let cell = dequeueCell(in: collectionView, of: RMCharacterEpisodeCollectionViewCell.self, for: indexPath)
+            cell.configure(with: viewModels[indexPath.row])
+            cell.backgroundColor = .systemPink
+            return cell
         }
-       
+    }
+    
+    private func dequeueCell<T>(in collectionView: UICollectionView, of type: T.Type, for indexPath: IndexPath) -> T {
+        guard let cell = collectionView.dequeueReusableCell(T.self, indexPath: indexPath) else {
+            fatalError()
+        }
         return cell
     }
 }

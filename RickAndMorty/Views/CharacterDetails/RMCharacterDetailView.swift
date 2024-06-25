@@ -44,7 +44,9 @@ final class RMCharacterDetailView: UIView {
             self.createSection(for: sectionIndex)
         }
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        collectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "cell")
+        collectionView.register(RMCharacterPhotoCollectionViewCell.self)
+        collectionView.register(RMCharacterInfoCollectionViewCell.self)
+        collectionView.register(RMCharacterEpisodeCollectionViewCell.self)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         return collectionView
     }
@@ -83,3 +85,4 @@ final class RMCharacterDetailView: UIView {
     private let spinnerHeight: CGFloat = 100
     
 }
+
