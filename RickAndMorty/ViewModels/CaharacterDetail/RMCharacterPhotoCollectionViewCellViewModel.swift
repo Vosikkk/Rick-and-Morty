@@ -9,6 +9,7 @@ import Foundation
 
 final class RMCharacterPhotoCollectionViewCellViewModel {
     
+    typealias Completion = (Result<Data, Error>) -> Void
     
     private let imageURL: URL?
     
@@ -16,4 +17,11 @@ final class RMCharacterPhotoCollectionViewCellViewModel {
         self.imageURL = imageURL
     }
     
+    public func fetchImage(completion: @escaping Completion) {
+        guard let imageURL else {
+            completion(.failure(URLError(.badURL)))
+            return
+        }
+        RMImageLoader.shared.downloadImage(imageURL, completion: completion)
+    }
 }

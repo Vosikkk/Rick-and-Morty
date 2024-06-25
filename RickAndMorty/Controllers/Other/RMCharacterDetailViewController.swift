@@ -91,21 +91,19 @@ extension RMCharacterDetailViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
         let sectionType = detailVM.sections[indexPath.section]
+        
         switch sectionType {
         case .photo(let viewModel):
-             let cell = dequeueCell(in: collectionView, of: RMCharacterPhotoCollectionViewCell.self, for: indexPath)
+            let cell = dequeueCell(in: collectionView, of: RMCharacterPhotoCollectionViewCell.self, for: indexPath)
             cell.configure(with: viewModel)
-            cell.backgroundColor = .systemRed
             return cell
         case .information(let viewModels):
             let cell = dequeueCell(in: collectionView, of: RMCharacterInfoCollectionViewCell.self, for: indexPath)
             cell.configure(with: viewModels[indexPath.row])
-            cell.backgroundColor = .systemBlue
             return cell
         case .episodes(let viewModels):
             let cell = dequeueCell(in: collectionView, of: RMCharacterEpisodeCollectionViewCell.self, for: indexPath)
             cell.configure(with: viewModels[indexPath.row])
-            cell.backgroundColor = .systemPink
             return cell
         }
     }

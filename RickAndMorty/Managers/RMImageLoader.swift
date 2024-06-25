@@ -11,6 +11,8 @@ final class RMImageLoader {
     
     static let shared = RMImageLoader()
     
+    typealias Completion = (Result<Data, Error>) -> Void
+    
     private var imageDataCache = NSCache<NSString, NSData>()
     
     private init() {}
@@ -20,7 +22,7 @@ final class RMImageLoader {
     /// - Parameters:
     ///   - url: Source url
     ///   - completion: Callback
-    public func downloadImage(_ url: URL, completion: @escaping (Result<Data, Error>) -> Void) {
+    public func downloadImage(_ url: URL, completion: @escaping Completion) {
         let key = url.absoluteString as NSString
         if let data = imageDataCache.object(forKey: key) {
             completion(.success(data as Data))
