@@ -57,7 +57,8 @@ extension RMCharacterViewController: RMCharacterListViewDelegate {
             viewModel: .init(
                 character: character,
                 service: service
-            )
+            ),
+            service: service
         )
         detailVC.navigationItem.largeTitleDisplayMode = .never
         navigationController?.pushViewController(detailVC, animated: true)

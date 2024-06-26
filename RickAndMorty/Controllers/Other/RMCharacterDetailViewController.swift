@@ -13,11 +13,13 @@ final class RMCharacterDetailViewController: UIViewController {
     private let detailVM: RMCharacterDetailViewViewModel
     
     private let detailView: RMCharacterDetailView
-
+    
+    private let service: Service
     
     // MARK: - Init
     
-    init(viewModel: RMCharacterDetailViewViewModel) {
+    init(viewModel: RMCharacterDetailViewViewModel, service: Service) {
+        self.service = service
         detailVM = viewModel
         detailView = RMCharacterDetailView(frame: .zero, vm: detailVM)
         super.init(nibName: nil, bundle: nil)
@@ -117,7 +119,10 @@ extension RMCharacterDetailViewController: UICollectionViewDataSource {
             break
         case .episodes:
             let episodes = detailVM.episodes
-            let vc = RMEpisodeDetailViewController(url: URL(string: episodes[indexPath.row]))
+            let vc = RMEpisodeDetailViewController(
+                url: URL(string: episodes[indexPath.row]),
+                service: service
+            )
             navigationController?.pushViewController(vc, animated: true)
         }
     }
