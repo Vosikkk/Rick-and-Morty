@@ -10,7 +10,6 @@ import UIKit
 /// Single cell for character
 final class RMCharacterCollectionViewCell: UICollectionViewCell {
     
-    static let cellIdentifier = "RMCharacterCollectionViewCell"
     
     private let imageView: UIImageView = {
         let view = UIImageView()

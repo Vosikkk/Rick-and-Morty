@@ -11,19 +11,18 @@ final class RMCharacterInfoCollectionViewCell: UICollectionViewCell {
     
     private let valueLabel: UILabel = {
         let label = UILabel()
+        label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(
             ofSize: Constants.ValueLabel.fontSize,
             weight: .light
         )
-        label.text = "Earth"
         return label
     }()
     
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "Lacation"
         label.textAlignment = .center
         label.font = .systemFont(ofSize: Constants.fontSize, weight: .medium)
         return label
@@ -32,7 +31,6 @@ final class RMCharacterInfoCollectionViewCell: UICollectionViewCell {
     private let iconImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.image = UIImage(systemName: "globe.americas")
         imageView.contentMode = .scaleAspectFit
         return imageView
     }()
@@ -62,14 +60,20 @@ final class RMCharacterInfoCollectionViewCell: UICollectionViewCell {
     
     override func prepareForReuse() {
         super.prepareForReuse()
-//        valueLabel.text = nil
-//        titleLabel.text = nil
-//        iconImageView.image = nil
+        valueLabel.text = nil
+        titleLabel.text = nil
+        iconImageView.image = nil
+        iconImageView.tintColor = nil
+        titleLabel.textColor = nil 
     }
     
     
     public func configure(with vm: RMCharacterInfoCollectionViewCellViewModel) {
-        
+        titleLabel.text = vm.title
+        valueLabel.text = vm.displayValue
+        iconImageView.image = vm.iconImage
+        iconImageView.tintColor = vm.tintColor
+        titleLabel.textColor = vm.tintColor
     }
     
     private func setConstraints() {
@@ -111,13 +115,8 @@ final class RMCharacterInfoCollectionViewCell: UICollectionViewCell {
             valueLabel.rightAnchor.constraint(
                 equalTo: contentView.rightAnchor,
                 constant: Constants.ValueLabel.rightOffset),
-            valueLabel.topAnchor.constraint(
-                equalTo: contentView.topAnchor,
-                constant: Constants.ValueLabel.topOffset
-            ),
-            valueLabel.heightAnchor.constraint(
-                equalToConstant: Constants.ValueLabel.height
-            ),
+            valueLabel.topAnchor.constraint(equalTo: contentView.topAnchor),
+            valueLabel.bottomAnchor.constraint(equalTo: titleContainerView.topAnchor),
         ])
     }
     
@@ -131,9 +130,7 @@ final class RMCharacterInfoCollectionViewCell: UICollectionViewCell {
         
         struct ValueLabel {
             static let fontSize: CGFloat = 22
-            static let height: CGFloat = 30
             static let leftOffset: CGFloat = 10
-            static let topOffset: CGFloat = 36
             static let rightOffset: CGFloat = -10
         }
         

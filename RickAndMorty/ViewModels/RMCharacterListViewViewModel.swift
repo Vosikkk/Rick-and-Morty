@@ -120,10 +120,7 @@ extension RMCharacterListViewViewModel: UICollectionViewDataSource {
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(
-            withReuseIdentifier: RMCharacterCollectionViewCell.cellIdentifier,
-            for: indexPath
-        ) as? RMCharacterCollectionViewCell else { fatalError("Unsupported cell") }
+        guard let cell = collectionView.dequeueReusableCell(RMCharacterCollectionViewCell.self, indexPath: indexPath) else { fatalError("Unsupported cell") }
        
         cell.configure(with: cellViewModels[indexPath.row])
         return cell
