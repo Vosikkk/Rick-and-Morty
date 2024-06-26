@@ -11,6 +11,12 @@ import Foundation
 /// Primary API service object to get Rick and Morty data
 final class RMService: Service {
 
+    
+    
+    private let cache: RMAPICacheManager = RMAPICacheManager()
+    
+   
+    
     /// Send Rick and Morty API call
     /// - Parameters:
     ///   - request: Instance of Request opaque types
@@ -21,12 +27,26 @@ final class RMService: Service {
         expecting type: T.Type,
         completion: @escaping (Result<T, Error>) -> Void) {
             
+            if let cachedData = cache.cachedResponse(
+                for: (request as! RMRequest).endpoint,
+                url: request.url
+            ) {
+                print("Using Cached Api Response")
+                do {
+                    let res = try JSONDecoder().decode(type.self, from: cachedData)
+                    completion(.success(res))
+                } catch {
+                    completion(.failure(error))
+                }
+                return
+            }
+            
             guard let urlRequest = self.request(from: request) else {
                 completion(.failure(RMServiceError.failedToCreateRequest))
                 return
             }
             
-            let task = URLSession.shared.dataTask(with: urlRequest) { data, _, error in
+            let task = URLSession.shared.dataTask(with: urlRequest) { [weak self] data, _, error in
                 guard let data = data, error == nil else {
                     completion(.failure(error ?? RMServiceError.failedToGetData))
                     return
@@ -34,6 +54,11 @@ final class RMService: Service {
                 
                 do {
                     let res = try JSONDecoder().decode(type.self, from: data)
+                    self?.cache.setCache(
+                        for: (request as! RMRequest).endpoint,
+                        url: request.url,
+                        data: data
+                    )
                     completion(.success(res))
                 } catch {
                     completion(.failure(error))

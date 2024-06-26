@@ -11,6 +11,8 @@ import UIKit
 final class RMCharacterDetailViewViewModel {
     
     private let character: RMCharacter
+    private let service: Service
+    
     
     public var episodes: [String] {
         character.episode
@@ -27,7 +29,8 @@ final class RMCharacterDetailViewViewModel {
     
     
     // MARK: - Init
-    init(character: RMCharacter) {
+    init(character: RMCharacter, service: Service) {
+        self.service = service
         self.character = character
         setupSections()
     }
@@ -55,7 +58,7 @@ final class RMCharacterDetailViewViewModel {
                 .init(type: .episodeCount, value: "\(character.episode.count)")
             ]),
             .episodes(vms: character.episode.compactMap {
-                return RMCharacterEpisodeCollectionViewCellViewModel(episodeDataURL: URL(string: $0))
+                return RMCharacterEpisodeCollectionViewCellViewModel(episodeDataURL: URL(string: $0), service: service)
             })
         ]
     }

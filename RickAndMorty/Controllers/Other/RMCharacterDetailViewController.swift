@@ -23,6 +23,7 @@ final class RMCharacterDetailViewController: UIViewController {
         super.init(nibName: nil, bundle: nil)
     }
     
+    @available(*, unavailable)
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -111,15 +112,13 @@ extension RMCharacterDetailViewController: UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let sectionType = detailVM.sections[indexPath.section]
-        
         switch sectionType {
         case .photo, .information:
             break
-        case .episodes(let viewModels):
-            let episodes = self.detailVM.episodes
-            let selection = episodes[indexPath.row]
-            
-            
+        case .episodes:
+            let episodes = detailVM.episodes
+            let vc = RMEpisodeDetailViewController(url: URL(string: episodes[indexPath.row]))
+            navigationController?.pushViewController(vc, animated: true)
         }
     }
     

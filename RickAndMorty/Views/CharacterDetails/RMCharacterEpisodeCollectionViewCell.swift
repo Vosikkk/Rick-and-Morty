@@ -54,6 +54,7 @@ final class RMCharacterEpisodeCollectionViewCell: UICollectionViewCell {
         setConstraints()
     }
     
+    @available(*, unavailable)
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }

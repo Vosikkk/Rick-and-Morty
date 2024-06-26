@@ -12,10 +12,10 @@ final class RMCharacterViewController: UIViewController {
 
     private let charactersListView: RMCharacterListView
     
-   // private let service: Service
+    private let service: Service
     
     init(service: Service) {
-      //  self.service = service
+        self.service = service
         charactersListView = RMCharacterListView(service: service)
         super.init(nibName: nil, bundle: nil)
     }
@@ -53,7 +53,12 @@ extension RMCharacterViewController: RMCharacterListViewDelegate {
         _ characterListView: RMCharacterListView,
         didSelectCharacter character: RMCharacter
     ) {
-        let detailVC = RMCharacterDetailViewController(viewModel: .init(character: character))
+        let detailVC = RMCharacterDetailViewController(
+            viewModel: .init(
+                character: character,
+                service: service
+            )
+        )
         detailVC.navigationItem.largeTitleDisplayMode = .never
         navigationController?.pushViewController(detailVC, animated: true)
     }

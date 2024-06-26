@@ -18,6 +18,8 @@ final class RMCharacterEpisodeCollectionViewCellViewModel {
     
     private let episodeDataURL: URL?
     
+    private let service: Service
+    
     private var isFetching: Bool = false
     
     private var dataBlock: ((EpisodeDataRender) -> Void)?
@@ -33,7 +35,8 @@ final class RMCharacterEpisodeCollectionViewCellViewModel {
     
     // MARK: - Init
     
-    init(episodeDataURL: URL?) {
+    init(episodeDataURL: URL?, service: Service) {
+        self.service = service
         self.episodeDataURL = episodeDataURL
     }
     
@@ -52,7 +55,7 @@ final class RMCharacterEpisodeCollectionViewCellViewModel {
             return
         }
         isFetching = true
-        RMService().execute(request, expecting: RMEpisode.self) { [weak self] res in
+        service.execute(request, expecting: RMEpisode.self) { [weak self] res in
             switch res {
             case .success(let model):
                 DispatchQueue.main.async {
