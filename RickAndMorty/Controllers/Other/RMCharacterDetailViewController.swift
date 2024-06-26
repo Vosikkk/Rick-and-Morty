@@ -13,8 +13,8 @@ final class RMCharacterDetailViewController: UIViewController {
     private let detailVM: RMCharacterDetailViewViewModel
     
     private let detailView: RMCharacterDetailView
+
     
-  
     // MARK: - Init
     
     init(viewModel: RMCharacterDetailViewViewModel) {
@@ -107,6 +107,22 @@ extension RMCharacterDetailViewController: UICollectionViewDataSource {
             return cell
         }
     }
+    
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let sectionType = detailVM.sections[indexPath.section]
+        
+        switch sectionType {
+        case .photo, .information:
+            break
+        case .episodes(let viewModels):
+            let episodes = self.detailVM.episodes
+            let selection = episodes[indexPath.row]
+            
+            
+        }
+    }
+    
     
     private func dequeueCell<T>(in collectionView: UICollectionView, of type: T.Type, for indexPath: IndexPath) -> T {
         guard let cell = collectionView.dequeueReusableCell(T.self, indexPath: indexPath) else {
