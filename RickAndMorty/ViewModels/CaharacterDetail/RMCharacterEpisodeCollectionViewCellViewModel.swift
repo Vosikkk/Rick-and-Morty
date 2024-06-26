@@ -67,3 +67,16 @@ final class RMCharacterEpisodeCollectionViewCellViewModel {
         }
     }
 }
+
+extension RMCharacterEpisodeCollectionViewCellViewModel: Hashable {
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(self.episodeDataURL?.absoluteString ?? "")
+    }
+    
+    static func == (lhs: RMCharacterEpisodeCollectionViewCellViewModel, rhs: RMCharacterEpisodeCollectionViewCellViewModel) -> Bool {
+        lhs.hashValue == rhs.hashValue
+    }
+    
+    
+}

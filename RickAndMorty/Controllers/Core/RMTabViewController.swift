@@ -11,6 +11,8 @@ import UIKit
 /// Controller to house tabs and root tab controllers
 final class RMTabViewController: UITabBarController {
 
+    private let service: Service = RMService()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupTabs()
@@ -22,7 +24,7 @@ final class RMTabViewController: UITabBarController {
     }
     
     private func createNavController(for tab: TabItems) -> UINavigationController {
-        let vc = tab.viewController()
+        let vc = createVC(for: tab)
         vc.title = tab.title
         vc.navigationItem.largeTitleDisplayMode = .automatic
         let nv = UINavigationController(rootViewController: vc)
@@ -32,6 +34,19 @@ final class RMTabViewController: UITabBarController {
             tag: tab.rawValue)
         nv.navigationBar.prefersLargeTitles = true
         return nv
+    }
+    
+    private func createVC(for tab: TabItems) -> UIViewController {
+        switch tab {
+        case .characters:
+            return RMCharacterViewController(service: service)
+        case .locations:
+            return RMLocationViewController()
+        case .episodes:
+            return RMEpisodeViewController(service: service)
+        case .settings:
+            return RMSettingsViewController()
+        }
     }
 }
 

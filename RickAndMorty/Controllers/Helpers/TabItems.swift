@@ -11,7 +11,6 @@ import UIKit
 protocol TabItem {
     var title: String { get }
     var image: UIImage? { get }
-    func viewController() -> UIViewController
 }
 
 
@@ -43,19 +42,6 @@ enum TabItems: Int, CaseIterable, TabItem {
             UIImage(systemName: "tv")
         case .settings:
             UIImage(systemName: "gear")
-        }
-    }
-    
-    func viewController() -> UIViewController {
-        switch self {
-        case .characters:
-            return RMCharacterViewController(service: RMService())
-        case .locations:
-            return RMLocationViewController()
-        case .episodes:
-            return RMEpisodeViewController()
-        case .settings:
-            return RMSettingsViewController()
         }
     }
 }
