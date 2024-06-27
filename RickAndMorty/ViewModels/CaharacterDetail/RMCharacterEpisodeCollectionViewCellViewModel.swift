@@ -5,7 +5,7 @@
 //  Created by Саша Восколович on 25.06.2024.
 //
 
-import Foundation
+import UIKit
 
 protocol EpisodeDataRender {
     var name: String { get }
@@ -15,6 +15,8 @@ protocol EpisodeDataRender {
 
 
 final class RMCharacterEpisodeCollectionViewCellViewModel {
+    
+    public let borderColor: UIColor
     
     private let episodeDataURL: URL?
     
@@ -35,9 +37,13 @@ final class RMCharacterEpisodeCollectionViewCellViewModel {
     
     // MARK: - Init
     
-    init(episodeDataURL: URL?, service: Service) {
+    init(episodeDataURL: URL?, 
+         service: Service,
+         borderColor: UIColor = .systemBlue
+    ) {
         self.service = service
         self.episodeDataURL = episodeDataURL
+        self.borderColor = borderColor
     }
     
     
@@ -74,9 +80,10 @@ extension RMCharacterEpisodeCollectionViewCellViewModel: Hashable {
         hasher.combine(self.episodeDataURL?.absoluteString ?? "")
     }
     
-    static func == (lhs: RMCharacterEpisodeCollectionViewCellViewModel, rhs: RMCharacterEpisodeCollectionViewCellViewModel) -> Bool {
+    static func == (
+        lhs: RMCharacterEpisodeCollectionViewCellViewModel,
+        rhs: RMCharacterEpisodeCollectionViewCellViewModel
+    ) -> Bool {
         lhs.hashValue == rhs.hashValue
     }
-    
-    
 }

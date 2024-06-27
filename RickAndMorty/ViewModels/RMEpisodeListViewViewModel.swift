@@ -26,12 +26,25 @@ final class RMEpisodeListViewViewModel: NSObject {
     
     private let service: Service
     
+    private let borderColors: [UIColor] = [
+        .systemGreen,
+        .systemBlue,
+        .systemOrange,
+        .systemPink,
+        .systemPurple,
+        .systemRed,
+        .systemYellow,
+        .systemIndigo,
+        .systemMint
+    ]
+    
     private var episodes: [RMEpisode] = [] {
         didSet {
             for episode in episodes {
                 let vm = RMCharacterEpisodeCollectionViewCellViewModel(
                     episodeDataURL: URL(string: episode.url), 
-                    service: service
+                    service: service,
+                    borderColor: borderColors.randomElement() ?? .systemBlue
                 )
                 if !cellViewModels.contains(vm) {
                     cellViewModels.append(vm)
@@ -162,19 +175,19 @@ extension RMEpisodeListViewViewModel: UICollectionViewDelegate {
 
 extension RMEpisodeListViewViewModel: UICollectionViewDelegateFlowLayout {
     
-    private var bounds: CGRect {
-        UIScreen.main.bounds
-    }
-    
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         
-        let width = (bounds.width - 30) / 2
+        let bounds = collectionView.bounds
+        
+        let width = bounds.width - 20
         
         return CGSize(
             width: width ,
-            height: width * 0.8
+            height: collectionHeight
         )
     }
+    
+    private var collectionHeight: CGFloat { 100 }
 }
 
 extension RMEpisodeListViewViewModel: UIScrollViewDelegate {
