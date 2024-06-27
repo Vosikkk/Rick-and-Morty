@@ -66,7 +66,11 @@ final class RMEpisodeListViewViewModel: NSObject {
     
     ///  Fetch initial set of episodes (20)
     public func fetchEpisodes() {
-        service.execute(RMRequest(endpoint: .episode), expecting: RMGetEpisodesResponse.self) { [weak self] res in
+        service.execute(
+            RMRequest(endpoint: .episode),
+            expecting: RMGetEpisodesResponse.self
+        ) { [weak self] res in
+            
             switch res {
             case .success(let responseModel):
                 let res = responseModel.results
@@ -93,7 +97,11 @@ final class RMEpisodeListViewViewModel: NSObject {
             return
         }
         
-        service.execute(request, expecting: RMGetEpisodesResponse.self) { [weak self] res in
+        service.execute(
+            request, expecting:
+                RMGetEpisodesResponse.self
+        ) { [weak self] res in
+            
             guard let self else { return }
             switch res {
             case .success(let responseModel):

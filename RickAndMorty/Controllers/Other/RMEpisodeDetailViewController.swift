@@ -39,6 +39,9 @@ final class RMEpisodeDetailViewController: UIViewController {
             barButtonSystemItem: .action,
             target: self, 
             action: #selector(didTapShare))
+        
+        episodeDetailVM.delegate = self
+        episodeDetailVM.fetchEpisodeData()
     }
     
     @objc
@@ -53,5 +56,12 @@ final class RMEpisodeDetailViewController: UIViewController {
             detailView.rightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.rightAnchor),
             detailView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
         ])
+    }
+}
+
+extension RMEpisodeDetailViewController: RMEpisodeDetailViewViewModelDelegate {
+   
+    func didFetchEpisodeDetails() {
+        detailView.configure(with: episodeDetailVM)
     }
 }
