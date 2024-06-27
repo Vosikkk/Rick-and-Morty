@@ -12,6 +12,7 @@ final class RMEpisodeDetailView: UIView {
     private var episodeDeatilVM: RMEpisodeDetailViewViewModel? {
         didSet {
             spinner.stopAnimating()
+            collectionView?.reloadData()
             collectionView?.isHidden = false
             UIView.animate(withDuration: Constants.duration) {
                 self.collectionView?.alpha = 1
@@ -69,7 +70,8 @@ final class RMEpisodeDetailView: UIView {
         collectionView.alpha = 0
         collectionView.delegate = self
         collectionView.dataSource = self
-        collectionView.register(UICollectionViewCell.self)
+        collectionView.register(RMEpisodeInfoCollectionViewCell.self)
+        collectionView.register(RMCharacterCollectionViewCell.self)
         
         return collectionView
     }
@@ -93,23 +95,58 @@ final class RMEpisodeDetailView: UIView {
 extension RMEpisodeDetailView: UICollectionViewDataSource {
    
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        1
+        episodeDeatilVM?.cellViewModels.count ?? 0
     }
     
     func collectionView(
         _ collectionView: UICollectionView,
         numberOfItemsInSection section: Int
     ) -> Int {
-        10
+        guard let sections = episodeDeatilVM?.cellViewModels else { return 0 }
+        switch sections[section] {
+        case .information(let vms):
+            return vms.count
+        case .characters(let vms):
+            return vms.count
+        }
     }
     
     func collectionView(
         _ collectionView: UICollectionView,
         cellForItemAt indexPath: IndexPath
     ) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(UICollectionViewCell.self, indexPath: indexPath) else { fatalError() }
-        cell.backgroundColor = .yellow
         
+        guard let sections = episodeDeatilVM?.cellViewModels else { fatalError("No viewModel") }
+        
+        switch sections[indexPath.section] {
+        case .information(let vms):
+            let cell = dequeueCell(
+                in: collectionView,
+                of: RMEpisodeInfoCollectionViewCell.self,
+                for: indexPath
+            )
+            cell.configure(with: vms[indexPath.row])
+            return cell
+        case .characters(let vms):
+
+            let cell = dequeueCell(
+                in: collectionView,
+                of: RMCharacterCollectionViewCell.self,
+                for: indexPath
+            )
+            cell.configure(with: vms[indexPath.row])
+            return cell
+        }
+    }
+    
+    private func dequeueCell<T>(
+        in collectionView: UICollectionView,
+        of type: T.Type,
+        for indexPath: IndexPath
+    ) -> T {
+        guard let cell = collectionView.dequeueReusableCell(T.self, indexPath: indexPath) else {
+            fatalError("Unsupported cell")
+        }
         return cell
     }
 }
@@ -128,39 +165,85 @@ extension RMEpisodeDetailView: UICollectionViewDelegate {
 private extension RMEpisodeDetailView {
     
     func layout(for section: Int) -> NSCollectionLayoutSection {
-         let item = NSCollectionLayoutItem(
-            layoutSize: .init(
-                widthDimension: .fractionalWidth(
-                    Constants.Item.width
-                ),
-                heightDimension: .fractionalHeight(
-                    Constants.Item.height
-                )
-            )
-         )
-        
-        item.contentInsets = NSDirectionalEdgeInsets(
-            top: Constants.Item.Inset.top,
-            leading: Constants.Item.Inset.leading,
-            bottom: Constants.Item.Inset.bottom,
-            trailing: Constants.Item.Inset.trailing
-        )
-        
-        let group = NSCollectionLayoutGroup.vertical(
-            layoutSize: .init(
-                widthDimension: .fractionalWidth(
-                    Constants.Group.width
-                ),
-                heightDimension: .absolute(
-                    Constants.Group.height
-                )
-            ),
-            subitems: [item]
-        )
-        
-        return NSCollectionLayoutSection(group: group)
+        guard let sections = episodeDeatilVM?.cellViewModels else {
+            return createInfoLayout()
+        }
+        switch sections[section] {
+        case .information:
+            return createInfoLayout()
+        case .characters:
+            return createCharacterLayout()
+        }
     }
     
+    func createCharacterLayout() -> NSCollectionLayoutSection {
+        let item = NSCollectionLayoutItem(
+           layoutSize: .init(
+               widthDimension: .fractionalWidth(
+                   Constants.Item.width
+               ),
+               heightDimension: .fractionalHeight(
+                   Constants.Item.height
+               )
+           )
+        )
+       
+       item.contentInsets = NSDirectionalEdgeInsets(
+           top: Constants.Item.Inset.top,
+           leading: Constants.Item.Inset.leading,
+           bottom: Constants.Item.Inset.bottom,
+           trailing: Constants.Item.Inset.trailing
+       )
+       
+       let group = NSCollectionLayoutGroup.horizontal(
+           layoutSize: .init(
+               widthDimension: .fractionalWidth(
+                0.5
+               ),
+               heightDimension: .absolute(
+                   240
+               )
+           ),
+           subitems: [item, item]
+       )
+       
+       return NSCollectionLayoutSection(group: group)
+    }
+    
+    
+    func createInfoLayout() -> NSCollectionLayoutSection {
+        let item = NSCollectionLayoutItem(
+           layoutSize: .init(
+               widthDimension: .fractionalWidth(
+                   Constants.Item.width
+               ),
+               heightDimension: .fractionalHeight(
+                   Constants.Item.height
+               )
+           )
+        )
+       
+       item.contentInsets = NSDirectionalEdgeInsets(
+           top: Constants.Item.Inset.top,
+           leading: Constants.Item.Inset.leading,
+           bottom: Constants.Item.Inset.bottom,
+           trailing: Constants.Item.Inset.trailing
+       )
+       
+       let group = NSCollectionLayoutGroup.vertical(
+           layoutSize: .init(
+               widthDimension: .fractionalWidth(
+                   Constants.Group.width
+               ),
+               heightDimension: .absolute(
+                   Constants.Group.height
+               )
+           ),
+           subitems: [item]
+       )
+       
+       return NSCollectionLayoutSection(group: group)
+    }
     
     struct Constants {
         
@@ -184,10 +267,8 @@ private extension RMEpisodeDetailView {
         }
         
         struct Group {
-            
             static let width: CGFloat = 1
             static let height: CGFloat = 100
         }
-        
     }
 }

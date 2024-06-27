@@ -97,15 +97,27 @@ extension RMCharacterDetailViewController: UICollectionViewDataSource {
         
         switch sectionType {
         case .photo(let viewModel):
-            let cell = dequeueCell(in: collectionView, of: RMCharacterPhotoCollectionViewCell.self, for: indexPath)
+            let cell = dequeueCell(
+                in: collectionView,
+                of: RMCharacterPhotoCollectionViewCell.self,
+                for: indexPath
+            )
             cell.configure(with: viewModel)
             return cell
         case .information(let viewModels):
-            let cell = dequeueCell(in: collectionView, of: RMCharacterInfoCollectionViewCell.self, for: indexPath)
+            let cell = dequeueCell(
+                in: collectionView,
+                of: RMCharacterInfoCollectionViewCell.self,
+                for: indexPath
+            )
             cell.configure(with: viewModels[indexPath.row])
             return cell
         case .episodes(let viewModels):
-            let cell = dequeueCell(in: collectionView, of: RMCharacterEpisodeCollectionViewCell.self, for: indexPath)
+            let cell = dequeueCell(
+                in: collectionView,
+                of: RMCharacterEpisodeCollectionViewCell.self,
+                for: indexPath
+            )
             cell.configure(with: viewModels[indexPath.row])
             return cell
         }
@@ -128,7 +140,11 @@ extension RMCharacterDetailViewController: UICollectionViewDataSource {
     }
     
     
-    private func dequeueCell<T>(in collectionView: UICollectionView, of type: T.Type, for indexPath: IndexPath) -> T {
+    private func dequeueCell<T>(
+        in collectionView: UICollectionView,
+        of type: T.Type,
+        for indexPath: IndexPath
+    ) -> T {
         guard let cell = collectionView.dequeueReusableCell(T.self, indexPath: indexPath) else {
             fatalError()
         }

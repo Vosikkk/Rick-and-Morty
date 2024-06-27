@@ -14,24 +14,26 @@ protocol RMEpisodeDetailViewViewModelDelegate: AnyObject {
 
 final class RMEpisodeDetailViewViewModel {
     
+    typealias EpisodeInfo = (episode: RMEpisode, characters: [RMCharacter])
+    
     public weak var delegate: RMEpisodeDetailViewViewModelDelegate?
     
     private let endpointUrl: URL?
     private let service: Service
     
-    private var data: (RMEpisode, [RMCharacter])? {
+    private var data: EpisodeInfo? {
         didSet {
+            createCellViewModels()
             delegate?.didFetchEpisodeDetails()
         }
     }
-    
     
     enum SectionType {
         case information(vm: [RMEpisodeInfoCollectionViewCellViewModel])
         case characters(vm: [RMCharacterCollectionViewCellViewModel])
     }
     
-    public private(set) var sections: [SectionType] = []
+    public private(set) var cellViewModels: [SectionType] = []
     
     // MARK: - Init
     
@@ -56,6 +58,29 @@ final class RMEpisodeDetailViewViewModel {
         }
     }
     
+    private func createCellViewModels() {
+        guard let data else { return }
+        let episode = data.episode
+        let characters = data.characters
+        
+        cellViewModels = [
+            .information(vm: [
+                .init(title: "Episode Name", value: episode.name),
+                .init(title: "Air Date", value: episode.air_date),
+                .init(title: "Episode", value: episode.episode),
+                .init(title: "Created", value: episode.created)
+            ]),
+            .characters(vm: characters.compactMap {
+                                return RMCharacterCollectionViewCellViewModel(
+                                    characterName: $0.name,
+                                    characterStatus: $0.status,
+                                    characterImageUrl: URL(string: $0.image)
+                                )
+                            }
+                       )
+        ]
+    }
+    
     private func fetchRelatedCharacters(for episode: RMEpisode) {
         let requests: [RMRequest] = episode.characters
             .compactMap {  URL(string: $0) }
@@ -76,44 +101,45 @@ final class RMEpisodeDetailViewViewModel {
         }
         
         group.notify(queue: .main) {
+            self.data = (episode: episode, characters: characters)
+        }
+    }
+}
+
+
+
+extension RMEpisodeDetailViewViewModel {
+    
+    actor SyncHelper<T: Decodable> {
+        var data: [T] = []
+        func add(_ element: T) {
+            data.append(element)
+        }
+    }
+    
+    // MARK: - Async approach
+    
+    private func fetch(episode: RMEpisode, requests: [RMRequest]) async throws {
+        
+        let helper = SyncHelper<RMCharacter>()
+        
+        try await withThrowingTaskGroup(of: Void.self) { [weak self] group in
+            guard let self else { return }
+            
+            for request in requests {
+                group.addTask {
+                    await helper.add(try await self.getCharacter(from: request))
+                }
+            }
+            try await group.waitForAll()
+        }
+        
+        let characters = await helper.data
+        
+        await MainActor.run {
             self.data = (episode, characters)
         }
     }
-    
-    
-    // MARK: - Async approach 
-    private func fetch(episode: RMEpisode, requests: [RMRequest]) {
-        
-        actor SyncHelper {
-            var characters: [RMCharacter] = []
-            func add(_ character: RMCharacter) {
-                characters.append(character)
-            }
-        }
-        
-        Task {
-            
-            let helper = SyncHelper()
-            try await withThrowingTaskGroup(of: Void.self) { [weak self] group in
-                guard let self else { return }
-                
-                for request in requests {
-                    group.addTask {
-                        await helper.add(try await self.getCharacter(from: request))
-                    }
-                }
-                try await group.waitForAll()
-            }
-            
-            let characters = await helper.characters
-            
-            await MainActor.run {
-                self.data = (episode, characters)
-            }
-        }
-    }
-    
-    
     
     private func getCharacter(from request: RMRequest) async throws -> RMCharacter {
         try await withCheckedThrowingContinuation { сontinuation  in

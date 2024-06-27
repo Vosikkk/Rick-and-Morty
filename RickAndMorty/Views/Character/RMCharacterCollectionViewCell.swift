@@ -73,6 +73,7 @@ final class RMCharacterCollectionViewCell: UICollectionViewCell {
             case .success(let data):
                 let image = UIImage(data: data)
                 DispatchQueue.main.async {
+                   
                     self?.imageView.image = image
                 }
             case .failure(_):
