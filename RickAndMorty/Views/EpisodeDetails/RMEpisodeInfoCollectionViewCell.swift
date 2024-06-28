@@ -10,10 +10,10 @@ import UIKit
 final class RMEpisodeInfoCollectionViewCell: UICollectionViewCell {
     
     
-    
     override init(frame: CGRect) {
         super.init(frame: frame)
-        contentView.backgroundColor = .red
+        contentView.backgroundColor = .secondarySystemBackground
+        setupLayer()
         
     }
     
@@ -29,4 +29,15 @@ final class RMEpisodeInfoCollectionViewCell: UICollectionViewCell {
     public func configure(with vm: RMEpisodeInfoCollectionViewCellViewModel) {
         
     }
+    
+    private func setupLayer() {
+        layer.cornerRadius = cornerRadius
+        layer.masksToBounds = true
+        layer.borderWidth = borderWidth
+        layer.borderColor = UIColor.secondaryLabel.cgColor
+    }
+    
+    
+    private let cornerRadius: CGFloat = 8
+    private let borderWidth: CGFloat = 1
 }

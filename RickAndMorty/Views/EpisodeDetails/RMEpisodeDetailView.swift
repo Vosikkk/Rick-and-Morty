@@ -92,6 +92,9 @@ final class RMEpisodeDetailView: UIView {
     }
 }
 
+
+// MARK: - UICollectionViewDataSource
+
 extension RMEpisodeDetailView: UICollectionViewDataSource {
    
     func numberOfSections(in collectionView: UICollectionView) -> Int {
@@ -102,7 +105,9 @@ extension RMEpisodeDetailView: UICollectionViewDataSource {
         _ collectionView: UICollectionView,
         numberOfItemsInSection section: Int
     ) -> Int {
-        guard let sections = episodeDeatilVM?.cellViewModels else { return 0 }
+        guard let sections = episodeDeatilVM?.cellViewModels else {
+            return 0
+        }
         switch sections[section] {
         case .information(let vms):
             return vms.count
@@ -116,7 +121,9 @@ extension RMEpisodeDetailView: UICollectionViewDataSource {
         cellForItemAt indexPath: IndexPath
     ) -> UICollectionViewCell {
         
-        guard let sections = episodeDeatilVM?.cellViewModels else { fatalError("No viewModel") }
+        guard let sections = episodeDeatilVM?.cellViewModels else {
+            fatalError("No viewModel")
+        }
         
         switch sections[indexPath.section] {
         case .information(let vms):
@@ -128,7 +135,6 @@ extension RMEpisodeDetailView: UICollectionViewDataSource {
             cell.configure(with: vms[indexPath.row])
             return cell
         case .characters(let vms):
-
             let cell = dequeueCell(
                 in: collectionView,
                 of: RMCharacterCollectionViewCell.self,
@@ -144,12 +150,17 @@ extension RMEpisodeDetailView: UICollectionViewDataSource {
         of type: T.Type,
         for indexPath: IndexPath
     ) -> T {
-        guard let cell = collectionView.dequeueReusableCell(T.self, indexPath: indexPath) else {
+        guard let cell = collectionView.dequeueReusableCell(
+            T.self,
+            indexPath: indexPath
+        ) else {
             fatalError("Unsupported cell")
         }
         return cell
     }
 }
+
+// MARK: - UICollectionViewDelegate
 
 extension RMEpisodeDetailView: UICollectionViewDelegate {
     
@@ -159,8 +170,10 @@ extension RMEpisodeDetailView: UICollectionViewDelegate {
     ) {
         collectionView.deselectItem(at: indexPath, animated: true)
     }
-    
 }
+
+
+// MARK: - UICollection Layout
 
 private extension RMEpisodeDetailView {
     
@@ -180,28 +193,28 @@ private extension RMEpisodeDetailView {
         let item = NSCollectionLayoutItem(
            layoutSize: .init(
                widthDimension: .fractionalWidth(
-                   Constants.Item.width
+                   Constants.CharacterItem.width
                ),
                heightDimension: .fractionalHeight(
-                   Constants.Item.height
+                   Constants.CharacterItem.height
                )
            )
         )
        
        item.contentInsets = NSDirectionalEdgeInsets(
-           top: Constants.Item.Inset.top,
-           leading: Constants.Item.Inset.leading,
-           bottom: Constants.Item.Inset.bottom,
-           trailing: Constants.Item.Inset.trailing
+           top: Constants.CharacterItem.Inset.top,
+           leading: Constants.CharacterItem.Inset.leading,
+           bottom: Constants.CharacterItem.Inset.bottom,
+           trailing: Constants.CharacterItem.Inset.trailing
        )
        
        let group = NSCollectionLayoutGroup.horizontal(
            layoutSize: .init(
                widthDimension: .fractionalWidth(
-                0.5
+                Constants.CharacterGroup.width
                ),
                heightDimension: .absolute(
-                   240
+                Constants.CharacterGroup.height
                )
            ),
            subitems: [item, item]
@@ -215,28 +228,28 @@ private extension RMEpisodeDetailView {
         let item = NSCollectionLayoutItem(
            layoutSize: .init(
                widthDimension: .fractionalWidth(
-                   Constants.Item.width
+                   Constants.InfoItem.width
                ),
                heightDimension: .fractionalHeight(
-                   Constants.Item.height
+                   Constants.InfoItem.height
                )
            )
         )
        
        item.contentInsets = NSDirectionalEdgeInsets(
-           top: Constants.Item.Inset.top,
-           leading: Constants.Item.Inset.leading,
-           bottom: Constants.Item.Inset.bottom,
-           trailing: Constants.Item.Inset.trailing
+           top: Constants.InfoItem.Inset.top,
+           leading: Constants.InfoItem.Inset.leading,
+           bottom: Constants.InfoItem.Inset.bottom,
+           trailing: Constants.InfoItem.Inset.trailing
        )
        
        let group = NSCollectionLayoutGroup.vertical(
            layoutSize: .init(
                widthDimension: .fractionalWidth(
-                   Constants.Group.width
+                   Constants.InfoGroup.width
                ),
                heightDimension: .absolute(
-                   Constants.Group.height
+                   Constants.InfoGroup.height
                )
            ),
            subitems: [item]
@@ -244,7 +257,12 @@ private extension RMEpisodeDetailView {
        
        return NSCollectionLayoutSection(group: group)
     }
-    
+}
+
+// MARK: - Constants
+
+private extension RMEpisodeDetailView {
+   
     struct Constants {
         
         static let duration: TimeInterval = 0.3
@@ -254,9 +272,9 @@ private extension RMEpisodeDetailView {
             static let width: CGFloat = 100
         }
         
-        struct Item {
-            static let width: CGFloat = 1
-            static let height: CGFloat = 1
+        struct InfoItem {
+            static let width: CGFloat = 1.0
+            static let height: CGFloat = 1.0
             
             struct Inset {
                 static let top: CGFloat = 10
@@ -266,9 +284,26 @@ private extension RMEpisodeDetailView {
             }
         }
         
-        struct Group {
-            static let width: CGFloat = 1
+        struct CharacterItem {
+            static let width: CGFloat = 0.5
+            static let height: CGFloat = 1.0
+            
+            struct Inset {
+                static let top: CGFloat = 5
+                static let leading: CGFloat = 10
+                static let trailing: CGFloat = 10
+                static let bottom: CGFloat = 5
+            }
+        }
+        
+        struct InfoGroup {
+            static let width: CGFloat = 1.0
             static let height: CGFloat = 100
+        }
+        
+        struct CharacterGroup {
+            static let width: CGFloat = 1.0
+            static let height: CGFloat = 240
         }
     }
 }
