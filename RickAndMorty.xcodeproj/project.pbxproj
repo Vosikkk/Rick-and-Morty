@@ -48,6 +48,9 @@
 		388C09282C2E175C004393CA /* RMEpisodeInfoCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 388C09272C2E175C004393CA /* RMEpisodeInfoCollectionViewCell.swift */; };
 		388C092B2C2E17AC004393CA /* RMEpisodeInfoCollectionViewCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 388C092A2C2E17AC004393CA /* RMEpisodeInfoCollectionViewCellViewModel.swift */; };
 		388CA44C2C2F415B00E28FFC /* DateFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 388CA44B2C2F415B00E28FFC /* DateFormatter.swift */; };
+		388CA44F2C2F514E00E28FFC /* RMSettingsViewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 388CA44E2C2F514E00E28FFC /* RMSettingsViewViewModel.swift */; };
+		388CA4512C2F51BB00E28FFC /* RMSettingsCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 388CA4502C2F51BB00E28FFC /* RMSettingsCellViewModel.swift */; };
+		388CA4532C2F526000E28FFC /* RMSettingsOption.swift in Sources */ = {isa = PBXBuildFile; fileRef = 388CA4522C2F526000E28FFC /* RMSettingsOption.swift */; };
 		38E5BFB02C24E65C000EF594 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38E5BFAF2C24E65C000EF594 /* AppDelegate.swift */; };
 		38E5BFB22C24E65C000EF594 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38E5BFB12C24E65C000EF594 /* SceneDelegate.swift */; };
 		38E5BFB42C24E65C000EF594 /* RMTabViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38E5BFB32C24E65C000EF594 /* RMTabViewController.swift */; };
@@ -97,6 +100,9 @@
 		388C09272C2E175C004393CA /* RMEpisodeInfoCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RMEpisodeInfoCollectionViewCell.swift; sourceTree = "<group>"; };
 		388C092A2C2E17AC004393CA /* RMEpisodeInfoCollectionViewCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RMEpisodeInfoCollectionViewCellViewModel.swift; sourceTree = "<group>"; };
 		388CA44B2C2F415B00E28FFC /* DateFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateFormatter.swift; sourceTree = "<group>"; };
+		388CA44E2C2F514E00E28FFC /* RMSettingsViewViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RMSettingsViewViewModel.swift; sourceTree = "<group>"; };
+		388CA4502C2F51BB00E28FFC /* RMSettingsCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RMSettingsCellViewModel.swift; sourceTree = "<group>"; };
+		388CA4522C2F526000E28FFC /* RMSettingsOption.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RMSettingsOption.swift; sourceTree = "<group>"; };
 		38E5BFAC2C24E65C000EF594 /* RickAndMorty.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RickAndMorty.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		38E5BFAF2C24E65C000EF594 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		38E5BFB12C24E65C000EF594 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -152,6 +158,7 @@
 		3801296E2C25AE1C006B62B7 /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
+				388CA44D2C2F512C00E28FFC /* Settings */,
 				388C09292C2E1777004393CA /* EpisodeDetail */,
 				381AB8442C2B02E0003D477F /* CaharacterDetail */,
 				38274AC32C270CD5001494B0 /* RMCharacterListViewViewModel.swift */,
@@ -308,6 +315,16 @@
 			path = EpisodeDetail;
 			sourceTree = "<group>";
 		};
+		388CA44D2C2F512C00E28FFC /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				388CA44E2C2F514E00E28FFC /* RMSettingsViewViewModel.swift */,
+				388CA4502C2F51BB00E28FFC /* RMSettingsCellViewModel.swift */,
+				388CA4522C2F526000E28FFC /* RMSettingsOption.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
 		38E5BFA32C24E65C000EF594 = {
 			isa = PBXGroup;
 			children = (
@@ -423,15 +440,18 @@
 				381AB84D2C2B0B0F003D477F /* Extensions+UICollectionView.swift in Sources */,
 				38862BBE2C2CC1550020081E /* RMEpisodeDetailView.swift in Sources */,
 				3801297F2C25B0D4006B62B7 /* RMEpisodeViewController.swift in Sources */,
+				388CA44F2C2F514E00E28FFC /* RMSettingsViewViewModel.swift in Sources */,
 				38862BBC2C2CC0B40020081E /* RMEpisodeDetailViewViewModel.swift in Sources */,
 				38862BC12C2CC5C00020081E /* RMEpisodeListView.swift in Sources */,
 				388CA44C2C2F415B00E28FFC /* DateFormatter.swift in Sources */,
+				388CA4532C2F526000E28FFC /* RMSettingsOption.swift in Sources */,
 				381AB8482C2B0337003D477F /* RMCharacterInfoCollectionViewCellViewModel.swift in Sources */,
 				388C09282C2E175C004393CA /* RMEpisodeInfoCollectionViewCell.swift in Sources */,
 				381AB8462C2B0324003D477F /* RMCharacterPhotoCollectionViewCellViewModel.swift in Sources */,
 				388C092B2C2E17AC004393CA /* RMEpisodeInfoCollectionViewCellViewModel.swift in Sources */,
 				38862BBA2C2C905D0020081E /* RMAPICacheManager.swift in Sources */,
 				38274ACA2C271F30001494B0 /* RMCharacterCollectionViewCell.swift in Sources */,
+				388CA4512C2F51BB00E28FFC /* RMSettingsCellViewModel.swift in Sources */,
 				3801297B2C25B0A0006B62B7 /* RMCharacterViewController.swift in Sources */,
 				38E5BFB02C24E65C000EF594 /* AppDelegate.swift in Sources */,
 				38274AC82C271466001494B0 /* Extensions.swift in Sources */,
