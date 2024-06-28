@@ -32,6 +32,7 @@ final class RMCharacterDetailViewController: UIViewController {
     
     
     // MARK: - Lifecycle
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground

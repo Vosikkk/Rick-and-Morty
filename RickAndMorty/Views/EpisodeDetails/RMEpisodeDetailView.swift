@@ -7,8 +7,17 @@
 
 import UIKit
 
+protocol RMEpisodeDetailViewDelegate: AnyObject {
+    func rmEpisodeDetailView(
+        _ detailView: RMEpisodeDetailView,
+        didSelect character: RMCharacter
+    )
+}
+
 final class RMEpisodeDetailView: UIView {
 
+    public weak var delegate: RMEpisodeDetailViewDelegate?
+    
     private var episodeDeatilVM: RMEpisodeDetailViewViewModel? {
         didSet {
             spinner.stopAnimating()
@@ -55,7 +64,7 @@ final class RMEpisodeDetailView: UIView {
         episodeDeatilVM = vm 
     }
     
-    // MARK: - Private
+    // MARK: - UI configure
     
     private func createCollectionView() -> UICollectionView {
         let layout = UICollectionViewCompositionalLayout { section, _ in
@@ -169,6 +178,18 @@ extension RMEpisodeDetailView: UICollectionViewDelegate {
         didSelectItemAt indexPath: IndexPath
     ) {
         collectionView.deselectItem(at: indexPath, animated: true)
+        guard let vm = episodeDeatilVM else { return }
+         
+        let sections = vm.cellViewModels
+        
+        switch sections[indexPath.section] {
+        case .information:
+          break
+        case .characters:
+            if let character = vm.character(at: indexPath.row) {
+                delegate?.rmEpisodeDetailView(self, didSelect: character)
+            }
+        }
     }
 }
 

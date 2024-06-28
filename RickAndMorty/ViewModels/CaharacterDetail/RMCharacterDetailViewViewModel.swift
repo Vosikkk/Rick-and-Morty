@@ -49,7 +49,7 @@ final class RMCharacterDetailViewViewModel {
             .photo(vm: .init(imageURL: URL(string: character.image))),
             .information(vms: [
                 .init(type: .status, value: character.status.text),
-                .init(type: .gender, value: character.gender.rawValue),
+                .init(type: .gender, value: character.gender.text),
                 .init(type: .type, value: character.type),
                 .init(type: .species, value: character.species),
                 .init(type: .origin, value: character.origin.name),

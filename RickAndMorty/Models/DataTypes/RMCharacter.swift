@@ -28,6 +28,15 @@ struct RMCharacter: Decodable {
         case male = "Male"
         case genderless = "Genderless"
         case`unknown` = "unknown"
+        
+        var text: String {
+            switch self {
+            case .female, .male, .genderless:
+                rawValue
+            case .unknown:
+                "Unknown"
+            }
+        }
     }
     
     enum RMCharacterStatus: String, Decodable {

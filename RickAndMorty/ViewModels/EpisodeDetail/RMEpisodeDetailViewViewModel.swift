@@ -61,6 +61,11 @@ final class RMEpisodeDetailViewViewModel {
         }
     }
     
+    public func character(at index: Int) -> RMCharacter? {
+        guard let data = data else { return nil }
+        return data.characters[index]
+    }
+    
     private func createCellViewModels() {
         guard let data else { return }
         let episode = data.episode

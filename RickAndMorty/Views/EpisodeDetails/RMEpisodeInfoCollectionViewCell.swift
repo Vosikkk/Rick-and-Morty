@@ -29,6 +29,8 @@ final class RMEpisodeInfoCollectionViewCell: UICollectionViewCell {
         return label
     }()
     
+    // MARK: - Init
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         contentView.backgroundColor = .secondarySystemBackground
@@ -48,10 +50,14 @@ final class RMEpisodeInfoCollectionViewCell: UICollectionViewCell {
         valueLabel.text = nil
     }
     
+    
     public func configure(with vm: RMEpisodeInfoCollectionViewCellViewModel) {
         titleLabel.text = vm.title
         valueLabel.text = vm.value
     }
+    
+    
+    // MARK: - UI configure
     
     private func setupLayer() {
         layer.cornerRadius = Constants.Layer.cornerRadius
@@ -99,6 +105,8 @@ final class RMEpisodeInfoCollectionViewCell: UICollectionViewCell {
         ])
     }
 }
+
+// MARK: - Constants
 
 private extension RMEpisodeInfoCollectionViewCell {
     

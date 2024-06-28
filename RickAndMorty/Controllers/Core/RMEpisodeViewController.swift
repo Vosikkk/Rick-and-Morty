@@ -66,10 +66,6 @@ extension RMEpisodeViewController: RMEpisodeListViewDelegate {
         _ episodeListView: RMEpisodeListView,
         didSelectEpisode episode: RMEpisode
     ) {
-//        let vm = RMEpisodeDetailViewViewModel(
-//            endpointUrl: URL(string: episode.url),
-//            service: service
-//        )
         let detailVC = RMEpisodeDetailViewController(
             url: URL(string: episode.url),
             service: service
