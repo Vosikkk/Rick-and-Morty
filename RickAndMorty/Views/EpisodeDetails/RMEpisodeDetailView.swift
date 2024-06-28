@@ -298,7 +298,7 @@ private extension RMEpisodeDetailView {
         
         struct InfoGroup {
             static let width: CGFloat = 1.0
-            static let height: CGFloat = 100
+            static let height: CGFloat = 80
         }
         
         struct CharacterGroup {

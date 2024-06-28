@@ -9,14 +9,14 @@ import UIKit
 
 final class RMCharacterInfoCollectionViewCellViewModel {
     
+    private let dateFormatter: FormatterOfDate = .init()
+    
     public var displayValue: String {
         if value.isEmpty {
             return "None"
         }
-        if type == .created,
-            let date = Self.dateFormatter.date(from: value) {
-            
-            return Self.shortDateFormatter.string(from: date)
+        if type == .created {
+            return dateFormatter.createShortDate(from: value)
         }
         
         return value
@@ -33,21 +33,8 @@ final class RMCharacterInfoCollectionViewCellViewModel {
     public var tintColor: UIColor {
         type.tintColor
     }
+
     
-    static let dateFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSZ"
-        formatter.timeZone = .current
-        return formatter
-    }()
-    
-    static let shortDateFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .medium
-        formatter.timeStyle = .short
-        return formatter
-    }()
-   
     private let value: String
     private let type: `Type`
     

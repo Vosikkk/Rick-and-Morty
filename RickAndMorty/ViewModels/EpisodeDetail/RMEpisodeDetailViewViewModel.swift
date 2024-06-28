@@ -14,6 +14,8 @@ protocol RMEpisodeDetailViewViewModelDelegate: AnyObject {
 
 final class RMEpisodeDetailViewViewModel {
     
+    private let dateFormatter: FormatterOfDate = .init()
+    
     typealias EpisodeInfo = (episode: RMEpisode, characters: [RMCharacter])
     
     public weak var delegate: RMEpisodeDetailViewViewModelDelegate?
@@ -32,6 +34,7 @@ final class RMEpisodeDetailViewViewModel {
         case information(vm: [RMEpisodeInfoCollectionViewCellViewModel])
         case characters(vm: [RMCharacterCollectionViewCellViewModel])
     }
+    
     
     public private(set) var cellViewModels: [SectionType] = []
     
@@ -62,13 +65,13 @@ final class RMEpisodeDetailViewViewModel {
         guard let data else { return }
         let episode = data.episode
         let characters = data.characters
-        
+        let createdString = dateFormatter.createShortDate(from: episode.created)
         cellViewModels = [
             .information(vm: [
                 .init(title: "Episode Name", value: episode.name),
                 .init(title: "Air Date", value: episode.air_date),
                 .init(title: "Episode", value: episode.episode),
-                .init(title: "Created", value: episode.created)
+                .init(title: "Created", value: createdString)
             ]),
             .characters(vm: characters.compactMap {
                                 return RMCharacterCollectionViewCellViewModel(
@@ -80,6 +83,7 @@ final class RMEpisodeDetailViewViewModel {
                        )
         ]
     }
+    
     
     private func fetchRelatedCharacters(for episode: RMEpisode) {
         let requests: [RMRequest] = episode.characters
