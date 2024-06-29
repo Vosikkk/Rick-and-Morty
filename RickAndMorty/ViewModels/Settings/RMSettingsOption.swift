@@ -49,11 +49,11 @@ enum RMSettingsOption: CaseIterable {
         case .privacy:
             return URL(string: "https://policies.google.com/")
         case .apiReference:
-            <#code#>
+            return URL(string: "https://rickandmortyapi.com/documentation/#introduction")
         case .viewSeries:
-            <#code#>
+            return URL(string: "https://www.youtube.com/watch?v=4a6qalHN9qk&list=PLQl8zBB7bPvJaJWHboZuhEWmngSlgfMFh")
         case .viewCode:
-            <#code#>
+            return URL(string: "https://github.com/Vosikkk/Rick-and-Morty")
         }
     }
 }
