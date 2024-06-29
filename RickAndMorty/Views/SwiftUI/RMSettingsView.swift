@@ -18,6 +18,11 @@ struct RMSettingsView: View {
     var body: some View {
         List(viewModel.cellViewModels) { vm in
             row(vm: vm)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    vm.onTapHandler(vm.type)
+                }
         }
     }
     
@@ -36,7 +41,7 @@ struct RMSettingsView: View {
         Image(uiImage: image)
             .resizable()
             .renderingMode(.template)
-            .foregroundStyle(Color(vm.iconContainerColor))
+            .foregroundStyle(Color(vm.color))
             .aspectRatio(contentMode: .fit)
             .frame(
                 width: Constants.Icon.width,
@@ -48,7 +53,7 @@ struct RMSettingsView: View {
                     cornerRadius: Constants.Icon.cornerRadius
                 )
                 .fill(.clear)
-                .stroke(Color(vm.iconContainerColor),
+                .stroke(Color(vm.color),
                         lineWidth: Constants.Icon.lineWidth)
             )
             .padding([.bottom, .top],
@@ -79,7 +84,9 @@ private extension RMSettingsView {
     RMSettingsView(
         viewModel: .init(
             cellViewModels: RMSettingsOption.allCases.compactMap {
-            .init(type: $0)
+                .init(type: $0) { option in
+                    print(option.displayTitle)
+                }
       })
     )
 }

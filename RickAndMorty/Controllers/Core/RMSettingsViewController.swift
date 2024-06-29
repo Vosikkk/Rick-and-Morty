@@ -12,44 +12,64 @@ import SwiftUI
 final class RMSettingsViewController: UIViewController {
 
     
-    private let settingsVM: RMSettingsViewViewModel = RMSettingsViewViewModel(
-        cellViewModels: RMSettingsOption.allCases
-            .compactMap { .init(type: $0) }
-    )
-    
-    private let settingsHostingVC: UIHostingController<RMSettingsView>
-    
-    
-    init() {
-        settingsHostingVC = UIHostingController(
-            rootView: RMSettingsView(viewModel: settingsVM)
-        )
-        super.init(nibName: nil, bundle: nil)
-    }
-    
-    @available(* , unavailable)
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
+    private var settingsHostingVC: UIHostingController<RMSettingsView>?
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
-        addChild(settingsHostingVC)
-        settingsHostingVC.didMove(toParent: self)
-        view.addSubview(settingsHostingVC.view)
-        setConstraintsForHostingVCView()
+        setSettingHostVC()
+    }
+    
+    private func setSettingHostVC() {
+        let vc = UIHostingController(
+            rootView: RMSettingsView(
+                viewModel: RMSettingsViewViewModel(
+                    cellViewModels: RMSettingsOption.allCases
+                        .compactMap {
+                            RMSettingsCellViewModel(type: $0) { [weak self] option in
+                                self?.handleTap(option: option)
+                            }
+                        }
+                )
+            )
+        )
+        addChild(vc)
+        vc.didMove(toParent: self)
+        view.addSubview(vc.view)
+        setConstraints(for: vc)
+        self.settingsHostingVC = vc
     }
     
     
-    private func setConstraintsForHostingVCView() {
-        settingsHostingVC.view.translatesAutoresizingMaskIntoConstraints = false
+    private func setConstraints(for vc: UIHostingController<RMSettingsView>) {
+        vc.view.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            settingsHostingVC.view.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            settingsHostingVC.view.leftAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor),
-            settingsHostingVC.view.rightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.rightAnchor),
-            settingsHostingVC.view.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+            vc.view.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            vc.view.leftAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor),
+            vc.view.rightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.rightAnchor),
+            vc.view.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
         ])
+    }
+    
+    private func handleTap(option: RMSettingsOption) {
+        guard Thread.current.isMainThread else {  return }
+//
+//        switch option {
+//        case .rateApp:
+//            
+//        case .contactUs:
+//            <#code#>
+//        case .terms:
+//            <#code#>
+//        case .privacy:
+//            <#code#>
+//        case .apiReference:
+//            <#code#>
+//        case .viewSeries:
+//            <#code#>
+//        case .viewCode:
+//            <#code#>
+//        }
     }
 }

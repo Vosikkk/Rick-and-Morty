@@ -5,9 +5,10 @@
 //  Created by Саша Восколович on 28.06.2024.
 //
 
-import UIKit
+import Foundation
 
 enum RMSettingsOption: CaseIterable {
+    
     case rateApp
     case contactUs
     case terms
@@ -15,6 +16,8 @@ enum RMSettingsOption: CaseIterable {
     case apiReference
     case viewSeries
     case viewCode
+    
+    
     
     var displayTitle: String {
         switch self {
@@ -35,41 +38,22 @@ enum RMSettingsOption: CaseIterable {
         }
     }
     
-    var iconImage: UIImage? {
+    var targetUrl: URL? {
         switch self {
         case .rateApp:
-            return UIImage(systemName: "star.fill")
-        case .contactUs:              
-            return UIImage(systemName: "paperplane")
-        case .terms:
-            return UIImage(systemName: "doc")
-        case .privacy:
-            return UIImage(systemName: "lock")
-        case .apiReference:
-            return UIImage(systemName: "list.clipboard")
-        case .viewSeries:
-            return UIImage(systemName: "tv.fill")
-        case .viewCode:
-            return UIImage(systemName: "hammer.fill")
-        }
-    }
-    
-    var iconContainerColor: UIColor {
-        switch self {
-        case .rateApp:
-            return .systemBlue
+            return nil
         case .contactUs:
-            return .systemGreen
+            return URL(string: "https://about.google/contact-google/")
         case .terms:
-            return .systemRed
+            return URL(string: "https://policies.google.com/terms")
         case .privacy:
-            return .systemYellow
+            return URL(string: "https://policies.google.com/")
         case .apiReference:
-            return .systemOrange
+            <#code#>
         case .viewSeries:
-            return .systemPurple
+            <#code#>
         case .viewCode:
-            return .systemPink
+            <#code#>
         }
     }
 }
