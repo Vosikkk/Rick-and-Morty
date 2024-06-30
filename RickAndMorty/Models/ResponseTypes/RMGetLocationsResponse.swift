@@ -7,11 +7,6 @@
 
 import Foundation
 
-public protocol JsonModel: Decodable {
-    init(json: Data) throws
-}
-
-
 struct RMGetLocationsResponse {
     
     struct Info: Decodable {

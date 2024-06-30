@@ -16,13 +16,24 @@ final class RMLocationViewViewModel {
     
     public weak var delegate: RMLocationViewViewModelDelegate?
     
-    private var locations: [RMLocation] = []
+    private var locations: [RMLocation] = [] {
+        didSet {
+            for location in locations {
+                let vm = RMLocationTableViewCellViewModel(location: location)
+                if !cellViewModels.contains(vm) {
+                    cellViewModels.append(vm)
+                }
+            }
+        }
+    }
     
     private var hasMoreResults: Bool {
         false
     }
     
     private var apiInfo: RMGetLocationsResponse.Info?
+    
+    public private(set) var cellViewModels: [RMLocationTableViewCellViewModel] = []
     
     private let service: Service
     
@@ -31,8 +42,11 @@ final class RMLocationViewViewModel {
     }
     
     public func fetchLocations() {
-        let request = RMRequest(endpoint: .location)
-        service.execute(request, expecting: RMGetLocationsResponse.self) { [weak self] res in
+        service.execute(
+            RMRequest(endpoint: .location),
+            expecting: RMGetLocationsResponse.self
+        ) { [weak self] res in
+            
             switch res {
             case .success(let model):
                 self?.apiInfo = model.info
@@ -40,7 +54,6 @@ final class RMLocationViewViewModel {
                 DispatchQueue.main.async {
                     self?.delegate?.didFetchInitialLocations()
                 }
-               
             case .failure:
                 break
             }

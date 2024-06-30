@@ -54,7 +54,11 @@ final class RMCharacterListViewViewModel: NSObject {
     
     ///  Fetch initial set of characters (20)
     public func fetchCharacters() {
-        service.execute(RMRequest(endpoint: .character), expecting: RMGetCharactersResponse.self) { [weak self] res in
+        service.execute(
+            RMRequest(endpoint: .character),
+            expecting: RMGetCharactersResponse.self
+        ) { [weak self] res in
+           
             switch res {
             case .success(let responseModel):
                 let res = responseModel.results
@@ -81,7 +85,11 @@ final class RMCharacterListViewViewModel: NSObject {
             return
         }
         
-        service.execute(request, expecting: RMGetCharactersResponse.self) { [weak self] res in
+        service.execute(
+            request,
+            expecting: RMGetCharactersResponse.self
+        ) { [weak self] res in
+            
             guard let self else { return }
             switch res {
             case .success(let responseModel):
@@ -115,18 +123,33 @@ final class RMCharacterListViewViewModel: NSObject {
 
 extension RMCharacterListViewViewModel: UICollectionViewDataSource {
     
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    func collectionView(
+        _ collectionView: UICollectionView,
+        numberOfItemsInSection section: Int
+    ) -> Int {
+        
         cellViewModels.count
     }
     
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(RMCharacterCollectionViewCell.self, indexPath: indexPath) else { fatalError("Unsupported cell") }
+    func collectionView(
+        _ collectionView: UICollectionView,
+        cellForItemAt indexPath: IndexPath
+    ) -> UICollectionViewCell {
+        guard let cell = collectionView.dequeueReusableCell(
+            RMCharacterCollectionViewCell.self,
+            indexPath: indexPath
+        ) else { fatalError("Unsupported cell") }
        
         cell.configure(with: cellViewModels[indexPath.row])
         return cell
     }
     
-    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+    func collectionView(
+        _ collectionView: UICollectionView,
+        viewForSupplementaryElementOfKind kind: String,
+        at indexPath: IndexPath
+    ) -> UICollectionReusableView {
+       
         guard kind == UICollectionView.elementKindSectionFooter,
               let footer = collectionView.dequeueReusableSupplementaryView(
                  ofKind: kind,
@@ -140,7 +163,12 @@ extension RMCharacterListViewViewModel: UICollectionViewDataSource {
         return footer
     }
     
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForFooterInSection section: Int) -> CGSize {
+    func collectionView(
+        _ collectionView: UICollectionView,
+        layout collectionViewLayout: UICollectionViewLayout,
+        referenceSizeForFooterInSection section: Int
+    ) -> CGSize {
+       
         guard shouldShowLoadIndicator else { return .zero }
         return CGSize(width: collectionView.frame.width, height: footerHeight)
     }
@@ -152,7 +180,10 @@ extension RMCharacterListViewViewModel: UICollectionViewDataSource {
 
 extension RMCharacterListViewViewModel: UICollectionViewDelegate {
     
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+    func collectionView(
+        _ collectionView: UICollectionView,
+        didSelectItemAt indexPath: IndexPath
+    ) {
         collectionView.deselectItem(at: indexPath, animated: true)
         delegate?.didSelectCharacter(characters[indexPath.row])
     }
@@ -167,7 +198,11 @@ extension RMCharacterListViewViewModel: UICollectionViewDelegateFlowLayout {
         UIScreen.main.bounds
     }
     
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+    func collectionView(
+        _ collectionView: UICollectionView,
+        layout collectionViewLayout: UICollectionViewLayout,
+        sizeForItemAt indexPath: IndexPath
+    ) -> CGSize {
         
         let width = (bounds.width - 30) / 2
         

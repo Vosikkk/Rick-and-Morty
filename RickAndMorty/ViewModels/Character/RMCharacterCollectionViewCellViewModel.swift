@@ -50,7 +50,7 @@ final class RMCharacterCollectionViewCellViewModel {
 
 // MARK: - Hashable
 
-extension RMCharacterCollectionViewCellViewModel: Hashable, Equatable {
+extension RMCharacterCollectionViewCellViewModel: Hashable {
     
     static func == (
         lhs: RMCharacterCollectionViewCellViewModel,
@@ -65,5 +65,4 @@ extension RMCharacterCollectionViewCellViewModel: Hashable, Equatable {
         hasher.combine(characterStatus)
         hasher.combine(characterImageUrl)
     }
-  
 }

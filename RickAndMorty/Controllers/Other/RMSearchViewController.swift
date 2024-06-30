@@ -38,8 +38,4 @@ final class RMSearchViewController: UIViewController {
         view.backgroundColor = .systemBackground
         
     }
-    
-
-  
-
 }

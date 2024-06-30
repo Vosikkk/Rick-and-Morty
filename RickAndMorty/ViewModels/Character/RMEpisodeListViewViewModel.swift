@@ -135,18 +135,34 @@ final class RMEpisodeListViewViewModel: NSObject {
 
 extension RMEpisodeListViewViewModel: UICollectionViewDataSource {
     
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    func collectionView(
+        _ collectionView: UICollectionView,
+        numberOfItemsInSection section: Int
+    ) -> Int {
+        
         cellViewModels.count
     }
     
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(RMCharacterEpisodeCollectionViewCell.self, indexPath: indexPath) else { fatalError("Unsupported cell") }
+    func collectionView(
+        _ collectionView: UICollectionView,
+        cellForItemAt indexPath: IndexPath
+    ) -> UICollectionViewCell {
+        
+        guard let cell = collectionView.dequeueReusableCell(
+            RMCharacterEpisodeCollectionViewCell.self,
+            indexPath: indexPath
+        ) else { fatalError("Unsupported cell") }
        
         cell.configure(with: cellViewModels[indexPath.row])
         return cell
     }
     
-    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+    func collectionView(
+        _ collectionView: UICollectionView,
+        viewForSupplementaryElementOfKind kind: String,
+        at indexPath: IndexPath
+    ) -> UICollectionReusableView {
+        
         guard kind == UICollectionView.elementKindSectionFooter,
               let footer = collectionView.dequeueReusableSupplementaryView(
                  ofKind: kind,
@@ -160,7 +176,12 @@ extension RMEpisodeListViewViewModel: UICollectionViewDataSource {
         return footer
     }
     
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForFooterInSection section: Int) -> CGSize {
+    func collectionView(
+        _ collectionView: UICollectionView,
+        layout collectionViewLayout: UICollectionViewLayout,
+        referenceSizeForFooterInSection section: Int
+    ) -> CGSize {
+        
         guard shouldShowLoadIndicator else { return .zero }
         return CGSize(width: collectionView.frame.width, height: footerHeight)
     }
@@ -172,7 +193,11 @@ extension RMEpisodeListViewViewModel: UICollectionViewDataSource {
 
 extension RMEpisodeListViewViewModel: UICollectionViewDelegate {
     
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+    func collectionView(
+        _ collectionView: UICollectionView,
+        didSelectItemAt indexPath: IndexPath
+    ) {
+        
         collectionView.deselectItem(at: indexPath, animated: true)
         delegate?.didSelectEpisode(episodes[indexPath.row])
     }
@@ -183,7 +208,11 @@ extension RMEpisodeListViewViewModel: UICollectionViewDelegate {
 
 extension RMEpisodeListViewViewModel: UICollectionViewDelegateFlowLayout {
     
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+    func collectionView(
+        _ collectionView: UICollectionView,
+        layout collectionViewLayout: UICollectionViewLayout,
+        sizeForItemAt indexPath: IndexPath
+    ) -> CGSize {
         
         let bounds = collectionView.bounds
         

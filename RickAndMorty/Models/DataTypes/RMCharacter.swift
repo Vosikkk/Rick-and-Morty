@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct RMCharacter: Decodable {
+struct RMCharacter {
     
     let id: Int
     let name: String
@@ -62,5 +62,11 @@ struct RMCharacter: Decodable {
     struct RMLocation: Decodable {
         let name: String
         let url: String
+    }
+}
+
+extension RMCharacter: JsonModel {
+    init(json: Data) throws {
+        self = try JSONDecoder().decode(Self.self, from: json)
     }
 }

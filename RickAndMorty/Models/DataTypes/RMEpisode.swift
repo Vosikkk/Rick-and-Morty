@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct RMEpisode: Decodable, EpisodeDataRender {
+struct RMEpisode: EpisodeDataRender {
     let id: Int
     let name: String
     let air_date: String
@@ -15,4 +15,10 @@ struct RMEpisode: Decodable, EpisodeDataRender {
     let characters: [String]
     let url: String
     let created: String
+}
+
+extension RMEpisode: JsonModel {
+    init(json: Data) throws {
+        self = try JSONDecoder().decode(Self.self, from: json)
+    }
 }

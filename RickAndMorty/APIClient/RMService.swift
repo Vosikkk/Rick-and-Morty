@@ -43,7 +43,7 @@ final class RMService: Service {
                 return
             }
             
-            guard let urlRequest = self.request(from: request) else {
+            guard let urlRequest = self.request(from: rmRequest) else {
                 completion(.failure(RMServiceError.failedToCreateRequest))
                 return
             }

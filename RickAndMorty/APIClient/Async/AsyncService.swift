@@ -9,7 +9,6 @@ import Foundation
 
 
 public protocol AsyncService {
-
     func execute(_ request: some Request) async throws -> JsonModel
 }
 

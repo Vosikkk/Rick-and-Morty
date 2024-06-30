@@ -10,7 +10,7 @@ import UIKit
 
 final class RMLocationView: UIView {
 
-    private var episodeVM: RMLocationViewViewModel? {
+    private var locationVM: RMLocationViewViewModel? {
         didSet {
             spinner.stopAnimating()
             tableView.isHidden = false
@@ -22,11 +22,11 @@ final class RMLocationView: UIView {
     }
     
     private let tableView: UITableView = {
-        let table = UITableView()
+        let table = UITableView(frame: .zero, style: .grouped)
         table.translatesAutoresizingMaskIntoConstraints = false
         table.alpha = 0
         table.isHidden = true
-        table.register(UITableViewCell.self)
+        table.register(RMLocationTableViewCell.self)
         return table
     }()
     
@@ -56,7 +56,7 @@ final class RMLocationView: UIView {
     
     
     public func configure(with vm: RMLocationViewViewModel) {
-        episodeVM = vm
+        locationVM = vm
     }
     
     
@@ -79,38 +79,37 @@ final class RMLocationView: UIView {
             tableView.topAnchor.constraint(equalTo: topAnchor),
             tableView.leftAnchor.constraint(equalTo: leftAnchor),
             tableView.rightAnchor.constraint(equalTo: rightAnchor),
-            tableView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            tableView.bottomAnchor.constraint(equalTo: bottomAnchor)
         ])
     }
 }
 
 extension RMLocationView: UITableViewDataSource {
     
-    func numberOfSections(in tableView: UITableView) -> Int {
-        1
-    }
-    
     func tableView(
         _ tableView: UITableView,
         numberOfRowsInSection section: Int
     ) -> Int {
-            20
+        locationVM?.cellViewModels.count ?? 0
     }
     
     func tableView(
         _ tableView: UITableView,
         cellForRowAt indexPath: IndexPath
     ) -> UITableViewCell {
+        guard let cellVMs = locationVM?.cellViewModels else {
+            fatalError()
+        }
         guard let cell = tableView.dequeueReusableCell(
-            UITableViewCell.self,
+            RMLocationTableViewCell.self,
             for: indexPath
         ) else { fatalError() }
         
-        cell.textLabel?.text = "Hello Rick"
-        
+        let vm = cellVMs[indexPath.row]
+        cell.configure(with: vm)
         return cell
     }
-}
+ }
 
 extension RMLocationView: UITableViewDelegate {
     func tableView(
