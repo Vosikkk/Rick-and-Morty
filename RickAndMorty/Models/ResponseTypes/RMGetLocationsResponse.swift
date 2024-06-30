@@ -1,15 +1,18 @@
 //
-//  RMGetEpisodesResponse.swift
+//  RMGetLocationsResponse.swift
 //  RickAndMorty
 //
-//  Created by Саша Восколович on 27.06.2024.
+//  Created by Саша Восколович on 30.06.2024.
 //
 
 import Foundation
 
+public protocol JsonModel: Decodable {
+    init(json: Data) throws
+}
 
 
-struct RMGetEpisodesResponse {
+struct RMGetLocationsResponse {
     
     struct Info: Decodable {
         let count: Int
@@ -19,11 +22,13 @@ struct RMGetEpisodesResponse {
     }
     
     let info: Info
-    let results: [RMEpisode]
+    let results: [RMLocation]
+    
 }
 
-extension RMGetEpisodesResponse: JsonModel {
+extension RMGetLocationsResponse: JsonModel {
     init(json: Data) throws {
         self = try JSONDecoder().decode(Self.self, from: json)
     }
 }
+    

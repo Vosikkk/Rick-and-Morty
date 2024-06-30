@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct RMGetCharactersResponse: Decodable {
+struct RMGetCharactersResponse {
     
     struct Info: Decodable {
         let count: Int
@@ -18,6 +18,11 @@ struct RMGetCharactersResponse: Decodable {
     
     let info: Info
     let results: [RMCharacter]
-    
+}
+
+extension RMGetCharactersResponse: JsonModel {
+    init(json: Data) throws {
+        self = try JSONDecoder().decode(Self.self, from: json)
+    }
 }
     

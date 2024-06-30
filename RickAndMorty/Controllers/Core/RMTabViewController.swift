@@ -41,7 +41,7 @@ final class RMTabViewController: UITabBarController {
         case .characters:
             return RMCharacterViewController(service: service)
         case .locations:
-            return RMLocationViewController()
+            return RMLocationViewController(service: service)
         case .episodes:
             return RMEpisodeViewController(service: service)
         case .settings:

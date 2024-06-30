@@ -9,7 +9,7 @@ import Foundation
 
 ///  Each who wants work with client have to implment the protocol
 public protocol Service {
-    func execute<T: Decodable>(
+    func execute<T: JsonModel>(
         _ request: some Request,
         expecting type: T.Type,
         completion: @escaping (Result<T, Error>) -> Void)
@@ -26,3 +26,4 @@ extension Service {
         return request
     }
 }
+
