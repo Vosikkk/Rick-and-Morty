@@ -8,8 +8,18 @@
 import UIKit
 
 
+protocol RMLocationViewDelegate: AnyObject {
+    func rmLocationView(
+        _ locationView: RMLocationView,
+        didSelect location: RMLocation
+    )
+}
+
+
 final class RMLocationView: UIView {
 
+    public weak var delegate: RMLocationViewDelegate?
+    
     private var locationVM: RMLocationViewViewModel? {
         didSet {
             spinner.stopAnimating()
@@ -117,6 +127,10 @@ extension RMLocationView: UITableViewDelegate {
         didSelectRowAt indexPath: IndexPath
     ) {
         tableView.deselectRow(at: indexPath, animated: true)
+        guard let location = locationVM?.location(at: indexPath.row) else {
+          return
+        }
+        delegate?.rmLocationView(self, didSelect: location)
     }
 }
 
@@ -124,7 +138,6 @@ extension RMLocationView: UITableViewDelegate {
 private extension RMLocationView {
     
     struct Constants {
-        
         static let duration: TimeInterval = 0.3
         
         struct Spinner {

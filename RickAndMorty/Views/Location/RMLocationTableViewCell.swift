@@ -7,9 +7,9 @@
 
 import UIKit
 
+
 final class RMLocationTableViewCell: UITableViewCell {
 
-    
     private let nameLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
