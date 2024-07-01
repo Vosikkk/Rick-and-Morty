@@ -8,7 +8,7 @@
 import Foundation
 import UIKit
 
-final class RMCharacterCollectionViewCellViewModel {
+public final class RMCharacterCollectionViewCellViewModel {
     
     
     typealias ChrStatus = RMCharacter.RMCharacterStatus
@@ -52,7 +52,7 @@ final class RMCharacterCollectionViewCellViewModel {
 
 extension RMCharacterCollectionViewCellViewModel: Hashable {
     
-    static func == (
+    public static func == (
         lhs: RMCharacterCollectionViewCellViewModel,
         rhs: RMCharacterCollectionViewCellViewModel
     ) -> Bool {
@@ -60,7 +60,7 @@ extension RMCharacterCollectionViewCellViewModel: Hashable {
     }
     
      
-    func hash(into hasher: inout Hasher) {
+   public func hash(into hasher: inout Hasher) {
         hasher.combine(characterName)
         hasher.combine(characterStatus)
         hasher.combine(characterImageUrl)

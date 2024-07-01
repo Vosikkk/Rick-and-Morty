@@ -39,8 +39,8 @@ final class ServiceAsync<T: JsonModel>: AsyncService {
         
         async let res = try T(json: data)
         
-        await save
+        let finished = try await (save,  res)
         
-        return try await res
+        return finished.1
     }
 }

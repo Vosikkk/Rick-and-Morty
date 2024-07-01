@@ -7,34 +7,48 @@
 
 import Foundation
 
+
+protocol DetailViewModel {
+    associatedtype T: Decodable
+    var service: Service { get }
+    var endpointUrl: URL? { get }
+    var data: (data: T, characters: [RMCharacter])? { get }
+   
+    func fetchData()
+    func createCellViewModels()
+    func fetchRelatedItems(for data: T)
+}
+
+extension DetailViewModel{
+    public func character(at index: Int) -> RMCharacter? {
+        guard let data = data else { return nil }
+        return data.characters[index]
+    }
+}
+
+
 protocol RMEpisodeDetailViewViewModelDelegate: AnyObject {
     func didFetchEpisodeDetails()
 }
 
 
-final class RMEpisodeDetailViewViewModel {
-    
+final class RMEpisodeDetailViewViewModel: DetailViewModel {
+   
     private let dateFormatter: FormatterOfDate = .init()
     
-    typealias EpisodeInfo = (episode: RMEpisode, characters: [RMCharacter])
+    typealias EpisodeInfo = (data: RMEpisode, characters: [RMCharacter])
     
     public weak var delegate: RMEpisodeDetailViewViewModelDelegate?
     
-    private let endpointUrl: URL?
-    private let service: Service
+    private(set) var endpointUrl: URL?
+    private(set) var service: Service
     
-    private var data: EpisodeInfo? {
+    private(set) var data: EpisodeInfo? {
         didSet {
             createCellViewModels()
             delegate?.didFetchEpisodeDetails()
         }
     }
-    
-    enum SectionType {
-        case information(vm: [RMEpisodeInfoCollectionViewCellViewModel])
-        case characters(vm: [RMCharacterCollectionViewCellViewModel])
-    }
-    
     
     public private(set) var cellViewModels: [SectionType] = []
     
@@ -46,7 +60,7 @@ final class RMEpisodeDetailViewViewModel {
     }
     
     /// Fetch backing episode model
-    public func fetchEpisodeData() {
+    public func fetchData() {
         guard let endpointUrl,
                 let request = RMRequest(url: endpointUrl) else {
             return
@@ -54,7 +68,7 @@ final class RMEpisodeDetailViewViewModel {
         service.execute(request, expecting: RMEpisode.self) { [weak self] res in
             switch res {
             case .success(let model):
-                self?.fetchRelatedCharacters(for: model)
+                self?.fetchRelatedItems(for: model)
             case .failure(_):
                 break
             }
@@ -66,9 +80,9 @@ final class RMEpisodeDetailViewViewModel {
         return data.characters[index]
     }
     
-    private func createCellViewModels() {
+    func createCellViewModels() {
         guard let data else { return }
-        let episode = data.episode
+        let episode = data.data
         let characters = data.characters
         let createdString = dateFormatter.createShortDate(from: episode.created)
         cellViewModels = [
@@ -90,8 +104,8 @@ final class RMEpisodeDetailViewViewModel {
     }
     
     
-    private func fetchRelatedCharacters(for episode: RMEpisode) {
-        let requests: [RMRequest] = episode.characters
+    func fetchRelatedItems(for data: RMEpisode) {
+        let requests: [RMRequest] = data.characters
             .compactMap {  URL(string: $0) }
             .compactMap { RMRequest(url: $0) }
         let group = DispatchGroup()
@@ -110,7 +124,7 @@ final class RMEpisodeDetailViewViewModel {
         }
         
         group.notify(queue: .main) {
-            self.data = (episode: episode, characters: characters)
+            self.data = (data: data, characters: characters)
         }
     }
 }

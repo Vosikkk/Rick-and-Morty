@@ -80,7 +80,10 @@ extension RMCharacterDetailViewController: UICollectionViewDataSource {
         detailVM.sections.count
     }
     
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    func collectionView(
+        _ collectionView: UICollectionView,
+        numberOfItemsInSection section: Int
+    ) -> Int {
         let sectionType = detailVM.sections[section]
         switch sectionType {
         case .photo:
@@ -92,7 +95,10 @@ extension RMCharacterDetailViewController: UICollectionViewDataSource {
         }
     }
     
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+    func collectionView(
+        _ collectionView: UICollectionView,
+        cellForItemAt indexPath: IndexPath
+    ) -> UICollectionViewCell {
         
         let sectionType = detailVM.sections[indexPath.section]
         
@@ -125,7 +131,10 @@ extension RMCharacterDetailViewController: UICollectionViewDataSource {
     }
     
     
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+    func collectionView(
+        _ collectionView: UICollectionView, 
+        didSelectItemAt indexPath: IndexPath
+    ) {
         let sectionType = detailVM.sections[indexPath.section]
         switch sectionType {
         case .photo, .information:
@@ -146,7 +155,10 @@ extension RMCharacterDetailViewController: UICollectionViewDataSource {
         of type: T.Type,
         for indexPath: IndexPath
     ) -> T {
-        guard let cell = collectionView.dequeueReusableCell(T.self, indexPath: indexPath) else {
+        guard let cell = collectionView.dequeueReusableCell(
+            T.self,
+            indexPath: indexPath
+        ) else {
             fatalError()
         }
         return cell

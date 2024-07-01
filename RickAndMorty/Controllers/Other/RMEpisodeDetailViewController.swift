@@ -42,7 +42,7 @@ final class RMEpisodeDetailViewController: UIViewController {
             action: #selector(didTapShare))
         
         episodeDetailVM.delegate = self
-        episodeDetailVM.fetchEpisodeData()
+        episodeDetailVM.fetchData()
     }
     
     @objc

@@ -74,8 +74,12 @@ extension RMLocationViewController: RMLocationViewViewModelDelegate {
 }
 
 extension RMLocationViewController: RMLocationViewDelegate {
-    func rmLocationView(_ locationView: RMLocationView, didSelect location: RMLocation) {
-        let vc = RMLocationDetailViewController(location: location)
+    
+    func rmLocationView(
+        _ locationView: RMLocationView,
+        didSelect location: RMLocation
+    ) {
+        let vc = RMLocationDetailViewController(location: location, service: service)
         vc.navigationItem.largeTitleDisplayMode = .never
         navigationController?.pushViewController(vc, animated: true)
     }

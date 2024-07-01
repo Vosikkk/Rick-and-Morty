@@ -17,3 +17,9 @@ struct RMLocation: Decodable {
     let url: String
     let created: String
 }
+
+extension RMLocation: JsonModel {
+    init(json: Data) throws {
+        self = try JSONDecoder().decode(Self.self, from: json)
+    }
+}
