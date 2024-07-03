@@ -17,6 +17,10 @@ final class RMSearchViewViewModel {
         config.type.title
     }
     
+    public var configType: Config.`Type` {
+        config.type
+    }
+    
     init(config: Config) {
         self.config = config
     }

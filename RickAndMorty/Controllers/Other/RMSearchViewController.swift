@@ -16,6 +16,7 @@ final class RMSearchViewController: UIViewController {
     
     private let searchVM: RMSearchViewViewModel
     
+   
     // MARK: - Init
     
     init(config: Config) {
@@ -38,12 +39,18 @@ final class RMSearchViewController: UIViewController {
         view.backgroundColor = .systemBackground
         view.addSubview(searchView)
         setConstraints()
+        searchView.delegate = self
         navigationItem.rightBarButtonItem = UIBarButtonItem(
             title: "Search",
             style: .done,
             target: self,
             action: #selector(didTapExecuteSearch)
         )
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        searchView.presentKeyboard()
     }
     
     @objc
@@ -58,6 +65,17 @@ final class RMSearchViewController: UIViewController {
             searchView.leftAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor),
             searchView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
         ])
+    }
+}
+
+// MARK: - RMSearchViewDelegate
+
+extension RMSearchViewController: RMSearchViewDelegate {
+    func rmSearchView(
+        _ sender: RMSearchView,
+        didSelectOption option: RMSearchInputViewViewModel.DynamicOption
+    ) {
+        print("Should present option picker \(option)")
     }
 }
 
