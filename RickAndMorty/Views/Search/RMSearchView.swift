@@ -11,20 +11,41 @@ final class RMSearchView: UIView {
     
     private let searchVM: RMSearchViewViewModel
     
+    private let noResultsView: RMNoSearchResultsView = RMNoSearchResultsView()
+    
     
     // MARK: - Init
     
-    init(frame: CGRect, vm: RMSearchViewViewModel) {
+    init(frame: CGRect = .zero, vm: RMSearchViewViewModel) {
         searchVM = vm
         super.init(frame: frame)
-        backgroundColor = .red
+        backgroundColor = .systemBackground
         translatesAutoresizingMaskIntoConstraints = false
+        addSubviews(noResultsView)
+        setConstraints()
     }
     
     @available(*, unavailable)
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
+    private func setConstraints() {
+        NSLayoutConstraint.activate([
+            noResultsView.widthAnchor.constraint(
+                equalToConstant: Constants.NoResultsView.width
+            ),
+            noResultsView.heightAnchor.constraint(
+                equalToConstant: Constants.NoResultsView.height
+            ),
+            noResultsView.centerXAnchor.constraint(equalTo: centerXAnchor),
+            noResultsView.centerYAnchor.constraint(equalTo: centerYAnchor),
+            
+            
+        
+        ])
+    }
+    
 }
 
 // MARK: - UICollectionViewDelegate
@@ -61,5 +82,16 @@ extension RMSearchView: UICollectionViewDataSource {
         ) else { fatalError() }
         
         return cell
+    }
+}
+
+private extension RMSearchView {
+    
+    struct Constants {
+        
+        struct NoResultsView {
+            static let width: CGFloat = 150
+            static let height: CGFloat = 150
+        }
     }
 }

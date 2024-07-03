@@ -13,6 +13,10 @@ final class RMSearchViewViewModel {
     
     private let config: Config
     
+    public var title: String {
+        config.type.title
+    }
+    
     init(config: Config) {
         self.config = config
     }
