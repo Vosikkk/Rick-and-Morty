@@ -19,8 +19,8 @@ final class RMSearchViewController: UIViewController {
    
     // MARK: - Init
     
-    init(config: Config) {
-        self.searchVM = RMSearchViewViewModel(config: config)
+    init(config: Config, service: Service) {
+        self.searchVM = RMSearchViewViewModel(config: config, service: service)
         self.searchView = RMSearchView(vm: searchVM)
         self.config = config
         super.init(nibName: nil, bundle: nil)
@@ -55,7 +55,7 @@ final class RMSearchViewController: UIViewController {
     
     @objc
     private func didTapExecuteSearch() {
-        
+        searchVM.exucuteSearch()
     }
     
     private func setConstraints() {
@@ -97,6 +97,14 @@ extension RMSearchViewController {
             case character
             case episode
             case location
+            
+            var endpoint: RMEndpoint {
+                switch self {
+                case .character: return .character
+                case .episode: return .episode
+                case .location: return .location
+                }
+            }
             
             var title: String {
                 switch self {

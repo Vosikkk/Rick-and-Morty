@@ -14,6 +14,7 @@ protocol RMSearchInputViewDelegate: AnyObject {
     )
 }
 
+/// View for top part of search screen with search bar 
 final class RMSearchInputView: UIView {
 
     typealias Option = RMSearchInputViewViewModel.DynamicOption
@@ -30,9 +31,13 @@ final class RMSearchInputView: UIView {
     private var inputViewVM: RMSearchInputViewViewModel? {
         didSet {
             guard let inputViewVM,
-                  inputViewVM.hasDynamicOptions
-            else { return }
-            createOptionSelectionViews(with: inputViewVM.options)
+                    inputViewVM.hasDynamicOptions
+            else {
+                return
+            }
+            createOptionSelectionViews(
+                with: inputViewVM.options
+            )
         }
     }
     
@@ -150,13 +155,8 @@ final class RMSearchInputView: UIView {
             searchBar.heightAnchor.constraint(
                 equalToConstant: Constants.SearchBar.height
             ),
-            
-            
-        
         ])
     }
-   
-    
 }
 
 private extension RMSearchInputView {
