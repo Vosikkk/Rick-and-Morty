@@ -11,7 +11,15 @@ final class RMSearchViewViewModel {
     
     typealias Config = RMSearchViewController.Config
     
+    typealias Option = RMSearchInputViewViewModel.DynamicOption
+    
+    // MARK: - Properties
+    
     private let config: Config
+    
+    private var optionMap: [Option: String] = [:]
+    
+    private var optionMapUpdate: (((Option, String)) -> Void)?
     
     public var title: String {
         config.type.title
@@ -21,10 +29,21 @@ final class RMSearchViewViewModel {
         config.type
     }
     
+    // MARK: - Init
+    
     init(config: Config) {
         self.config = config
     }
     
+    // MARK: - Methods
     
+    public func set(value: String, for option: Option) {
+        optionMap[option] = value
+        optionMapUpdate?((option, value))
+    }
+    
+    public func registerOptionChange(_ block: @escaping ((Option, String)) -> Void) {
+        optionMapUpdate = block
+    }
     
 }

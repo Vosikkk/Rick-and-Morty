@@ -75,7 +75,14 @@ extension RMSearchViewController: RMSearchViewDelegate {
         _ sender: RMSearchView,
         didSelectOption option: RMSearchInputViewViewModel.DynamicOption
     ) {
-        print("Should present option picker \(option)")
+        let vc = RMSearchOptionPickerViewController(option) { [weak self] selection in
+            DispatchQueue.main.async {
+                self?.searchVM.set(value: selection, for: option)
+            }
+        }
+        vc.sheetPresentationController?.detents = [.medium()]
+        vc.sheetPresentationController?.prefersGrabberVisible = true
+        present(vc, animated: true)
     }
 }
 

@@ -36,6 +36,8 @@ final class RMSearchInputView: UIView {
         }
     }
     
+    private var stackView: UIStackView?
+    
     // MARK: - Init
     
      override init(frame: CGRect = .zero) {
@@ -50,24 +52,47 @@ final class RMSearchInputView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
+    // MARK: - Public
+    
+    public func presentKeyboard() {
+        searchBar.becomeFirstResponder()
+    }
+    
     public func configure(with vm: RMSearchInputViewViewModel) {
         searchBar.placeholder = vm.searchPlaceholderText
         inputViewVM = vm 
     }
     
+    public func update(with option: Option, and newTitle: String) {
+        guard let buttons = stackView?.arrangedSubviews as? [UIButton],
+              let options = inputViewVM?.options,
+              let index = options.firstIndex(of: option) else { return }
+        
+        buttons[index].setAttributedTitle(
+            attrubitedString(
+                newTitle.uppercased(),
+                color: UIColor.link
+            ),
+            for: .normal
+        )
+    }
+    
+    
+    // MARK: - Private
     
     private func createOptionSelectionViews(with options: [Option]) {
         let stackView = createOptionStackView()
         var tag: Int = 0
         options.forEach {
             let button = UIButton()
-            configureButton(button, tag: tag, title: $0.rawValue)
+            configureButton(button, title: $0.rawValue)
+            button.tag = tag
             tag += 1
             stackView.addArrangedSubview(button)
         }
     }
     
-    private func configureButton(_ button: UIButton, tag: Int, title: String) {
+    private func configureButton(_ button: UIButton, title: String) {
         button.backgroundColor = .secondarySystemFill
         button.addTarget(self, action: #selector(didTapButton(_:)), for: .touchUpInside)
         button.setAttributedTitle(
@@ -75,12 +100,12 @@ final class RMSearchInputView: UIView {
             for: .normal
         )
         button.layer.cornerRadius = Constants.Button.cornerRaduis
-        button.tag = tag
     }
     
     
     private func createOptionStackView() -> UIStackView {
         let stackView = UIStackView()
+        self.stackView = stackView
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .horizontal
         stackView.spacing = Constants.stackSpacing
@@ -99,11 +124,11 @@ final class RMSearchInputView: UIView {
     
     private func attrubitedString(
         _ string: String,
-        fontSize: CGFloat = Constants.Button.fontSize
+        fontSize: CGFloat = Constants.Button.fontSize,
+        color: UIColor = UIColor.label
     ) -> NSAttributedString {
         
         let font = UIFont.systemFont(ofSize: fontSize, weight: .medium)
-        let color = UIColor.label
         return NSAttributedString(string: string, attributes: [
             .foregroundColor: color,
             .font: font]
@@ -115,6 +140,7 @@ final class RMSearchInputView: UIView {
         guard let options = inputViewVM?.options else { return }
         delegate?.rmSearchInputView(self, didSelectOption: options[sender.tag])
     }
+
     
     private func setConstraints() {
         NSLayoutConstraint.activate([
@@ -129,10 +155,8 @@ final class RMSearchInputView: UIView {
         
         ])
     }
+   
     
-    public func presentKeyboard() {
-        searchBar.becomeFirstResponder()
-    }
 }
 
 private extension RMSearchInputView {

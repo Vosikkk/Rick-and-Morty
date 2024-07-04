@@ -39,6 +39,9 @@ final class RMSearchView: UIView {
         setConstraints()
         searchInputView.configure(with: .init(with: searchVM.configType))
         searchInputView.delegate = self
+        searchVM.registerOptionChange { options in
+            self.searchInputView.update(with: options.0, and: options.1)
+        }
     }
     
     @available(*, unavailable)
