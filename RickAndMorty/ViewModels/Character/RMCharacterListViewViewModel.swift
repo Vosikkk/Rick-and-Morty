@@ -194,22 +194,23 @@ extension RMCharacterListViewViewModel: UICollectionViewDelegate {
 
 extension RMCharacterListViewViewModel: UICollectionViewDelegateFlowLayout {
     
-    private var bounds: CGRect {
-        UIScreen.main.bounds
-    }
-    
     func collectionView(
         _ collectionView: UICollectionView,
         layout collectionViewLayout: UICollectionViewLayout,
         sizeForItemAt indexPath: IndexPath
     ) -> CGSize {
-        
-        let width = (bounds.width - 30) / 2
-        
         return CGSize(
-            width: width ,
+            width: width,
             height: width * 1.5
         )
+    }
+    
+    private var bounds: CGRect {
+        UIScreen.main.bounds
+    }
+    
+    private var width: CGFloat {
+        (bounds.width - 30) / 2
     }
 }
 

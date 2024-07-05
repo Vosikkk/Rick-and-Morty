@@ -27,7 +27,13 @@ final class RMSearchResultsView: UIView {
         }
     }
     
-    private var locationCellViewModels: [RMLocationTableViewCellViewModel] = []
+    private(set) var locationCellViewModels: [RMLocationTableViewCellViewModel] = []
+    
+    private(set) var collectionViewCellViewModels: [any Hashable] = [] {
+        didSet {
+            setupCollectionView()
+        }
+    }
     
     private let tableView: UITableView = {
         let table = UITableView()
@@ -36,11 +42,37 @@ final class RMSearchResultsView: UIView {
         table.translatesAutoresizingMaskIntoConstraints = false
         return table
     }()
+    
+    private let collectionView: UICollectionView = {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .vertical
+        layout.sectionInset = UIEdgeInsets(
+            top: Constants.Collection.top,
+            left: Constants.Collection.left,
+            bottom: Constants.Collection.bottom,
+            right: Constants.Collection.right
+        )
+        let collection = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        collection.isHidden = true
+       
+        collection.translatesAutoresizingMaskIntoConstraints = false
+        collection.register(RMCharacterCollectionViewCell.self)
+        collection.register(RMCharacterEpisodeCollectionViewCell.self)
+        collection.register(
+            RMFooterLoaderCollectionReusableView.self,
+            forSupplementaryViewOfKind: UICollectionView.elementKindSectionFooter,
+            withReuseIdentifier: RMFooterLoaderCollectionReusableView.identifier
+        )
+        return collection
+    }()
+    
 
+    // MARK: - Init
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         isHidden = true
-        addSubviews(tableView)
+        addSubviews(tableView, collectionView)
         translatesAutoresizingMaskIntoConstraints = false
         setConstraints()
     }
@@ -55,16 +87,22 @@ final class RMSearchResultsView: UIView {
         guard let searchVM else { return }
         switch searchVM {
         case .characters(let vms):
-            setupCollectionView()
+            collectionViewCellViewModels = vms
         case .locations(let vms):
             setupTableView(with: vms)
         case .episodes(let vms):
-            setupCollectionView()
+            collectionViewCellViewModels = vms
         }
     }
     
     private func setupCollectionView() {
+        tableView.isHidden = true
+        collectionView.isHidden = false
         
+        collectionView.delegate = self
+        collectionView.dataSource = self
+        
+        collectionView.reloadData()
     }
     
     private func setupTableView(with vms: [RMLocationTableViewCellViewModel]) {
@@ -72,6 +110,7 @@ final class RMSearchResultsView: UIView {
         tableView.delegate = self
         tableView.dataSource = self
         tableView.isHidden = false
+        collectionView.isHidden = true
         tableView.reloadData()
     }
     
@@ -82,6 +121,10 @@ final class RMSearchResultsView: UIView {
             tableView.rightAnchor.constraint(equalTo: rightAnchor),
             tableView.bottomAnchor.constraint(equalTo: bottomAnchor),
             
+            collectionView.topAnchor.constraint(equalTo: topAnchor),
+            collectionView.leftAnchor.constraint(equalTo: leftAnchor),
+            collectionView.rightAnchor.constraint(equalTo: rightAnchor),
+            collectionView.bottomAnchor.constraint(equalTo: bottomAnchor),
         ])
     }
     
@@ -90,38 +133,17 @@ final class RMSearchResultsView: UIView {
     }
 }
 
-// MARK: - UITableViewDelegate
 
-extension RMSearchResultsView: UITableViewDelegate {
-    func tableView(
-        _ tableView: UITableView,
-        didSelectRowAt indexPath: IndexPath
-    ) {
-        tableView.deselectRow(at: indexPath, animated: true)
-        delegate?.rmSearchResultsView(self, didTapLocationAt: indexPath.row)
-    }
-}
+// MARK: - Constants
 
-// MARK: - UITableViewDataSource
-
-extension RMSearchResultsView: UITableViewDataSource {
+private extension RMSearchResultsView {
     
-    func tableView(
-        _ tableView: UITableView,
-        numberOfRowsInSection section: Int
-    ) -> Int {
-        locationCellViewModels.count
-    }
-    
-    func tableView(
-        _ tableView: UITableView,
-        cellForRowAt indexPath: IndexPath
-    ) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(
-            RMLocationTableViewCell.self,
-            for: indexPath
-        ) else { fatalError("Failed to dequeue RMLocationTableViewCell") }
-        cell.configure(with: locationCellViewModels[indexPath.row])
-        return cell
+    struct Constants {
+        struct Collection {
+            static let right: CGFloat = 10
+            static let left: CGFloat = 10
+            static let top: CGFloat = 0
+            static let bottom: CGFloat = 10
+        }
     }
 }
