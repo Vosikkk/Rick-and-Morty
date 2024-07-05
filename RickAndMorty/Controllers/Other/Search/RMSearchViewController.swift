@@ -55,7 +55,7 @@ final class RMSearchViewController: UIViewController {
     
     @objc
     private func didTapExecuteSearch() {
-        searchVM.exucuteSearch()
+        searchVM.executeSearch()
     }
     
     private func setConstraints() {
@@ -105,7 +105,7 @@ extension RMSearchViewController {
                 case .location: return .location
                 }
             }
-            
+    
             var title: String {
                 switch self {
                 case .character:

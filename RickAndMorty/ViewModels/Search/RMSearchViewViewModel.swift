@@ -13,6 +13,7 @@ final class RMSearchViewViewModel {
     
     typealias Option = RMSearchInputViewViewModel.DynamicOption
     
+    
     // MARK: - Properties
     
     private let config: Config
@@ -25,7 +26,7 @@ final class RMSearchViewViewModel {
     
     private var searchText: String = ""
     
-    private var searchResultHandler: (() -> Void)?
+    private var searchResultHandler: ((RMSearchResultViewModel) -> Void)?
     
     
     // MARK: - Init
@@ -37,7 +38,9 @@ final class RMSearchViewViewModel {
     
     // MARK: - Methods
     
-    public func registerSearchResultsHandler(_ block: @escaping () -> Void) {
+    public func registerSearchResultsHandler(
+        _ block: @escaping (RMSearchResultViewModel) -> Void
+    ) {
         self.searchResultHandler = block
     }
     
@@ -56,9 +59,14 @@ final class RMSearchViewViewModel {
         searchText = text
     }
     
-    public func exucuteSearch() {
+    public func executeSearch() {
         var queryParameters: [URLQueryItem] = [
-            URLQueryItem(name: "name", value: searchText)
+            URLQueryItem(
+                name: "name",
+                value: searchText.addingPercentEncoding(
+                    withAllowedCharacters: .urlQueryAllowed
+                )
+            )
         ]
         
         queryParameters.append(contentsOf: queryItems)
@@ -67,16 +75,62 @@ final class RMSearchViewViewModel {
             endpoint: config.type.endpoint,
             queryParameters: queryParameters
         )
+        
+        switch config.type.endpoint {
+        case .character:
+            fetch(request, for: RMGetCharactersResponse.self)
+        case .episode:
+            fetch(request, for: RMGetEpisodesResponse.self)
+        case .location:
+            fetch(request, for: RMGetLocationsResponse.self)
+        }
+    }
+    
+    private func fetch<T: JsonModel>(_ request: RMRequest, for type: T.Type) {
         service.execute(
             request,
-            expecting: RMGetCharactersResponse.self
-        ) { res in
+            expecting: type
+        ) { [weak self] res in
             switch res {
             case .success(let model):
-                print(model.results.count)
+                self?.processSearchResults(for: model)
             case .failure:
                 break
             }
+        }
+    }
+    
+    private func processSearchResults(for model: some JsonModel) {
+        
+        var resultsVM: RMSearchResultViewModel?
+        
+        if let characterResults = model as? RMGetCharactersResponse {
+            resultsVM = .characters(characterResults.results
+                .compactMap {
+                    .init(
+                        characterName: $0.name,
+                        characterStatus: $0.status,
+                        characterImageUrl: URL(string: $0.image)
+                    )
+                }
+            )
+           
+        } else if let episodeResults = model as? RMGetEpisodesResponse {
+            resultsVM = .episodes(episodeResults.results
+                .compactMap {
+                    .init(episodeDataURL: URL(string: $0.url), service: service)
+                }
+            )
+           
+        } else if let locationResults = model as? RMGetLocationsResponse {
+            resultsVM = .locations(locationResults.results
+                .compactMap {
+                    .init(location: $0)
+                }
+            )
+        }
+        if let resultsVM {
+            searchResultHandler?(resultsVM)
         }
     }
     

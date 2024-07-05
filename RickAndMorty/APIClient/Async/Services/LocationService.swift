@@ -2,17 +2,21 @@
 //  LocationService.swift
 //  RickAndMorty
 //
-//  Created by Саша Восколович on 30.06.2024.
+//  Created by Саша Восколович on 05.07.2024.
 //
 
 import Foundation
 
-
-final class ServiceAsync<T: JsonModel>: AsyncService {
+final class LocationService: AsyncService {
    
-    private let cache: RMAPICacheActor = RMAPICacheActor()
+    private let cache: RMAPICacheActor
+    
+    
+    init(cache: RMAPICacheActor) {
+        self.cache = cache
+    }
 
-    func execute(_ request: some Request) async throws -> any JsonModel {
+    func execute(_ request: some Request) async throws -> RMGetLocationsResponse {
         
         guard let rmRequest = request as? RMRequest else {
             throw RMServiceError.invalidRequestType
@@ -22,7 +26,7 @@ final class ServiceAsync<T: JsonModel>: AsyncService {
             for: rmRequest.endpoint,
             url: rmRequest.url) {
             print("Cache")
-            return try T(json: cachedData)
+            return try RMGetLocationsResponse(json: cachedData)
         }
         
         guard let urlRequest = self.request(from: request) else {
@@ -37,9 +41,9 @@ final class ServiceAsync<T: JsonModel>: AsyncService {
             data: data
         )
         
-        async let res = try T(json: data)
+        async let res = try RMGetLocationsResponse(json: data)
         
-        let finished = try await (save,  res)
+        let finished = try await (save, res)
         
         return finished.1
     }

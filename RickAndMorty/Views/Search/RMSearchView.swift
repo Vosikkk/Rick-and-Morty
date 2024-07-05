@@ -42,6 +42,9 @@ final class RMSearchView: UIView {
         searchVM.registerOptionChange { options in
             self.searchInputView.update(with: options.0, and: options.1)
         }
+        searchVM.registerSearchResultsHandler { results in
+            
+        }
     }
     
     @available(*, unavailable)
@@ -115,6 +118,18 @@ extension RMSearchView: UICollectionViewDataSource {
 // MARK: - RMSearchInputViewDelegate
 
 extension RMSearchView: RMSearchInputViewDelegate {
+    
+    func rmSearchInputViewDidTapKeyboardSearch(_ sender: RMSearchInputView) {
+        searchVM.executeSearch()
+    }
+    
+    func rmSearchInputView(
+        _ sender: RMSearchInputView,
+        didChangeSearchText text: String
+    ) {
+        searchVM.set(query: text)
+    }
+    
     func rmSearchInputView(
         _ sender: RMSearchInputView,
         didSelectOption option: RMSearchInputViewViewModel.DynamicOption
