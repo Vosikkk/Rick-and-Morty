@@ -16,13 +16,15 @@ final class RMSearchViewController: UIViewController {
     
     private let searchVM: RMSearchViewViewModel
     
-   
+    private let service: Service
+    
     // MARK: - Init
     
     init(config: Config, service: Service) {
         self.searchVM = RMSearchViewViewModel(config: config, service: service)
         self.searchView = RMSearchView(vm: searchVM)
         self.config = config
+        self.service = service
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -71,6 +73,13 @@ final class RMSearchViewController: UIViewController {
 // MARK: - RMSearchViewDelegate
 
 extension RMSearchViewController: RMSearchViewDelegate {
+    
+    func rmSearchView(_ sender: RMSearchView, didSelectLocation location: RMLocation) {
+        let vc = RMLocationDetailViewController(location: location, service: service)
+        vc.navigationItem.largeTitleDisplayMode = .never
+        navigationController?.pushViewController(vc, animated: true)
+    }
+    
     func rmSearchView(
         _ sender: RMSearchView,
         didSelectOption option: RMSearchInputViewViewModel.DynamicOption

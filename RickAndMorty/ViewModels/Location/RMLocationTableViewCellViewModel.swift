@@ -22,7 +22,7 @@ struct RMLocationTableViewCellViewModel {
     public var dimension: String {
         location.dimension
     }
-    
+
     
     init(location: RMLocation) {
         self.location = location

@@ -28,6 +28,9 @@ final class RMSearchViewViewModel {
     
     private var searchResultHandler: ((RMSearchResultViewModel) -> Void)?
     
+    private var noResultsHandler: (() -> Void)?
+    
+    private var searchResultModel: JsonModel?
     
     // MARK: - Init
     
@@ -44,6 +47,10 @@ final class RMSearchViewViewModel {
         self.searchResultHandler = block
     }
     
+    public func registerNoResultsHandler(_ block: @escaping () -> Void) {
+        self.noResultsHandler = block
+    }
+    
     public func set(value: String, for option: Option) {
         optionMap[option] = value
         optionMapUpdate?((option, value))
@@ -57,6 +64,13 @@ final class RMSearchViewViewModel {
     
     public func set(query text: String) {
         searchText = text
+    }
+    
+    public func locationSearchResult(at index: Int) -> RMLocation? {
+        guard let model = cast(searchResultModel, to: RMGetLocationsResponse.self) else {
+           return nil
+        }
+        return model.results[index]
     }
     
     public func executeSearch() {
@@ -79,10 +93,10 @@ final class RMSearchViewViewModel {
         switch config.type.endpoint {
         case .character:
             fetch(request, for: RMGetCharactersResponse.self)
-        case .episode:
-            fetch(request, for: RMGetEpisodesResponse.self)
         case .location:
             fetch(request, for: RMGetLocationsResponse.self)
+        case .episode:
+            fetch(request, for: RMGetEpisodesResponse.self)
         }
     }
     
@@ -95,16 +109,20 @@ final class RMSearchViewViewModel {
             case .success(let model):
                 self?.processSearchResults(for: model)
             case .failure:
-                break
+                self?.handleNoResults()
             }
         }
+    }
+    
+    private func handleNoResults() {
+        noResultsHandler?()
     }
     
     private func processSearchResults(for model: some JsonModel) {
         
         var resultsVM: RMSearchResultViewModel?
         
-        if let characterResults = model as? RMGetCharactersResponse {
+        if let characterResults = cast(model, to: RMGetCharactersResponse.self) {
             resultsVM = .characters(characterResults.results
                 .compactMap {
                     .init(
@@ -115,23 +133,34 @@ final class RMSearchViewViewModel {
                 }
             )
            
-        } else if let episodeResults = model as? RMGetEpisodesResponse {
+        } else if let locationResults = cast(model, to: RMGetLocationsResponse.self) {
+            resultsVM = .locations(locationResults.results
+                .compactMap {
+                    .init(location: $0)
+                }
+            )
+        } else if let episodeResults = cast(model, to: RMGetEpisodesResponse.self) {
             resultsVM = .episodes(episodeResults.results
                 .compactMap {
                     .init(episodeDataURL: URL(string: $0.url), service: service)
                 }
             )
            
-        } else if let locationResults = model as? RMGetLocationsResponse {
-            resultsVM = .locations(locationResults.results
-                .compactMap {
-                    .init(location: $0)
-                }
-            )
         }
+    
         if let resultsVM {
+            searchResultModel = model
             searchResultHandler?(resultsVM)
+        } else {
+            handleNoResults()
         }
+    }
+    
+    private func cast<T>(_ model: JsonModel?, to type: T.Type) -> T? {
+        if let res = model as? T {
+            return res
+        }
+        return nil
     }
     
     // MARK: - Computed Properties

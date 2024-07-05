@@ -13,6 +13,11 @@ protocol RMSearchViewDelegate: AnyObject {
         _ sender: RMSearchView,
         didSelectOption option: RMSearchInputViewViewModel.DynamicOption
     )
+    
+    func rmSearchView(
+        _ sender: RMSearchView,
+        didSelectLocation location: RMLocation
+    )
 }
 
 final class RMSearchView: UIView {
@@ -23,28 +28,29 @@ final class RMSearchView: UIView {
     
     // MARK: - Subviews
     
-    private let noResultsView: RMNoSearchResultsView = RMNoSearchResultsView()
+    private let noResultsView: RMNoSearchResultsView
     
     private let searchInputView: RMSearchInputView
+    
+    private let resultsView: RMSearchResultsView
     
     // MARK: - Init
     
     init(frame: CGRect = .zero, vm: RMSearchViewViewModel) {
         searchVM = vm
         searchInputView = RMSearchInputView()
+        noResultsView = RMNoSearchResultsView()
+        resultsView = RMSearchResultsView()
         super.init(frame: frame)
         backgroundColor = .systemBackground
         translatesAutoresizingMaskIntoConstraints = false
-        addSubviews(noResultsView, searchInputView)
+        addSubviews(noResultsView, searchInputView, resultsView)
         setConstraints()
+        
         searchInputView.configure(with: .init(with: searchVM.configType))
         searchInputView.delegate = self
-        searchVM.registerOptionChange { options in
-            self.searchInputView.update(with: options.0, and: options.1)
-        }
-        searchVM.registerSearchResultsHandler { results in
-            
-        }
+        resultsView.delegate = self 
+        setupHandlers()
     }
     
     @available(*, unavailable)
@@ -56,6 +62,27 @@ final class RMSearchView: UIView {
         searchInputView.presentKeyboard()
     }
     
+    
+    private func setupHandlers() {
+        searchVM.registerOptionChange { options in
+            self.searchInputView.update(with: options.0, and: options.1)
+        }
+        searchVM.registerSearchResultsHandler { [weak self] results in
+            DispatchQueue.main.async {
+                self?.resultsView.configure(with: results)
+                self?.noResultsView.isHidden = true
+                self?.resultsView.isHidden = false
+            }
+        }
+        
+        searchVM.registerNoResultsHandler { [weak self] in
+            DispatchQueue.main.async {
+                self?.noResultsView.isHidden = false
+                self?.resultsView.isHidden = true
+            }
+        }
+    }
+    
     private func setConstraints() {
         NSLayoutConstraint.activate([
             // Search Input
@@ -64,6 +91,12 @@ final class RMSearchView: UIView {
             searchInputView.rightAnchor.constraint(equalTo: rightAnchor),
             searchInputView.heightAnchor.constraint(
                 equalToConstant: height),
+            
+            resultsView.topAnchor.constraint(equalTo: searchInputView.bottomAnchor),
+            resultsView.leftAnchor.constraint(equalTo: leftAnchor),
+            resultsView.rightAnchor.constraint(equalTo: rightAnchor),
+            resultsView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            
             // No results
             noResultsView.widthAnchor.constraint(
                 equalToConstant: Constants.NoResultsView.width
@@ -73,6 +106,7 @@ final class RMSearchView: UIView {
             ),
             noResultsView.centerXAnchor.constraint(equalTo: centerXAnchor),
             noResultsView.centerYAnchor.constraint(equalTo: centerYAnchor),
+            
         ])
     }
     
@@ -135,6 +169,16 @@ extension RMSearchView: RMSearchInputViewDelegate {
         didSelectOption option: RMSearchInputViewViewModel.DynamicOption
     ) {
         delegate?.rmSearchView(self, didSelectOption: option)
+    }
+}
+
+extension RMSearchView: RMSearchResultsViewDelegate {
+    func rmSearchResultsView(
+        _ sender: RMSearchResultsView,
+        didTapLocationAt index: Int
+    ) {
+        guard let locationModel = searchVM.locationSearchResult(at: index) else { return }
+        delegate?.rmSearchView(self, didSelectLocation: locationModel)
     }
 }
 
