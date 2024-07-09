@@ -155,9 +155,8 @@ extension RMLocationView: UIScrollViewDelegate {
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         guard let locationVM,
-              locationVM.shouldShowLoadIndicator,
-              !locationVM.isLoadingMoreLocations,
-              !locationVM.cellViewModels.isEmpty else { return }
+              !locationVM.cellViewModels.isEmpty,
+              !locationVM.isLoadingMoreLocations else { return }
         
         Timer.scheduledTimer(withTimeInterval: 0.2, repeats: false) { [weak self] t in
             guard let self else { return }
@@ -166,10 +165,12 @@ extension RMLocationView: UIScrollViewDelegate {
             let totalScrollHeight = scrollView.frame.size.height
             
             if offset >= totalContentHeight - totalScrollHeight - scrollInset {
-                DispatchQueue.main.async {
-                    self.showLoadingIndicator()
+                if locationVM.shouldShowLoadIndicator {
+                    DispatchQueue.main.async {
+                        self.showLoadingIndicator()
+                    }
+                    locationVM.fetchAdditionalLocations()
                 }
-                locationVM.fetchAdditionalLocations()
             }
             t.invalidate()
         }
