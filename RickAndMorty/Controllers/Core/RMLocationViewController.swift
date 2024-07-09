@@ -12,7 +12,7 @@ import UIKit
 final class RMLocationViewController: UIViewController {
     
     
-    private let primaryView: RMLocationView = RMLocationView()
+    private let primaryView: RMLocationView
     
     private let locationVM: RMLocationViewViewModel
     
@@ -22,6 +22,7 @@ final class RMLocationViewController: UIViewController {
     init(service: Service) {
         self.service = service
         locationVM = RMLocationViewViewModel(service: service)
+        primaryView = RMLocationView()
         super.init(nibName: nil, bundle: nil)
     }
     

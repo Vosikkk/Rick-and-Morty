@@ -28,6 +28,10 @@ final class RMLocationView: UIView {
             UIView.animate(withDuration: Constants.duration) {
                 self.tableView.alpha = 1
             }
+            locationVM?.registerDidFinishPaginationBlock { [weak self] in
+                self?.tableView.tableFooterView = nil
+                self?.tableView.reloadData()
+            }
         }
     }
     
@@ -69,6 +73,12 @@ final class RMLocationView: UIView {
         locationVM = vm
     }
     
+    
+    private func showLoadingIndicator() {
+        let footer = RMTableLoadingFooterView()
+        footer.frame = CGRect(x: 0, y: 0, width: frame.size.width, height: 100)
+        tableView.tableFooterView = footer
+    }
     
     private func configureTableView() {
         tableView.delegate = self
@@ -144,8 +154,27 @@ extension RMLocationView: UITableViewDelegate {
 extension RMLocationView: UIScrollViewDelegate {
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        guard let locationVM,
+              locationVM.shouldShowLoadIndicator,
+              !locationVM.isLoadingMoreLocations,
+              !locationVM.cellViewModels.isEmpty else { return }
         
+        Timer.scheduledTimer(withTimeInterval: 0.2, repeats: false) { [weak self] t in
+            guard let self else { return }
+            let offset = scrollView.contentOffset.y
+            let totalContentHeight = scrollView.contentSize.height
+            let totalScrollHeight = scrollView.frame.size.height
+            
+            if offset >= totalContentHeight - totalScrollHeight - scrollInset {
+                DispatchQueue.main.async {
+                    self.showLoadingIndicator()
+                }
+                locationVM.fetchAdditionalLocations()
+            }
+            t.invalidate()
+        }
     }
+    private var scrollInset: CGFloat { 120 }
 }
 
 

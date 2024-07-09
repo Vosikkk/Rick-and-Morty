@@ -16,6 +16,14 @@ final class RMLocationViewViewModel {
     
     public weak var delegate: RMLocationViewViewModelDelegate?
     
+    public var isLoadingMoreLocations: Bool = false
+    
+    public var shouldShowLoadIndicator: Bool {
+        apiInfo?.next != nil
+    }
+    
+    private var didFinishPagination: (() -> Void)?
+    
     private var locations: [RMLocation] = [] {
         didSet {
             for location in locations {
@@ -31,7 +39,7 @@ final class RMLocationViewViewModel {
         false
     }
     
-    private var apiInfo: RMGetLocationsResponse.Info?
+    private(set) var apiInfo: RMGetLocationsResponse.Info?
     
     public private(set) var cellViewModels: [RMLocationTableViewCellViewModel] = []
     
@@ -39,6 +47,12 @@ final class RMLocationViewViewModel {
     
     init(service: Service) {
         self.service = service
+    }
+    
+    public func registerDidFinishPaginationBlock(
+        _ block: @escaping () -> Void
+    ) {
+        self.didFinishPagination = block
     }
     
     public func fetchLocations() {
@@ -59,6 +73,47 @@ final class RMLocationViewViewModel {
             }
         }
     }
+    
+    /// Paginate if additional locations are needed
+    public func fetchAdditionalLocations() {
+        guard !isLoadingMoreLocations,
+              let nextURLString = apiInfo?.next,
+              let url = URL(string: nextURLString) else { return }
+        
+        isLoadingMoreLocations = true
+        
+        guard let request = RMRequest(url: url) else {
+            isLoadingMoreLocations = false
+            return
+        }
+        
+        service.execute(
+            request,
+            expecting: RMGetLocationsResponse.self
+        ) { [weak self] res in
+            
+            guard let self else { return }
+            switch res {
+            case .success(let responseModel):
+                let moreRes = responseModel.results
+                let info = responseModel.info
+                apiInfo = info
+                cellViewModels.append(contentsOf: moreRes
+                    .compactMap {
+                        RMLocationTableViewCellViewModel(location: $0)
+                    }
+                )
+                DispatchQueue.main.async {
+                    self.isLoadingMoreLocations = false
+                    self.didFinishPagination?()
+                }
+            case .failure(let failure):
+                print(String(describing: failure))
+                isLoadingMoreLocations = false
+            }
+        }
+    }
+    
     
     public func location(at index: Int) -> RMLocation? {
         guard index < locations.count, index >= 0 else {
