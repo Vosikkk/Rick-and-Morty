@@ -7,6 +7,7 @@
 
 import UIKit
 
+
 ///  Configurable controller to search
 final class RMSearchViewController: UIViewController {
     
@@ -32,6 +33,17 @@ final class RMSearchViewController: UIViewController {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
+    override func viewWillTransition(
+        to size: CGSize,
+        with coordinator: UIViewControllerTransitionCoordinator
+    ) {
+        super.viewWillTransition(to: size, with: coordinator)
+        coordinator.animate(alongsideTransition: { _ in
+            self.searchView.didChangeScreenTransition()
+        })
+    }
+    
     
     // MARK: - Lifecycle
     

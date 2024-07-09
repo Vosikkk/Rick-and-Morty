@@ -107,7 +107,7 @@ extension RMSearchResultsView: UICollectionViewDelegateFlowLayout {
     // MARK: - UI Size Helpers Computed Properties
     
     var episodeWidth: CGFloat {
-        _bounds.width - 20
+        collectionView.bounds.width - 20
     }
     
     var episodeHeight: CGFloat { 100 }
@@ -121,6 +121,6 @@ extension RMSearchResultsView: UICollectionViewDelegateFlowLayout {
     }
     
     var _bounds: CGRect {
-        UIScreen.main.bounds
+        collectionView.bounds
     }
 }

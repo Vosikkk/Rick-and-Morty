@@ -32,6 +32,17 @@ final class RMCharacterViewController: UIViewController {
         addSearchButton()
     }
     
+    override func viewWillTransition(
+        to size: CGSize,
+        with coordinator: UIViewControllerTransitionCoordinator
+    ) {
+        super.viewWillTransition(to: size, with: coordinator)
+        coordinator.animate(alongsideTransition: { _ in
+            self.charactersListView.layoutSubviews()
+        })
+    }
+    
+    
     private func setupView() {
         charactersListView.delegate = self
         view.addSubview(charactersListView)

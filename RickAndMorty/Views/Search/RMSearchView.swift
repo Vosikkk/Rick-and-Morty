@@ -50,8 +50,10 @@ final class RMSearchView: UIView {
         searchInputView.configure(with: .init(with: searchVM.configType))
         searchInputView.delegate = self
         resultsView.delegate = self 
+       
         setupHandlers()
     }
+    
     
     @available(*, unavailable)
     required init?(coder: NSCoder) {
@@ -60,6 +62,10 @@ final class RMSearchView: UIView {
     
     public func presentKeyboard() {
         searchInputView.presentKeyboard()
+    }
+    
+    public func didChangeScreenTransition() {
+        resultsView.layoutSubviews()
     }
     
     
@@ -109,7 +115,6 @@ final class RMSearchView: UIView {
             
         ])
     }
-    
 }
 
 // MARK: - UICollectionViewDelegate

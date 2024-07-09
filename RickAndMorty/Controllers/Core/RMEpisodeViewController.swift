@@ -33,6 +33,16 @@ final class RMEpisodeViewController: UIViewController {
         addSearchButton()
     }
     
+    override func viewWillTransition(
+        to size: CGSize,
+        with coordinator: UIViewControllerTransitionCoordinator
+    ) {
+        super.viewWillTransition(to: size, with: coordinator)
+        coordinator.animate(alongsideTransition: { _ in
+            self.episodeListView.layoutSubviews()
+        })
+    }
+    
     private func addSearchButton() {
         navigationItem.rightBarButtonItem = UIBarButtonItem(
             barButtonSystemItem: .search,

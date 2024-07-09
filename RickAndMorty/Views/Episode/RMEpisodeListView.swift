@@ -71,6 +71,11 @@ final class RMEpisodeListView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        collectionView.collectionViewLayout.invalidateLayout()
+    }
+    
     
     private func setupCollectionView() {
         collectionView.dataSource = episodeListViewModel

@@ -18,7 +18,6 @@ protocol RMSearchResultsViewDelegate: AnyObject {
 /// Shows search results UI (table or collection as needed)
 final class RMSearchResultsView: UIView {
     
-    
     weak var delegate: RMSearchResultsViewDelegate?
     
     private var searchVM: RMSearchResultViewModel? {
@@ -43,7 +42,7 @@ final class RMSearchResultsView: UIView {
         return table
     }()
     
-    private let collectionView: UICollectionView = {
+    let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
         layout.sectionInset = UIEdgeInsets(
@@ -66,7 +65,6 @@ final class RMSearchResultsView: UIView {
         return collection
     }()
     
-
     // MARK: - Init
     
     override init(frame: CGRect) {
@@ -82,6 +80,12 @@ final class RMSearchResultsView: UIView {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        collectionView.collectionViewLayout.invalidateLayout()
+    }
+    
     
     private func processSearchViewModel() {
         guard let searchVM else { return }
@@ -132,6 +136,7 @@ final class RMSearchResultsView: UIView {
         searchVM = vm
     }
 }
+
 
 
 // MARK: - Constants
