@@ -94,6 +94,8 @@ final class RMLocationView: UIView {
     }
 }
 
+// MARK: - UITableViewDataSource
+
 extension RMLocationView: UITableViewDataSource {
     
     func tableView(
@@ -121,7 +123,10 @@ extension RMLocationView: UITableViewDataSource {
     }
  }
 
+// MARK: - UITableViewDelegate
+
 extension RMLocationView: UITableViewDelegate {
+   
     func tableView(
         _ tableView: UITableView,
         didSelectRowAt indexPath: IndexPath
@@ -134,6 +139,17 @@ extension RMLocationView: UITableViewDelegate {
     }
 }
 
+// MARK: - UIScrollViewDelegate
+
+extension RMLocationView: UIScrollViewDelegate {
+    
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        
+    }
+}
+
+
+// MARK: - Constants
 
 private extension RMLocationView {
     
