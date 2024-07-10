@@ -73,9 +73,9 @@ final class RMSearchView: UIView {
         searchVM.registerOptionChange { options in
             self.searchInputView.update(with: options.0, and: options.1)
         }
-        searchVM.registerSearchResultsHandler { [weak self] results in
+        searchVM.registerSearchResultsHandler { [weak self] result in
             DispatchQueue.main.async {
-                self?.resultsView.configure(with: results)
+                self?.resultsView.configure(with: result)
                 self?.noResultsView.isHidden = true
                 self?.resultsView.isHidden = false
             }

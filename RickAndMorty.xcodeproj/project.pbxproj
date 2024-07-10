@@ -19,7 +19,7 @@
 		380129872C25C3FD006B62B7 /* RMEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 380129862C25C3FD006B62B7 /* RMEndpoint.swift */; };
 		3801298A2C25C6D3006B62B7 /* TabItems.swift in Sources */ = {isa = PBXBuildFile; fileRef = 380129892C25C6D3006B62B7 /* TabItems.swift */; };
 		3801298E2C263EC8006B62B7 /* RMGetCharactersResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3801298D2C263EC8006B62B7 /* RMGetCharactersResponse.swift */; };
-		3801898E2C37262F005B7BC8 /* RMSearchResultViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3801898D2C37262F005B7BC8 /* RMSearchResultViewModel.swift */; };
+		3801898E2C37262F005B7BC8 /* RMSearchResultType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3801898D2C37262F005B7BC8 /* RMSearchResultType.swift */; };
 		380189912C375294005B7BC8 /* CharacterService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 380189902C375294005B7BC8 /* CharacterService.swift */; };
 		380189932C3752F0005B7BC8 /* LocationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 380189922C3752F0005B7BC8 /* LocationService.swift */; };
 		380189952C375354005B7BC8 /* MainServiceAsync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 380189942C375354005B7BC8 /* MainServiceAsync.swift */; };
@@ -73,6 +73,7 @@
 		388CA4532C2F526000E28FFC /* RMSettingsOption.swift in Sources */ = {isa = PBXBuildFile; fileRef = 388CA4522C2F526000E28FFC /* RMSettingsOption.swift */; };
 		388CA4562C2F591700E28FFC /* RMSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 388CA4552C2F591700E28FFC /* RMSettingsView.swift */; };
 		3891AC222C32E91B00BA482D /* RMLoactionDetailViewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3891AC212C32E91B00BA482D /* RMLoactionDetailViewViewModel.swift */; };
+		389792772C3ED96F008161F7 /* RMSearchResultViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 389792762C3ED96F008161F7 /* RMSearchResultViewModel.swift */; };
 		38BD060E2C357D43002EE461 /* RMSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38BD060D2C357D43002EE461 /* RMSearchView.swift */; };
 		38BD06112C357E2D002EE461 /* RMSearchViewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38BD06102C357E2D002EE461 /* RMSearchViewViewModel.swift */; };
 		38BD06132C358188002EE461 /* RMNoSearchResultsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38BD06122C358188002EE461 /* RMNoSearchResultsView.swift */; };
@@ -100,7 +101,7 @@
 		380129862C25C3FD006B62B7 /* RMEndpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RMEndpoint.swift; sourceTree = "<group>"; };
 		380129892C25C6D3006B62B7 /* TabItems.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabItems.swift; sourceTree = "<group>"; };
 		3801298D2C263EC8006B62B7 /* RMGetCharactersResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RMGetCharactersResponse.swift; sourceTree = "<group>"; };
-		3801898D2C37262F005B7BC8 /* RMSearchResultViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RMSearchResultViewModel.swift; sourceTree = "<group>"; };
+		3801898D2C37262F005B7BC8 /* RMSearchResultType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RMSearchResultType.swift; sourceTree = "<group>"; };
 		380189902C375294005B7BC8 /* CharacterService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharacterService.swift; sourceTree = "<group>"; };
 		380189922C3752F0005B7BC8 /* LocationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationService.swift; sourceTree = "<group>"; };
 		380189942C375354005B7BC8 /* MainServiceAsync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainServiceAsync.swift; sourceTree = "<group>"; };
@@ -154,6 +155,7 @@
 		388CA4522C2F526000E28FFC /* RMSettingsOption.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RMSettingsOption.swift; sourceTree = "<group>"; };
 		388CA4552C2F591700E28FFC /* RMSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RMSettingsView.swift; sourceTree = "<group>"; };
 		3891AC212C32E91B00BA482D /* RMLoactionDetailViewViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RMLoactionDetailViewViewModel.swift; sourceTree = "<group>"; };
+		389792762C3ED96F008161F7 /* RMSearchResultViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RMSearchResultViewModel.swift; sourceTree = "<group>"; };
 		38BD060D2C357D43002EE461 /* RMSearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RMSearchView.swift; sourceTree = "<group>"; };
 		38BD06102C357E2D002EE461 /* RMSearchViewViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RMSearchViewViewModel.swift; sourceTree = "<group>"; };
 		38BD06122C358188002EE461 /* RMNoSearchResultsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RMNoSearchResultsView.swift; sourceTree = "<group>"; };
@@ -478,7 +480,8 @@
 				38BD06102C357E2D002EE461 /* RMSearchViewViewModel.swift */,
 				38BD06142C3581C6002EE461 /* RMNoSearchResultsViewViewModel.swift */,
 				38BD06182C35823F002EE461 /* RMSearchInputViewViewModel.swift */,
-				3801898D2C37262F005B7BC8 /* RMSearchResultViewModel.swift */,
+				3801898D2C37262F005B7BC8 /* RMSearchResultType.swift */,
+				389792762C3ED96F008161F7 /* RMSearchResultViewModel.swift */,
 			);
 			path = Search;
 			sourceTree = "<group>";
@@ -599,12 +602,13 @@
 				388C09252C2DA825004393CA /* RMSearchViewController.swift in Sources */,
 				3806A6582C32185500A51622 /* RMLocationDetailView.swift in Sources */,
 				380189932C3752F0005B7BC8 /* LocationService.swift in Sources */,
-				3801898E2C37262F005B7BC8 /* RMSearchResultViewModel.swift in Sources */,
+				3801898E2C37262F005B7BC8 /* RMSearchResultType.swift in Sources */,
 				381AB8412C2B02A1003D477F /* RMCharacterInfoCollectionViewCell.swift in Sources */,
 				380129782C25AFC5006B62B7 /* RMEpisode.swift in Sources */,
 				3806A64D2C31A1E200A51622 /* JsonModel.swift in Sources */,
 				381AB83F2C2B0282003D477F /* RMCharacterPhotoCollectionViewCell.swift in Sources */,
 				3806A6552C32158700A51622 /* RMLocationDetailViewController.swift in Sources */,
+				389792772C3ED96F008161F7 /* RMSearchResultViewModel.swift in Sources */,
 				38BD060E2C357D43002EE461 /* RMSearchView.swift in Sources */,
 				380AB8EB2C28312700777B61 /* RMCharacterDetailViewController.swift in Sources */,
 				3801298E2C263EC8006B62B7 /* RMGetCharactersResponse.swift in Sources */,
@@ -821,6 +825,7 @@
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -850,6 +855,7 @@
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

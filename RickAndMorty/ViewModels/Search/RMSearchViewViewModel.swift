@@ -74,6 +74,9 @@ final class RMSearchViewViewModel {
     }
     
     public func executeSearch() {
+        
+        guard !searchText.trimmingCharacters(in: .whitespaces).isEmpty else { return }
+        
         var queryParameters: [URLQueryItem] = [
             URLQueryItem(
                 name: "name",
@@ -120,10 +123,11 @@ final class RMSearchViewViewModel {
     
     private func processSearchResults(for model: some JsonModel) {
         
-        var resultsVM: RMSearchResultViewModel?
+        var results: RMSearchResultType?
+        var nextUrl: String?
         
         if let characterResults = cast(model, to: RMGetCharactersResponse.self) {
-            resultsVM = .characters(characterResults.results
+            results = .characters(characterResults.results
                 .compactMap {
                     .init(
                         characterName: $0.name,
@@ -132,25 +136,28 @@ final class RMSearchViewViewModel {
                     )
                 }
             )
-           
+            nextUrl = characterResults.info.next
+            
         } else if let locationResults = cast(model, to: RMGetLocationsResponse.self) {
-            resultsVM = .locations(locationResults.results
+            results = .locations(locationResults.results
                 .compactMap {
                     .init(location: $0)
                 }
             )
+            nextUrl = locationResults.info.next
+            
         } else if let episodeResults = cast(model, to: RMGetEpisodesResponse.self) {
-            resultsVM = .episodes(episodeResults.results
+            results = .episodes(episodeResults.results
                 .compactMap {
                     .init(episodeDataURL: URL(string: $0.url), service: service)
                 }
             )
-           
+            nextUrl = episodeResults.info.next
         }
     
-        if let resultsVM {
+        if let results {
             searchResultModel = model
-            searchResultHandler?(resultsVM)
+            searchResultHandler?(.init(with: results, and: nextUrl, service: service))
         } else {
             handleNoResults()
         }
