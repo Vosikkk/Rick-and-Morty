@@ -20,20 +20,14 @@ final class RMSearchResultsView: UIView {
     
     weak var delegate: RMSearchResultsViewDelegate?
     
-    private var searchResVM: RMSearchResultViewModel? {
+    private(set) var searchResVM: RMSearchResultViewModel? {
         didSet {
             processSearchViewModel()
         }
     }
     
-    private(set) var locationCellViewModels: [RMLocationTableViewCellViewModel] = []
-    
-    private(set) var collectionViewCellViewModels: [any Hashable] = [] {
-        didSet {
-            setupCollectionView()
-        }
-    }
-    
+    private(set) var cellViewModels: [any Hashable] = []
+        
     private let tableView: UITableView = {
         let table = UITableView()
         table.register(RMLocationTableViewCell.self)
@@ -86,20 +80,24 @@ final class RMSearchResultsView: UIView {
         collectionView.collectionViewLayout.invalidateLayout()
     }
     
+    public func configure(with vm: RMSearchResultViewModel) {
+        searchResVM = vm
+    }
     
     private func processSearchViewModel() {
         guard let searchResVM else { return }
         switch searchResVM.results {
         case .characters(let vms):
-            collectionViewCellViewModels = vms
+            setupCollectionView(with: vms)
         case .locations(let vms):
             setupTableView(with: vms)
         case .episodes(let vms):
-            collectionViewCellViewModels = vms
+            setupCollectionView(with: vms)
         }
     }
     
-    private func setupCollectionView() {
+    private func setupCollectionView(with vms: [any Hashable]) {
+        cellViewModels = vms
         tableView.isHidden = true
         collectionView.isHidden = false
         
@@ -109,8 +107,8 @@ final class RMSearchResultsView: UIView {
         collectionView.reloadData()
     }
     
-    private func setupTableView(with vms: [RMLocationTableViewCellViewModel]) {
-        locationCellViewModels = vms
+    private func setupTableView(with vms: [any Hashable]) {
+        cellViewModels = vms
         tableView.delegate = self
         tableView.dataSource = self
         tableView.isHidden = false
@@ -132,9 +130,11 @@ final class RMSearchResultsView: UIView {
         ])
     }
     
-    public func configure(with vm: RMSearchResultViewModel) {
-        searchResVM = vm
+    private var isTableView: Bool {
+        tableView.isHidden == false
     }
+    
+    private var lastIndex: Int = 0
 }
 
 // MARK: - UIScrollViewDelegate
@@ -142,49 +142,80 @@ final class RMSearchResultsView: UIView {
 extension RMSearchResultsView: UIScrollViewDelegate {
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        if !locationCellViewModels.isEmpty {
-            handleLocationPagination(scrollView: scrollView)
-        } else {
-            handleCharacterOrEpisodePagination(scrollView: scrollView)
-        }
-    }
-    
-    private func handleCharacterOrEpisodePagination(scrollView: UIScrollView) {
-        
-    }
-    
-    private func handleLocationPagination(scrollView: UIScrollView) {
         guard let searchResVM,
-        !locationCellViewModels.isEmpty,
+        !cellViewModels.isEmpty,
         !searchResVM.isLoadingMoreResults else { return }
         
-        Timer.scheduledTimer(withTimeInterval: 0.2, repeats: false) { [weak self] t in
+        handlePagination(scrollView: scrollView, searchResVM: searchResVM)
+    }
+    
+    private func handlePagination(
+        scrollView: UIScrollView,
+        searchResVM: RMSearchResultViewModel
+    ) {
+        
+        Timer.scheduledTimer(
+            withTimeInterval: 0.2,
+            repeats: false
+        ) { [weak self] t in
+            
             guard let self else { return }
             let offset = scrollView.contentOffset.y
             let totalContentHeight = scrollView.contentSize.height
             let totalScrollHeight = scrollView.frame.size.height
             
             if offset >= totalContentHeight - totalScrollHeight - scrollInset {
-                if searchResVM.shouldShowLoadIndicator {
-                    DispatchQueue.main.async {
-                        self.showLoadingIndicator()
-                    }
-                    searchResVM.fetchAdditionalLocations { res in
-                        self.tableView.tableFooterView = nil
-                        self.locationCellViewModels = res
-                        self.tableView.reloadData()
+                searchResVM.fetchAdditionalResults { newVms in
+                    
+                    self.cellViewModels.append(contentsOf: newVms)
+                    
+                    if self.isTableView {
+                        if searchResVM.shouldShowLoadIndicator {
+                            DispatchQueue.main.async {
+                                self.showTableLoadingIndicator()
+                            }
+                        }
+                        self.updateTable(with: newVms)
+                    } else {
+                        self.updateCollection(with: newVms)
                     }
                 }
+                lastIndex = cellViewModels.endIndex
             }
             t.invalidate()
         }
     }
     
+    private func updateTable(with newVms: [any Hashable]) {
+        tableView.tableFooterView = nil
+        tableView.reloadData()
+    }
+    
+    private func updateCollection(with newVms: [any Hashable]) {
+        collectionView.performBatchUpdates {
+            collectionView.insertItems(
+                at: calculateIndexPaths(with: newVms.count)
+            )
+        }
+    }
+    
+    private func calculateIndexPaths(with newVmsCount: Int) -> [IndexPath] {
+        let endIndex = lastIndex + newVmsCount
+        return Array(lastIndex..<endIndex).compactMap {
+            IndexPath(item: $0, section: 0)
+        }
+    }
+    
     private var scrollInset: CGFloat { 120 }
     
-    private func showLoadingIndicator() {
+    private func showTableLoadingIndicator() {
         let footer = RMTableLoadingFooterView()
-        footer.frame = CGRect(x: 0, y: 0, width: frame.size.width, height: 100)
+        footer.frame = CGRect(
+            x: 0,
+            y: 0,
+            width: frame.size.width,
+            height: Constants.tableFooterHeight
+        )
         tableView.tableFooterView = footer
     }
 }
@@ -196,6 +227,9 @@ extension RMSearchResultsView: UIScrollViewDelegate {
 private extension RMSearchResultsView {
     
     struct Constants {
+        
+        static let tableFooterHeight: CGFloat = 100
+        
         struct Collection {
             static let right: CGFloat = 10
             static let left: CGFloat = 10

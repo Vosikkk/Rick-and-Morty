@@ -28,20 +28,24 @@ extension RMSearchResultsView: UITableViewDataSource {
         _ tableView: UITableView,
         numberOfRowsInSection section: Int
     ) -> Int {
-        locationCellViewModels.count
+        cellViewModels.count
     }
     
     func tableView(
         _ tableView: UITableView,
         cellForRowAt indexPath: IndexPath
     ) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(
+        
+        if let vm = cellViewModels[indexPath.row] as? RMLocationTableViewCellViewModel,
+            let cell = tableView.dequeueReusableCell(
             RMLocationTableViewCell.self,
-            for: indexPath
-        ) else {
+            for: indexPath) {
+            
+            cell.configure(with: vm)
+            return cell
+            
+        } else {
             fatalError("Failed to dequeue RMLocationTableViewCell")
         }
-        cell.configure(with: locationCellViewModels[indexPath.row])
-        return cell
     }
 }

@@ -15,7 +15,7 @@ extension RMSearchResultsView: UICollectionViewDataSource {
         _ collectionView: UICollectionView,
         numberOfItemsInSection section: Int
     ) -> Int {
-        collectionViewCellViewModels.count
+        cellViewModels.count
     }
     
     func collectionView(
@@ -23,7 +23,7 @@ extension RMSearchResultsView: UICollectionViewDataSource {
         cellForItemAt indexPath: IndexPath
     ) -> UICollectionViewCell {
         
-        let viewModel = collectionViewCellViewModels[indexPath.row]
+        let viewModel = cellViewModels[indexPath.row]
         
         if let characterVM = viewModel as? 
             RMCharacterCollectionViewCellViewModel {
@@ -85,11 +85,50 @@ extension RMSearchResultsView: UICollectionViewDelegateFlowLayout {
     
     func collectionView(
         _ collectionView: UICollectionView,
+        viewForSupplementaryElementOfKind kind: String,
+        at indexPath: IndexPath
+    ) -> UICollectionReusableView {
+       
+        guard kind == UICollectionView.elementKindSectionFooter,
+              let footer = collectionView.dequeueReusableSupplementaryView(
+                 ofKind: kind,
+                 withReuseIdentifier: RMFooterLoaderCollectionReusableView.identifier,
+                 for: indexPath
+             ) as? RMFooterLoaderCollectionReusableView else {
+             fatalError("Unsupported")
+        }
+        if let searchResVM, searchResVM.shouldShowLoadIndicator {
+            footer.startAnimating()
+        }
+        
+        return footer
+    }
+    
+    func collectionView(
+        _ collectionView: UICollectionView,
+        layout collectionViewLayout: UICollectionViewLayout,
+        referenceSizeForFooterInSection section: Int
+    ) -> CGSize {
+       
+        guard let searchResVM,
+              searchResVM.shouldShowLoadIndicator else {
+            return .zero
+        }
+        return CGSize(
+            width: collectionView.frame.width,
+            height: footerHeight
+        )
+    }
+    
+    private var footerHeight: Double { 100 }
+    
+    func collectionView(
+        _ collectionView: UICollectionView,
         layout collectionViewLayout: UICollectionViewLayout,
         sizeForItemAt indexPath: IndexPath
     ) -> CGSize {
         
-        let viewModel = collectionViewCellViewModels[indexPath.row]
+        let viewModel = cellViewModels[indexPath.row]
         
         if viewModel is RMCharacterCollectionViewCellViewModel {
             return CGSize(

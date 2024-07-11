@@ -182,7 +182,9 @@ extension RMSearchView: RMSearchResultsViewDelegate {
         _ sender: RMSearchResultsView,
         didTapLocationAt index: Int
     ) {
-        guard let locationModel = searchVM.locationSearchResult(at: index) else { return }
+        guard let locationModel = searchVM.locationSearchResult(at: index) else {
+            return
+        }
         delegate?.rmSearchView(self, didSelectLocation: locationModel)
     }
 }
