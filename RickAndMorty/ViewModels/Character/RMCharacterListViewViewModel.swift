@@ -18,7 +18,9 @@ protocol RMCharacterListViewViewModelDelegate: AnyObject {
 ///  View Model to handle character list view logic
 final class RMCharacterListViewViewModel: NSObject {
    
-    public weak var delegate: RMCharacterListViewViewModelDelegate? 
+    // MARK: - Properties
+    
+    public weak var delegate: RMCharacterListViewViewModelDelegate?
     
     public var shouldShowLoadIndicator: Bool {
         apiInfo?.next != nil 
@@ -26,18 +28,16 @@ final class RMCharacterListViewViewModel: NSObject {
     
     private let service: Service
     
+    private var calculator: CalculatorIndexPaths
+    
     private var characters: [RMCharacter] = [] {
         didSet {
-            for character in characters {
-                let vm = RMCharacterCollectionViewCellViewModel(
-                    characterName: character.name,
-                    characterStatus: character.status,
-                    characterImageUrl: URL(string: character.image)
+            cellViewModels.append(
+                contentsOf: createViewModels(
+                    from: characters, 
+                    startingAt: calculator._lastIndex
                 )
-                if !cellViewModels.contains(vm) {
-                    cellViewModels.append(vm)
-                }
-            }
+            )
         }
     }
     
@@ -45,12 +45,24 @@ final class RMCharacterListViewViewModel: NSObject {
     
     private var apiInfo: RMGetCharactersResponse.Info? = nil
     
-    private var isLoadingMoreCharacters: Bool = false
+    private var isLoadingMoreCharacters: Bool = false {
+        didSet {
+            if isLoadingMoreCharacters,
+                calculator._lastIndex != characters.endIndex {
+                calculator._lastIndex = characters.endIndex
+            }
+        }
+    }
+    
+    // MARK: - Init
     
     init(service: Service) {
         self.service = service
+        calculator = .init()
     }
     
+    
+    // MARK: - Public methods
     
     ///  Fetch initial set of characters (20)
     public func fetchCharacters() {
@@ -58,18 +70,12 @@ final class RMCharacterListViewViewModel: NSObject {
             RMRequest(endpoint: .character),
             expecting: RMGetCharactersResponse.self
         ) { [weak self] res in
-           
+            
             switch res {
-            case .success(let responseModel):
-                let res = responseModel.results
-                let info = responseModel.info
-                self?.apiInfo = info
-                self?.characters = res
-                DispatchQueue.main.async {
-                    self?.delegate?.didLoadInitialCharacters()
-                }
+            case .success(let model):
+                self?.handleInitial(response: model)
             case .failure(let failure):
-                print(failure)
+                print(String(describing: failure))
             }
         }
     }
@@ -92,28 +98,53 @@ final class RMCharacterListViewViewModel: NSObject {
             
             guard let self else { return }
             switch res {
-            case .success(let responseModel):
-                let moreRes = responseModel.results
-                let info = responseModel.info
-                apiInfo = info
-                
-                let startingIndex = characters.endIndex
-                let endIndex = startingIndex + moreRes.count
-                
-                let indexPathsToAdd: [IndexPath] = Array(startingIndex..<endIndex)
-                    .compactMap { IndexPath(row: $0, section: 0) }
-                
-                characters.append(contentsOf: moreRes)
-                
-                DispatchQueue.main.async {
-                    self.delegate?.didLoadMoreCharacters(with: indexPathsToAdd)
-                    self.isLoadingMoreCharacters = false
-                }
+            case .success(let model):
+                handleAdditional(response: model)
             case .failure(let failure):
                 print(String(describing: failure))
                 isLoadingMoreCharacters = false
             }
         }
+    }
+    
+    // MARK: - Private methods
+    
+    private func handleInitial(response: RMGetCharactersResponse) {
+        apiInfo = response.info
+        characters = response.results
+        DispatchQueue.main.async { [weak self] in
+            self?.delegate?.didLoadInitialCharacters()
+        }
+    }
+    
+    private func handleAdditional(response: RMGetCharactersResponse) {
+        apiInfo = response.info
+        characters.append(contentsOf: response.results)
+        
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            delegate?.didLoadMoreCharacters(
+                with: calculator.calculateIndexPaths(
+                    count: response.results.count
+                )
+            )
+            isLoadingMoreCharacters = false
+        }
+    }
+    
+    private func createViewModels(
+        from characters: [RMCharacter],
+        startingAt index: Int
+    ) -> [RMCharacterCollectionViewCellViewModel] {
+        
+        return characters[index...]
+            .map {
+                .init(
+                    characterName: $0.name,
+                    characterStatus: $0.status,
+                    characterImageUrl: URL(string: $0.image)
+                )
+            }
     }
 }
 
@@ -168,8 +199,10 @@ extension RMCharacterListViewViewModel: UICollectionViewDataSource {
         referenceSizeForFooterInSection section: Int
     ) -> CGSize {
        
-        guard shouldShowLoadIndicator else { return .zero }
-        return CGSize(width: collectionView.frame.width, height: footerHeight)
+        return shouldShowLoadIndicator ? CGSize(
+            width: collectionView.frame.width,
+            height: footerHeight
+        ) : .zero
     }
     
     private var footerHeight: Double { 100 }
@@ -200,20 +233,16 @@ extension RMCharacterListViewViewModel: UICollectionViewDelegateFlowLayout {
     ) -> CGSize {
        
         let isIphone = UIDevice.current.userInterfaceIdiom == .phone
-        var width: CGFloat
-        
-        if isIphone {
-            width = (collectionView.bounds.width - 30) / 2
-        } else {
-            // mac | ipad
-            width = (collectionView.bounds.width - 50) / 4
-        }
+        let width: CGFloat = isIphone ? (collectionView.bounds.width - 30) / 2 : (collectionView.bounds.width - 50) / 4
+       
         return CGSize(
             width: width,
             height: width * 1.5
         )
     }
 }
+
+// MARK: - UIScrollViewDelegate
 
 extension RMCharacterListViewViewModel: UIScrollViewDelegate {
     

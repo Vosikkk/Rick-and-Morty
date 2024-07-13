@@ -87,6 +87,7 @@
 		38E5BFB42C24E65C000EF594 /* RMTabViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38E5BFB32C24E65C000EF594 /* RMTabViewController.swift */; };
 		38E5BFB92C24E65E000EF594 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 38E5BFB82C24E65E000EF594 /* Assets.xcassets */; };
 		38E5BFBC2C24E65E000EF594 /* Base in Resources */ = {isa = PBXBuildFile; fileRef = 38E5BFBB2C24E65E000EF594 /* Base */; };
+		38ECF41B2C42EDA700B32007 /* CalculatorIndexPaths.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38ECF41A2C42EDA700B32007 /* CalculatorIndexPaths.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -172,6 +173,7 @@
 		38E5BFB82C24E65E000EF594 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		38E5BFBB2C24E65E000EF594 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		38E5BFBD2C24E65E000EF594 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		38ECF41A2C42EDA700B32007 /* CalculatorIndexPaths.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorIndexPaths.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -285,6 +287,7 @@
 				380129892C25C6D3006B62B7 /* TabItems.swift */,
 				388CA44B2C2F415B00E28FFC /* DateFormatter.swift */,
 				38819A362C4190E60079C7BF /* RMParser.swift */,
+				38ECF41A2C42EDA700B32007 /* CalculatorIndexPaths.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -601,6 +604,7 @@
 			files = (
 				38862BC52C2CCFC20020081E /* RMGetEpisodesResponse.swift in Sources */,
 				38819A372C4190E60079C7BF /* RMParser.swift in Sources */,
+				38ECF41B2C42EDA700B32007 /* CalculatorIndexPaths.swift in Sources */,
 				38BD06152C3581C6002EE461 /* RMNoSearchResultsViewViewModel.swift in Sources */,
 				3801297D2C25B0BB006B62B7 /* RMLocationViewController.swift in Sources */,
 				388C09252C2DA825004393CA /* RMSearchViewController.swift in Sources */,

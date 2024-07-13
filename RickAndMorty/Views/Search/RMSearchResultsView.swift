@@ -18,6 +18,8 @@ protocol RMSearchResultsViewDelegate: AnyObject {
 /// Shows search results UI (table or collection as needed)
 final class RMSearchResultsView: UIView {
     
+    // MARK: - Properties
+    
     weak var delegate: RMSearchResultsViewDelegate?
     
     private(set) var searchResVM: RMSearchResultViewModel? {
@@ -26,7 +28,10 @@ final class RMSearchResultsView: UIView {
         }
     }
     
+    private var calculator: CalculatorIndexPaths
+    
     private(set) var cellViewModels: [any Hashable] = []
+    
         
     private let tableView: UITableView = {
         let table = UITableView()
@@ -62,6 +67,7 @@ final class RMSearchResultsView: UIView {
     // MARK: - Init
     
     override init(frame: CGRect) {
+        calculator = .init()
         super.init(frame: frame)
         isHidden = true
         addSubviews(tableView, collectionView)
@@ -75,6 +81,9 @@ final class RMSearchResultsView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
+    
+    // MARK: - Public methods
+    
     override func layoutSubviews() {
         super.layoutSubviews()
         collectionView.collectionViewLayout.invalidateLayout()
@@ -82,7 +91,12 @@ final class RMSearchResultsView: UIView {
     
     public func configure(with vm: RMSearchResultViewModel) {
         searchResVM = vm
+        searchResVM?.needToCalculateLastIndex = { [weak self] in
+            self?.calculator._lastIndex = self?.modelsLastIndex ?? 0
+        }
     }
+    
+    // MARK: - Private methods
     
     private func processSearchViewModel() {
         guard let searchResVM else { return }
@@ -100,20 +114,27 @@ final class RMSearchResultsView: UIView {
         cellViewModels = vms
         tableView.isHidden = true
         collectionView.isHidden = false
-        
-        collectionView.delegate = self
-        collectionView.dataSource = self
-        
+        setupCollectionViewDelegates()
         collectionView.reloadData()
     }
     
     private func setupTableView(with vms: [any Hashable]) {
         cellViewModels = vms
-        tableView.delegate = self
-        tableView.dataSource = self
+        setupTableViewDelegates()
         tableView.isHidden = false
         collectionView.isHidden = true
         tableView.reloadData()
+    }
+    
+    
+    private func setupCollectionViewDelegates() {
+        collectionView.delegate = self
+        collectionView.dataSource = self
+    }
+    
+    private func setupTableViewDelegates() {
+        tableView.delegate = self
+        tableView.dataSource = self
     }
     
     private func setConstraints() {
@@ -130,11 +151,15 @@ final class RMSearchResultsView: UIView {
         ])
     }
     
+    // MARK: - Helpers
+    
+    private var modelsLastIndex: Int {
+        cellViewModels.endIndex
+    }
+    
     private var isTableView: Bool {
         tableView.isHidden == false
     }
-    
-    private var lastIndex: Int = 0
 }
 
 // MARK: - UIScrollViewDelegate
@@ -166,27 +191,30 @@ extension RMSearchResultsView: UIScrollViewDelegate {
             
             if offset >= totalContentHeight - totalScrollHeight - scrollInset {
                 searchResVM.fetchAdditionalResults { newVms in
-                    
                     self.cellViewModels.append(contentsOf: newVms)
-                    
                     if self.isTableView {
-                        if searchResVM.shouldShowLoadIndicator {
-                            DispatchQueue.main.async {
-                                self.showTableLoadingIndicator()
-                            }
-                        }
-                        self.updateTable(with: newVms)
+                        self.updateTable(
+                            with: newVms,
+                            shouldShowIndicator: searchResVM.shouldShowLoadIndicator
+                        )
                     } else {
                         self.updateCollection(with: newVms)
                     }
                 }
-                lastIndex = cellViewModels.endIndex
             }
             t.invalidate()
         }
     }
     
-    private func updateTable(with newVms: [any Hashable]) {
+    
+    // MARK: - Helpers 
+    
+    private func updateTable(with newVms: [any Hashable], shouldShowIndicator: Bool) {
+        if shouldShowIndicator {
+            DispatchQueue.main.async {
+                self.showTableLoadingIndicator()
+            }
+        }
         tableView.tableFooterView = nil
         tableView.reloadData()
     }
@@ -194,15 +222,8 @@ extension RMSearchResultsView: UIScrollViewDelegate {
     private func updateCollection(with newVms: [any Hashable]) {
         collectionView.performBatchUpdates {
             collectionView.insertItems(
-                at: calculateIndexPaths(with: newVms.count)
+                at: calculator.calculateIndexPaths(count: newVms.count)
             )
-        }
-    }
-    
-    private func calculateIndexPaths(with newVmsCount: Int) -> [IndexPath] {
-        let endIndex = lastIndex + newVmsCount
-        return Array(lastIndex..<endIndex).compactMap {
-            IndexPath(item: $0, section: 0)
         }
     }
     

@@ -7,7 +7,12 @@
 
 import Foundation
 
+/// View Model to handle search result view  data
 final class RMSearchResultViewModel {
+    
+    typealias FetchResult = ([any Hashable]) -> Void
+    
+    // MARK: - Properties
     
     public private(set) var results: RMSearchResultType
     private var nextUrl: String?
@@ -17,23 +22,35 @@ final class RMSearchResultViewModel {
         nextUrl != nil 
     }
     
-    public private(set) var isLoadingMoreResults: Bool = false
-        
+    public private(set) var isLoadingMoreResults: Bool = false {
+        didSet {
+            if isLoadingMoreResults {
+                needToCalculateLastIndex?()
+            }
+        }
+    }
+    
+    public var needToCalculateLastIndex: (() -> Void)?
+    
     private let parser: RMParser
     
-    init(with results: RMSearchResultType, 
+    // MARK: - Init
+    
+    init(with results: RMSearchResultType,
          and nextUrl: String?,
          service: Service
     ) {
         self.results = results
         self.nextUrl = nextUrl
         self.service = service
-        self.parser = RMResponseParser(service: service)
+        parser = RMResponseParser(service: service)
     }
     
     
+    // MARK: - Public methods
+    
     public func fetchAdditionalResults(
-        completion: @escaping ([any Hashable]) -> Void
+        completion: @escaping FetchResult
     ) {
         guard !isLoadingMoreResults,
               let nextURLString = nextUrl,
@@ -52,10 +69,13 @@ final class RMSearchResultViewModel {
     }
     
     
+    // MARK: - Private methods
+    
     private func handleResults(
         request: RMRequest,
-        completion: @escaping ([any Hashable]) -> Void
+        completion: @escaping FetchResult
     ) {
+        
         switch results {
         case .characters:
             service.execute(
@@ -81,7 +101,7 @@ final class RMSearchResultViewModel {
   
     private func handleResponse<T: JsonModel>(
         result: Result<T, Error>,
-        completion: @escaping ([any Hashable]) -> Void
+        completion: @escaping FetchResult
     ) {
         switch result {
         case .success(let responseModel):
@@ -118,7 +138,7 @@ final class RMSearchResultViewModel {
     private func updateResults(
         with newResults: [any Hashable],
         nextUrl: String?,
-        completion: @escaping ([any Hashable]) -> Void
+        completion: @escaping FetchResult
     ) {
         switch results {
         case .characters(let existingResults):
@@ -145,13 +165,12 @@ final class RMSearchResultViewModel {
     }
     
     private func createHandleResponseClosure<T: JsonModel>(
-        completion: @escaping ([any Hashable]) -> Void
+        completion: @escaping FetchResult
     ) -> (Result<T, Error>) -> Void {
         return { [weak self] res in
             self?.handleResponse(result: res, completion: completion)
         }
     }
-
 }
 
 enum CastError: Error {
