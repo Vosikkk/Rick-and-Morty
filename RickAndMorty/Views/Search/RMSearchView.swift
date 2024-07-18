@@ -74,15 +74,15 @@ final class RMSearchView: UIView {
             self.searchInputView.update(with: options.0, and: options.1)
         }
         searchVM.registerSearchResultsHandler { [weak self] result in
-            DispatchQueue.main.async {
-                self?.resultsView.configure(with: result)
+            DispatchQueue.mainAsyncIfNeeded {
+                self?.resultsView.configure(vm: result)
                 self?.noResultsView.isHidden = true
                 self?.resultsView.isHidden = false
             }
         }
         
         searchVM.registerNoResultsHandler { [weak self] in
-            DispatchQueue.main.async {
+            DispatchQueue.mainAsyncIfNeeded {
                 self?.noResultsView.isHidden = false
                 self?.resultsView.isHidden = true
             }
@@ -125,7 +125,6 @@ extension RMSearchView: UICollectionViewDelegate {
         didSelectItemAt indexPath: IndexPath
     ) {
         collectionView.deselectItem(at: indexPath, animated: true)
-        
     }
 }
 
@@ -158,7 +157,9 @@ extension RMSearchView: UICollectionViewDataSource {
 
 extension RMSearchView: RMSearchInputViewDelegate {
     
-    func rmSearchInputViewDidTapKeyboardSearch(_ sender: RMSearchInputView) {
+    func rmSearchInputViewDidTapKeyboardSearch(
+        _ sender: RMSearchInputView
+    ) {
         searchVM.executeSearch()
     }
     

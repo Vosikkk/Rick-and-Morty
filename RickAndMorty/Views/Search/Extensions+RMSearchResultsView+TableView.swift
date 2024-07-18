@@ -28,7 +28,8 @@ extension RMSearchResultsView: UITableViewDataSource {
         _ tableView: UITableView,
         numberOfRowsInSection section: Int
     ) -> Int {
-        cellViewModels.count
+        guard let searchVM else { return 0 }
+        return searchVM.data.count
     }
     
     func tableView(
@@ -36,7 +37,7 @@ extension RMSearchResultsView: UITableViewDataSource {
         cellForRowAt indexPath: IndexPath
     ) -> UITableViewCell {
         
-        if let vm = cellViewModels[indexPath.row] as? RMLocationTableViewCellViewModel,
+        if let vm = searchVM?.data[indexPath.row] as? RMLocationTableViewCellViewModel,
             let cell = tableView.dequeueReusableCell(
             RMLocationTableViewCell.self,
             for: indexPath) {

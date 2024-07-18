@@ -10,6 +10,7 @@ import UIKit
 final class RMLocationDetailViewController: UIViewController {
    
     private let service: Service
+    
     private let locationDetailVM: RMLoactionDetailViewViewModel
     
     private let detailView: RMLocationDetailView = RMLocationDetailView()

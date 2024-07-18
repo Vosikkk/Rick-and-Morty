@@ -8,20 +8,11 @@
 import Foundation
 
 struct RMGetLocationsResponse {
-    
-    struct Info: Decodable {
-        let count: Int
-        let pages: Int
-        let next: String?
-        let prev: String?
-    }
-    
     let info: Info
     let results: [RMLocation]
-    
 }
 
-extension RMGetLocationsResponse: JsonModel {
+extension RMGetLocationsResponse: ResponseModel {
     init(json: Data) throws {
         self = try JSONDecoder().decode(Self.self, from: json)
     }

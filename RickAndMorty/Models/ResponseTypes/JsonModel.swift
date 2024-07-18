@@ -7,6 +7,14 @@
 
 import Foundation
 
-public protocol JsonModel: Decodable {
+ public protocol JsonModel: Decodable {
     init(json: Data) throws
+    
+}
+
+public protocol ResponseModel: JsonModel {
+    associatedtype ResultResponse
+    
+    var results: ResultResponse { get }
+    var info: Info { get }
 }

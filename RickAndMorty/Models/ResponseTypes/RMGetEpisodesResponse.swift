@@ -10,19 +10,11 @@ import Foundation
 
 
 struct RMGetEpisodesResponse {
-    
-    struct Info: Decodable {
-        let count: Int
-        let pages: Int
-        let next: String?
-        let prev: String?
-    }
-    
     let info: Info
     let results: [RMEpisode]
 }
 
-extension RMGetEpisodesResponse: JsonModel {
+extension RMGetEpisodesResponse: ResponseModel {
     init(json: Data) throws {
         self = try JSONDecoder().decode(Self.self, from: json)
     }

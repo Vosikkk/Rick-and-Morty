@@ -55,7 +55,7 @@ final class RMEpisodeListViewViewModel: NSObject {
     
     private var cellViewModels: [RMCharacterEpisodeCollectionViewCellViewModel] = []
     
-    private var apiInfo: RMGetEpisodesResponse.Info? = nil
+    private var apiInfo: Info? = nil
     
     private var isLoadingMoreEpisodes: Bool = false
     

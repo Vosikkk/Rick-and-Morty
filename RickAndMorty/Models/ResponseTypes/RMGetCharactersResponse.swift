@@ -8,21 +8,13 @@
 import Foundation
 
 struct RMGetCharactersResponse {
-    
-    struct Info: Decodable {
-        let count: Int
-        let pages: Int
-        let next: String?
-        let prev: String?
-    }
-    
     let info: Info
     let results: [RMCharacter]
 }
 
-extension RMGetCharactersResponse: JsonModel {
+extension RMGetCharactersResponse: ResponseModel {
     init(json: Data) throws {
         self = try JSONDecoder().decode(Self.self, from: json)
     }
 }
-    
+

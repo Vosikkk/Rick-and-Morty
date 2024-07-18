@@ -54,13 +54,13 @@ final class RMSearchInputView: UIView {
     
     // MARK: - Init
     
-     override init(frame: CGRect = .zero) {
+    override init(frame: CGRect = .zero) {
         super.init(frame: frame)
         translatesAutoresizingMaskIntoConstraints = false
         addSubviews(searchBar)
         setConstraints()
         
-         searchBar.delegate = self
+        searchBar.delegate = self
     }
     
     @available(*, unavailable)
@@ -98,25 +98,29 @@ final class RMSearchInputView: UIView {
     
     private func createOptionSelectionViews(with options: [Option]) {
         let stackView = createOptionStackView()
-        var tag: Int = 0
-        options.forEach {
-            let button = UIButton()
-            configureButton(button, title: $0.rawValue)
-            button.tag = tag
-            tag += 1
-            stackView.addArrangedSubview(button)
+        options.enumerated().forEach { index, option in
+            stackView.addArrangedSubview(createButton(for: option, tag: index))
         }
     }
     
-    private func configureButton(_ button: UIButton, title: String) {
+    private func createButton(for option: Option, tag: Int) -> UIButton {
+        let button = UIButton()
         button.backgroundColor = .secondarySystemFill
-        button.addTarget(self, action: #selector(didTapButton(_:)), for: .touchUpInside)
+        button.addTarget(
+            self,
+            action: #selector(didTapButton(_:)),
+            for: .touchUpInside
+        )
         button.setAttributedTitle(
-            attrubitedString(title),
+            attrubitedString(option.rawValue),
             for: .normal
         )
         button.layer.cornerRadius = Constants.Button.cornerRaduis
+        button.tag = tag
+        return button
     }
+    
+   
     
     
     private func createOptionStackView() -> UIStackView {
@@ -187,7 +191,6 @@ extension RMSearchInputView: UISearchBarDelegate {
         searchBar.resignFirstResponder()
         delegate?.rmSearchInputViewDidTapKeyboardSearch(self)
     }
-    
 }
 
 // MARK: - Constants

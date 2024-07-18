@@ -15,7 +15,8 @@ extension RMSearchResultsView: UICollectionViewDataSource {
         _ collectionView: UICollectionView,
         numberOfItemsInSection section: Int
     ) -> Int {
-        cellViewModels.count
+        guard let searchVM else { return 0 }
+        return searchVM.data.count
     }
     
     func collectionView(
@@ -23,7 +24,7 @@ extension RMSearchResultsView: UICollectionViewDataSource {
         cellForItemAt indexPath: IndexPath
     ) -> UICollectionViewCell {
         
-        let viewModel = cellViewModels[indexPath.row]
+        let viewModel = searchVM?.data[indexPath.row]
         
         if let characterVM = viewModel as? 
             RMCharacterCollectionViewCellViewModel {
@@ -97,7 +98,7 @@ extension RMSearchResultsView: UICollectionViewDelegateFlowLayout {
              ) as? RMFooterLoaderCollectionReusableView else {
              fatalError("Unsupported")
         }
-        if let searchResVM, searchResVM.shouldShowLoadIndicator {
+        if let searchVM, searchVM.shouldShowLoadIndicator {
             footer.startAnimating()
         }
         
@@ -110,8 +111,8 @@ extension RMSearchResultsView: UICollectionViewDelegateFlowLayout {
         referenceSizeForFooterInSection section: Int
     ) -> CGSize {
        
-        guard let searchResVM,
-              searchResVM.shouldShowLoadIndicator else {
+        guard let searchVM,
+              searchVM.shouldShowLoadIndicator else {
             return .zero
         }
         return CGSize(
@@ -128,7 +129,7 @@ extension RMSearchResultsView: UICollectionViewDelegateFlowLayout {
         sizeForItemAt indexPath: IndexPath
     ) -> CGSize {
         
-        let viewModel = cellViewModels[indexPath.row]
+        let viewModel = searchVM?.data[indexPath.row]
         
         if viewModel is RMCharacterCollectionViewCellViewModel {
             return CGSize(

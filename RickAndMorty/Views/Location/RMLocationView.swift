@@ -76,6 +76,7 @@ final class RMLocationView: UIView {
     
     private func showLoadingIndicator() {
         let footer = RMTableLoadingFooterView()
+        footer.backgroundColor = .red
         footer.frame = CGRect(x: 0, y: 0, width: frame.size.width, height: 100)
         tableView.tableFooterView = footer
     }
@@ -126,9 +127,7 @@ extension RMLocationView: UITableViewDataSource {
             RMLocationTableViewCell.self,
             for: indexPath
         ) else { fatalError() }
-        
-        let vm = cellVMs[indexPath.row]
-        cell.configure(with: vm)
+        cell.configure(with: cellVMs[indexPath.row])
         return cell
     }
  }
@@ -156,7 +155,8 @@ extension RMLocationView: UIScrollViewDelegate {
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         guard let locationVM,
               !locationVM.cellViewModels.isEmpty,
-              !locationVM.isLoadingMoreLocations else { return }
+              !locationVM.isLoadingMoreLocations
+              else { return }
         
         Timer.scheduledTimer(withTimeInterval: 0.2, repeats: false) { [weak self] t in
             guard let self else { return }
@@ -168,9 +168,10 @@ extension RMLocationView: UIScrollViewDelegate {
                 if locationVM.shouldShowLoadIndicator {
                     DispatchQueue.main.async {
                         self.showLoadingIndicator()
-                    }
+                   }
                     locationVM.fetchAdditionalLocations()
                 }
+                
             }
             t.invalidate()
         }

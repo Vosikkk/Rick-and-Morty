@@ -16,8 +16,7 @@ final class RMTableLoadingFooterView: UIView {
         return spinner
     }()
     
-    
-    
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         addSubview(spinner)

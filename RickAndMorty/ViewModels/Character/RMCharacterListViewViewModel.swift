@@ -43,7 +43,7 @@ final class RMCharacterListViewViewModel: NSObject {
     
     private var cellViewModels: [RMCharacterCollectionViewCellViewModel] = []
     
-    private var apiInfo: RMGetCharactersResponse.Info? = nil
+    private var apiInfo: Info? = nil
     
     private var isLoadingMoreCharacters: Bool = false {
         didSet {
@@ -112,7 +112,7 @@ final class RMCharacterListViewViewModel: NSObject {
     private func handleInitial(response: RMGetCharactersResponse) {
         apiInfo = response.info
         characters = response.results
-        DispatchQueue.main.async { [weak self] in
+        DispatchQueue.mainAsyncIfNeeded { [weak self] in
             self?.delegate?.didLoadInitialCharacters()
         }
     }
@@ -121,7 +121,7 @@ final class RMCharacterListViewViewModel: NSObject {
         apiInfo = response.info
         characters.append(contentsOf: response.results)
         
-        DispatchQueue.main.async { [weak self] in
+        DispatchQueue.mainAsyncIfNeeded { [weak self] in
             guard let self else { return }
             delegate?.didLoadMoreCharacters(
                 with: calculator.calculateIndexPaths(

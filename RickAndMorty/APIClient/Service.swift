@@ -8,7 +8,7 @@
 import Foundation
 
 ///  Each who wants work with client have to implment the protocol
-public protocol Service {
+ protocol Service {
     func execute<T: JsonModel>(
         _ request: some Request,
         expecting type: T.Type,

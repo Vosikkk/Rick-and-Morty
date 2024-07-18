@@ -19,7 +19,9 @@ final class RMTabViewController: UITabBarController {
     }
 
     private func setupTabs() {
-        let viewControllers = TabItems.allCases.map { createNavController(for: $0) }
+        let viewControllers = TabItems.allCases
+            .map { createNavController(for: $0) }
+        
         setViewControllers(viewControllers, animated: true)
     }
     

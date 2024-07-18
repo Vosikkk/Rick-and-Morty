@@ -16,7 +16,14 @@ final class RMLocationViewViewModel {
     
     public weak var delegate: RMLocationViewViewModelDelegate?
     
-    public var isLoadingMoreLocations: Bool = false
+    public var isLoadingMoreLocations: Bool = false {
+        didSet {
+            if isLoadingMoreLocations,
+               calculator._lastIndex != locations.endIndex {
+                calculator._lastIndex = locations.endIndex
+            }
+        }
+    }
     
     public var shouldShowLoadIndicator: Bool {
         apiInfo?.next != nil
@@ -26,20 +33,22 @@ final class RMLocationViewViewModel {
     
     private var locations: [RMLocation] = [] {
         didSet {
-            for location in locations {
-                let vm = RMLocationTableViewCellViewModel(location: location)
-                if !cellViewModels.contains(vm) {
-                    cellViewModels.append(vm)
-                }
-            }
+            cellViewModels.append(
+                contentsOf: createViewModels(
+                    from: locations,
+                    startingAt: calculator._lastIndex
+                )
+            )
         }
     }
+    
+    private var calculator = CalculatorIndexPaths()
     
     private var hasMoreResults: Bool {
         false
     }
     
-    private(set) var apiInfo: RMGetLocationsResponse.Info?
+    private(set) var apiInfo: Info?
     
     public private(set) var cellViewModels: [RMLocationTableViewCellViewModel] = []
     
@@ -60,15 +69,11 @@ final class RMLocationViewViewModel {
             RMRequest(endpoint: .location),
             expecting: RMGetLocationsResponse.self
         ) { [weak self] res in
-            
             switch res {
-            case .success(let model):
-                self?.apiInfo = model.info
-                self?.locations = model.results
-                DispatchQueue.main.async {
-                    self?.delegate?.didFetchInitialLocations()
-                }
-            case .failure:
+            case .success(let resp):
+                self?.handleInitial(response: resp)
+            case .failure(let error):
+                print(error)
                 break
             }
         }
@@ -91,27 +96,42 @@ final class RMLocationViewViewModel {
             request,
             expecting: RMGetLocationsResponse.self
         ) { [weak self] res in
-            
             guard let self else { return }
             switch res {
             case .success(let responseModel):
-                let moreRes = responseModel.results
-                let info = responseModel.info
-                apiInfo = info
-                cellViewModels.append(contentsOf: moreRes
-                    .compactMap {
-                        RMLocationTableViewCellViewModel(location: $0)
-                    }
-                )
-                DispatchQueue.main.async {
-                    self.isLoadingMoreLocations = false
-                    self.didFinishPagination?()
-                }
+                 handleAdditional(response: responseModel)
             case .failure(let failure):
                 print(String(describing: failure))
                 isLoadingMoreLocations = false
             }
         }
+    }
+    
+    private func handleAdditional(response: RMGetLocationsResponse) {
+        apiInfo = response.info
+        locations.append(contentsOf: response.results)
+        DispatchQueue.mainAsyncIfNeeded { [weak self] in
+            self?.isLoadingMoreLocations = false
+            self?.didFinishPagination?()
+        }
+    }
+    
+    private func handleInitial(response: RMGetLocationsResponse) {
+        apiInfo = response.info
+        locations = response.results
+        DispatchQueue.mainAsyncIfNeeded { [weak self] in
+            self?.delegate?.didFetchInitialLocations()
+        }
+    }
+    
+    private func createViewModels(
+        from locations: [RMLocation],
+        startingAt index: Int
+    ) -> [RMLocationTableViewCellViewModel] {
+        return locations[index...]
+            .map {
+                RMLocationTableViewCellViewModel(location: $0)
+            }
     }
     
     

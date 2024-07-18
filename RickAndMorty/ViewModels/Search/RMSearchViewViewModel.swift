@@ -30,7 +30,7 @@ final class RMSearchViewViewModel {
     
     private var noResultsHandler: (() -> Void)?
     
-    private var searchResultModel: JsonModel?
+    private var searchResultModel: (any JsonModel)?
     
     // MARK: - Init
     
@@ -157,13 +157,13 @@ final class RMSearchViewViewModel {
     
         if let results {
             searchResultModel = model
-            searchResultHandler?(.init(with: results, and: nextUrl, service: service))
+            searchResultHandler?(.init(resultType: results, and: nextUrl, service: service))
         } else {
             handleNoResults()
         }
     }
     
-    private func cast<T>(_ model: JsonModel?, to type: T.Type) -> T? {
+    private func cast<T>(_ model: (any JsonModel)?, to type: T.Type) -> T? {
         if let res = model as? T {
             return res
         }

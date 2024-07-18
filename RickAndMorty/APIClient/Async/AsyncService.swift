@@ -8,7 +8,7 @@
 import Foundation
 
 
-public protocol AsyncService {
+ protocol AsyncService {
     associatedtype Response: JsonModel
     func execute(_ request: some Request) async throws -> Response
 }

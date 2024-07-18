@@ -7,50 +7,65 @@
 
 import Foundation
 
-/// View Model to handle search result view  data
+
 final class RMSearchResultViewModel {
     
-    typealias FetchResult = ([any Hashable]) -> Void
+    private(set) var data: [any Hashable]
+    private(set) var nextUrl: String?
+    private var calculator: CalculatorIndexPaths
     
-    // MARK: - Properties
-    
-    public private(set) var results: RMSearchResultType
-    private var nextUrl: String?
     private let service: Service
     
-    public var shouldShowLoadIndicator: Bool {
-        nextUrl != nil 
-    }
     
     public private(set) var isLoadingMoreResults: Bool = false {
         didSet {
-            if isLoadingMoreResults {
-                needToCalculateLastIndex?()
+            if isLoadingMoreResults,
+                calculator._lastIndex != data.endIndex {
+                calculator._lastIndex = data.endIndex
             }
         }
     }
     
-    public var needToCalculateLastIndex: (() -> Void)?
-    
-    private let parser: RMParser
-    
-    // MARK: - Init
-    
-    init(with results: RMSearchResultType,
-         and nextUrl: String?,
-         service: Service
-    ) {
-        self.results = results
-        self.nextUrl = nextUrl
-        self.service = service
-        parser = RMResponseParser(service: service)
+    public var shouldShowLoadIndicator: Bool {
+        nextUrl != nil
     }
     
     
-    // MARK: - Public methods
+    convenience init(
+        resultType: RMSearchResultType,
+        and nextUrl: String?,
+        service: Service
+    ) {
+        var data: [any Hashable]
+        switch resultType {
+        case .characters(let existingData):
+            data = existingData
+        case .locations(let existingData):
+            data = existingData
+        case  .episodes(let existingData):
+            data = existingData
+        }
+        self.init(
+            nextUrl: nextUrl,
+            existingData: data,
+            service: service
+        )
+    }
+    
+    init(
+        nextUrl: String?,
+        existingData: [any Hashable],
+        service: Service
+    ) {
+        self.nextUrl = nextUrl
+        self.data = existingData
+        self.service = service
+        calculator = .init(lastIndex: data.endIndex)
+    }
+    
     
     public func fetchAdditionalResults(
-        completion: @escaping FetchResult
+        completion: @escaping ([IndexPath]) -> Void
     ) {
         guard !isLoadingMoreResults,
               let nextURLString = nextUrl,
@@ -65,127 +80,107 @@ final class RMSearchResultViewModel {
             return
         }
         
-        handleResults(request: request, completion: completion)
+         if let firstElement = data.first,
+            let fetchHandler = getFetchHandler(for: firstElement) {
+            fetchHandler(request, completion)
+         } else {
+             isLoadingMoreResults = false
+         }
     }
     
     
-    // MARK: - Private methods
-    
-    private func handleResults(
-        request: RMRequest,
-        completion: @escaping FetchResult
-    ) {
+    private func getFetchHandler<T: Hashable>(
+        for element: T
+    ) -> ((RMRequest, @escaping ([IndexPath]) -> Void) -> Void)? {
         
-        switch results {
-        case .characters:
-            service.execute(
-                request,
-                expecting: RMGetCharactersResponse.self,
-                completion: createHandleResponseClosure(completion: completion)
-            )
-        case .locations:
-            service.execute(
-                request,
-                expecting: RMGetLocationsResponse.self,
-                completion: createHandleResponseClosure(completion: completion)
-            )
-        case .episodes:
-            service.execute(
-                request,
-                expecting: RMGetEpisodesResponse.self,
-                completion: createHandleResponseClosure(completion: completion)
-            )
-        }
-    }
-    
-  
-    private func handleResponse<T: JsonModel>(
-        result: Result<T, Error>,
-        completion: @escaping FetchResult
-    ) {
-        switch result {
-        case .success(let responseModel):
-            do {
-                let newRes = try parseResponse(responseModel)
-                updateResults(
-                    with: newRes.vms,
-                    nextUrl: newRes.nextUrl,
+        switch element {
+        case is RMCharacterCollectionViewCellViewModel:
+            return { [weak self] request, completion in
+                self?.fetchResults(
+                    for: request,
+                    expecting: RMGetCharactersResponse.self,
+                    map: { response in
+                        response.compactMap {
+                            RMCharacterCollectionViewCellViewModel(
+                                characterName: $0.name,
+                                characterStatus: $0.status,
+                                characterImageUrl: URL(string: $0.image)
+                            )
+                        }
+                    },
                     completion: completion
                 )
-            } catch {
-                print(error.localizedDescription)
             }
-        case .failure(let error):
-            print(error.localizedDescription)
-            isLoadingMoreResults = false
-        }
-    }
-    
-    private func parseResponse(
-        _ response: some JsonModel
-    ) throws -> (vms: [any Hashable], nextUrl: String?) {
-        
-        switch results {
-        case .characters:
-            return try parser.parseCharacters(from: response)
-        case .locations:
-            return try parser.parseLocations(from: response)
-        case .episodes:
-            return try parser.parseEpisodes(from: response)
-        }
-    }
-    
-    private func updateResults(
-        with newResults: [any Hashable],
-        nextUrl: String?,
-        completion: @escaping FetchResult
-    ) {
-        switch results {
-        case .characters(let existingResults):
-            results = .characters(
-                existingResults + 
-                (newResults as! [RMCharacterCollectionViewCellViewModel])
-            )
-        case .locations(let existingResults):
-            results = .locations(
-                existingResults + 
-                (newResults as! [RMLocationTableViewCellViewModel])
-            )
-        case .episodes(let existingResults):
-            results = .episodes(
-                existingResults + 
-                (newResults as! [RMCharacterEpisodeCollectionViewCellViewModel])
-            )
-        }
-        self.nextUrl = nextUrl
-        DispatchQueue.main.async {
-            self.isLoadingMoreResults = false
-            completion(newResults)
-        }
-    }
-    
-    private func createHandleResponseClosure<T: JsonModel>(
-        completion: @escaping FetchResult
-    ) -> (Result<T, Error>) -> Void {
-        return { [weak self] res in
-            self?.handleResponse(result: res, completion: completion)
-        }
-    }
-}
+        case is RMLocationTableViewCellViewModel:
+            return { [weak self] request, completion in
+                self?.fetchResults(
+                    for: request,
+                    expecting: RMGetLocationsResponse.self,
+                    map: { response in
+                        response.compactMap {
+                            RMLocationTableViewCellViewModel(location: $0)
+                        }
+                    },
+                    completion: completion
+                )
+            }
 
-enum CastError: Error {
-    case cannotCastCharacters
-    case cannotCastLocations
-    case cannotCastEpisodes
+        case is RMCharacterEpisodeCollectionViewCellViewModel:
+            return { [weak self] request, completion in
+                guard let self else { return }
+                fetchResults(
+                    for: request,
+                    expecting: RMGetLocationsResponse.self,
+                    map: { response in
+                        response.compactMap {
+                            RMCharacterEpisodeCollectionViewCellViewModel(
+                                episodeDataURL: URL(string:$0.url),
+                                service: self.service
+                            )
+                        }
+                    },
+                    completion: completion
+                )
+            }
+        default:
+            return nil
+        }
+    }
     
-    var localizedDescription: String {
-        switch self {
-        case .cannotCastCharacters:
-            return "Failed to cast to RMGetCharactersResponse."
-        case .cannotCastLocations:
-            return "Failed to cast to RMGetLocationsResponse."
-        case .cannotCastEpisodes:
-            return "Failed to cast to RMGetEpisodesResponse."
+    
+    private func fetchResults<T: ResponseModel>(
+        for request: RMRequest,
+        expecting: T.Type,
+        map: @escaping (T.ResultResponse) -> [any Hashable],
+        completion: @escaping ([IndexPath]) -> Void
+    ) {
+        service.execute(request, expecting: T.self) { [weak self] result in
+            switch result {
+            case .success(let respModel):
+                self?.update(
+                    nextUrl: respModel.info.next,
+                    data: map(respModel.results),
+                    completion: completion
+                )
+            case .failure(let failure):
+                self?.isLoadingMoreResults = false
+                print(failure)
+            }
+        }
+    }
+  
+
+    private func update(
+        nextUrl: String?,
+        data: [any Hashable],
+        completion: @escaping ([IndexPath]) -> Void
+    ) {
+        self.nextUrl = nextUrl
+        self.data.append(contentsOf: data)
+        DispatchQueue.mainAsyncIfNeeded { [weak self] in
+            guard let self else { return }
+            isLoadingMoreResults = false
+            completion(calculator.calculateIndexPaths(count: data.count))
         }
     }
 }
