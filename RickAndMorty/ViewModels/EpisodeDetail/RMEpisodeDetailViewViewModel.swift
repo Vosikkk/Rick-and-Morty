@@ -96,7 +96,8 @@ final class RMEpisodeDetailViewViewModel: DetailViewModel {
                                 return RMCharacterCollectionViewCellViewModel(
                                     characterName: $0.name,
                                     characterStatus: $0.status,
-                                    characterImageUrl: URL(string: $0.image)
+                                    characterImageUrl: URL(string: $0.image),
+                                    service: service
                                 )
                             }
                        )

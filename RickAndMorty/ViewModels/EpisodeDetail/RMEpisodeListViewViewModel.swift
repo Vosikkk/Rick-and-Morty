@@ -40,16 +40,12 @@ final class RMEpisodeListViewViewModel: NSObject {
     
     private var episodes: [RMEpisode] = [] {
         didSet {
-            for episode in episodes {
-                let vm = RMCharacterEpisodeCollectionViewCellViewModel(
-                    episodeDataURL: URL(string: episode.url), 
-                    service: service,
-                    borderColor: borderColors.randomElement() ?? .systemBlue
+            cellViewModels.append(
+                contentsOf: createViewModels(
+                    from: episodes,
+                    startingAt: calculator._lastIndex
                 )
-                if !cellViewModels.contains(vm) {
-                    cellViewModels.append(vm)
-                }
-            }
+            )
         }
     }
     
@@ -57,7 +53,16 @@ final class RMEpisodeListViewViewModel: NSObject {
     
     private var apiInfo: Info? = nil
     
-    private var isLoadingMoreEpisodes: Bool = false
+    private var calculator: CalculatorIndexPaths = .init()
+    
+    private var isLoadingMoreEpisodes: Bool = false {
+        didSet {
+            if isLoadingMoreEpisodes,
+               calculator._lastIndex != episodes.endIndex {
+                calculator._lastIndex = episodes.endIndex
+            }
+        }
+    }
     
     init(service: Service) {
         self.service = service
@@ -73,13 +78,7 @@ final class RMEpisodeListViewViewModel: NSObject {
             
             switch res {
             case .success(let responseModel):
-                let res = responseModel.results
-                let info = responseModel.info
-                self?.apiInfo = info
-                self?.episodes = res
-                DispatchQueue.main.async {
-                    self?.delegate?.didLoadInitialEpisodes()
-                }
+                self?.handleInitial(response: responseModel)
             case .failure(let failure):
                 print(failure)
             }
@@ -101,31 +100,46 @@ final class RMEpisodeListViewViewModel: NSObject {
             request, expecting:
                 RMGetEpisodesResponse.self
         ) { [weak self] res in
-            
             guard let self else { return }
             switch res {
             case .success(let responseModel):
-                let moreRes = responseModel.results
-                let info = responseModel.info
-                apiInfo = info
-                
-                let originalCount = episodes.count
-                let newCount = moreRes.count
-                let total = originalCount + newCount
-                let startingIndex = total - newCount
-                let indexPathsToAdd: [IndexPath] = Array(startingIndex..<(startingIndex + newCount))
-                    .compactMap { IndexPath(row: $0, section: 0) }
-                
-                episodes.append(contentsOf: moreRes)
-                
-                DispatchQueue.main.async {
-                    self.delegate?.didLoadMoreEpisodes(with: indexPathsToAdd)
-                    self.isLoadingMoreEpisodes = false
-                }
+                handleAdditional(response: responseModel)
             case .failure(let failure):
                 print(String(describing: failure))
                 isLoadingMoreEpisodes = false
             }
+        }
+    }
+    
+    private func handleAdditional(response: RMGetEpisodesResponse) {
+        apiInfo = response.info
+        episodes.append(contentsOf: response.results)
+        let indexPathsToAdd = calculator.calculateIndexPaths(count: response.results.count)
+        DispatchQueue.mainAsyncIfNeeded{
+            self.delegate?.didLoadMoreEpisodes(with: indexPathsToAdd)
+            self.isLoadingMoreEpisodes = false
+        }
+    }
+    
+    private func handleInitial(response: RMGetEpisodesResponse) {
+        apiInfo = response.info
+        episodes = response.results
+        DispatchQueue.mainAsyncIfNeeded { [weak self] in
+            self?.delegate?.didLoadInitialEpisodes()
+        }
+    }
+    
+    private func createViewModels(
+        from episodes: [RMEpisode],
+        startingAt index: Int
+    ) -> [RMCharacterEpisodeCollectionViewCellViewModel] {
+        return episodes[index...]
+            .map {
+                .init(
+                    episodeDataURL: URL(string: $0.url),
+                    service: service,
+                    borderColor: borderColors.randomElement() ?? .systemBlue
+                )
         }
     }
 }

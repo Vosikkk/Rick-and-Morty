@@ -96,7 +96,8 @@ final class RMSearchResultViewModel {
         switch element {
         case is RMCharacterCollectionViewCellViewModel:
             return { [weak self] request, completion in
-                self?.fetchResults(
+                guard let self else { return }
+                fetchResults(
                     for: request,
                     expecting: RMGetCharactersResponse.self,
                     map: { response in
@@ -104,7 +105,8 @@ final class RMSearchResultViewModel {
                             RMCharacterCollectionViewCellViewModel(
                                 characterName: $0.name,
                                 characterStatus: $0.status,
-                                characterImageUrl: URL(string: $0.image)
+                                characterImageUrl: URL(string: $0.image),
+                                service: self.service
                             )
                         }
                     },

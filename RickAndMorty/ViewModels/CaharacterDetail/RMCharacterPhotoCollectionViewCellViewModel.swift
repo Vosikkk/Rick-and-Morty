@@ -13,8 +13,11 @@ final class RMCharacterPhotoCollectionViewCellViewModel {
     
     private let imageURL: URL?
     
-    init(imageURL: URL?) {
+    private let service: Service
+    
+    init(imageURL: URL?, service: Service) {
         self.imageURL = imageURL
+        self.service = service
     }
     
     public func fetchImage(completion: @escaping Completion) {
@@ -22,6 +25,6 @@ final class RMCharacterPhotoCollectionViewCellViewModel {
             completion(.failure(URLError(.badURL)))
             return
         }
-        RMImageLoader.shared.downloadImage(imageURL, completion: completion)
+        service.imageLoader.downloadImage(imageURL, completion: completion)
     }
 }

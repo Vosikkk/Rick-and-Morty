@@ -8,7 +8,7 @@
 import Foundation
 
 
-struct RMLocation: Decodable {
+struct RMLocation {
     let id: Int
     let name: String
     let type: String

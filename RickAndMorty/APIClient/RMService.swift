@@ -11,7 +11,15 @@ import Foundation
 /// Primary API service object to get Rick and Morty data
 final class RMService: Service {
 
-    private let cache: RMAPICacheManager = RMAPICacheManager()
+    private let cache: RMAPICacheManager
+    
+    let imageLoader: RMImageLoader
+    
+    
+    init(cache: RMAPICacheManager, imageLoader: RMImageLoader) {
+        self.imageLoader = imageLoader
+        self.cache = cache
+    }
     
     
     /// Send Rick and Morty API call

@@ -46,7 +46,7 @@ final class RMCharacterDetailViewViewModel {
     
     private func setupSections() {
         sections = [
-            .photo(vm: .init(imageURL: URL(string: character.image))),
+            .photo(vm: .init(imageURL: URL(string: character.image), service: service)),
             .information(vms: [
                 .init(type: .status, value: character.status.text),
                 .init(type: .gender, value: character.gender.text),

@@ -9,13 +9,11 @@ import UIKit
 
 final class RMImageLoader {
     
-    static let shared = RMImageLoader()
-    
     typealias Completion = (Result<Data, Error>) -> Void
     
     private var imageDataCache = NSCache<NSString, NSData>()
     
-    private init() {}
+     init() {}
     
     
     /// Get image data with URL

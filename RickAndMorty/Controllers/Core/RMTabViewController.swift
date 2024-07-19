@@ -11,7 +11,7 @@ import UIKit
 /// Controller to house tabs and root tab controllers
 final class RMTabViewController: UITabBarController {
 
-    private let service: Service = RMService()
+    private let service: Service = RMService(cache: RMAPICacheManager(), imageLoader: RMImageLoader())
     
     override func viewDidLoad() {
         super.viewDidLoad()

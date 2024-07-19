@@ -16,18 +16,21 @@ public final class RMCharacterCollectionViewCellViewModel {
     public let characterName: String
     private let characterStatus: ChrStatus
     private let characterImageUrl: URL?
-    
+    private let service: Service
     
     
     // MARK: - Init
+    
     init(
         characterName: String,
         characterStatus: ChrStatus,
-        characterImageUrl: URL?
+        characterImageUrl: URL?,
+        service: Service
     ) {
         self.characterName = characterName
         self.characterStatus = characterStatus
         self.characterImageUrl = characterImageUrl
+        self.service = service
     }
     
     
@@ -40,7 +43,7 @@ public final class RMCharacterCollectionViewCellViewModel {
             completion(.failure(URLError.init(.badURL)))
             return
         }
-        RMImageLoader.shared.downloadImage(characterImageUrl, completion: completion)
+        service.imageLoader.downloadImage(characterImageUrl, completion: completion)
     }
 }
 

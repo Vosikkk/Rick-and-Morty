@@ -9,6 +9,9 @@ import Foundation
 
 ///  Each who wants work with client have to implment the protocol
  protocol Service {
+    
+     var imageLoader: RMImageLoader { get }
+     
     func execute<T: JsonModel>(
         _ request: some Request,
         expecting type: T.Type,
