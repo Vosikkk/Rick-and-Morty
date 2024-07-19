@@ -86,6 +86,29 @@ final class RMSearchViewController: UIViewController {
 
 extension RMSearchViewController: RMSearchViewDelegate {
     
+    func rmSearchView(_ sender: RMSearchView, didSelectEpisode episode: RMEpisode) {
+        let vc = RMEpisodeDetailViewController(
+            url: URL(string: episode.url),
+            service: service
+        )
+        vc.navigationItem.largeTitleDisplayMode = .never
+        navigationController?.pushViewController(vc, animated: true)
+    }
+    
+    
+    func rmSearchView(_ sender: RMSearchView, didSelectCharacter character: RMCharacter) {
+        let vc = RMCharacterDetailViewController(
+            viewModel: .init(
+                character: character,
+                service: service
+            ),
+            service: service
+        )
+        vc.navigationItem.largeTitleDisplayMode = .never
+        navigationController?.pushViewController(vc, animated: true)
+    }
+    
+    
     func rmSearchView(_ sender: RMSearchView, didSelectLocation location: RMLocation) {
         let vc = RMLocationDetailViewController(location: location, service: service)
         vc.navigationItem.largeTitleDisplayMode = .never

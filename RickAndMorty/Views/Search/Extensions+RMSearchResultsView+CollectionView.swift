@@ -77,6 +77,16 @@ extension RMSearchResultsView: UICollectionViewDelegate {
         didSelectItemAt indexPath: IndexPath
     ) {
         collectionView.deselectItem(at: indexPath, animated: true)
+        if let item = searchVM?.data.first {
+            switch item {
+            case is RMCharacterCollectionViewCellViewModel:
+                delegate?.rmSearchResultsView(self, didTapCharacterAt: indexPath.row)
+            case is RMCharacterEpisodeCollectionViewCellViewModel:
+                delegate?.rmSearchResultsView(self, didTapEpisodeAt: indexPath.row)
+            default:
+                break
+            }
+        }
     }
 }
 

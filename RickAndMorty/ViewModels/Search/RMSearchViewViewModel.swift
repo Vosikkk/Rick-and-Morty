@@ -30,7 +30,7 @@ final class RMSearchViewViewModel {
     
     private var noResultsHandler: (() -> Void)?
     
-    private var searchResultModel: (any JsonModel)?
+    private var searchResultModel: (any ResponseModel)?
     
     // MARK: - Init
     
@@ -47,7 +47,9 @@ final class RMSearchViewViewModel {
         self.searchResultHandler = block
     }
     
-    public func registerNoResultsHandler(_ block: @escaping () -> Void) {
+    public func registerNoResultsHandler(
+        _ block: @escaping () -> Void
+    ) {
         self.noResultsHandler = block
     }
     
@@ -67,30 +69,33 @@ final class RMSearchViewViewModel {
     }
     
     public func locationSearchResult(at index: Int) -> RMLocation? {
-        guard let model = cast(searchResultModel, to: RMGetLocationsResponse.self) else {
-           return nil
-        }
-        return model.results[index]
+        return cast(
+            searchResultModel,
+            to: RMGetLocationsResponse.self)?.results[index]
+    }
+    
+    public func characterSearchResult(at index: Int) -> RMCharacter? {
+        return cast(
+            searchResultModel,
+            to: RMGetCharactersResponse.self)?.results[index]
+    }
+    
+    public func episodeSearchResult(at index: Int) -> RMEpisode? {
+        return cast(
+            searchResultModel,
+            to: RMGetEpisodesResponse.self)?.results[index]
     }
     
     public func executeSearch() {
         
-        guard !searchText.trimmingCharacters(in: .whitespaces).isEmpty else { return }
+        guard !searchText.trimmingCharacters(
+            in: .whitespaces
+        ).isEmpty else { return }
         
-        var queryParameters: [URLQueryItem] = [
-            URLQueryItem(
-                name: "name",
-                value: searchText.addingPercentEncoding(
-                    withAllowedCharacters: .urlQueryAllowed
-                )
-            )
-        ]
-        
-        queryParameters.append(contentsOf: queryItems)
         
         let request: RMRequest = RMRequest(
             endpoint: config.type.endpoint,
-            queryParameters: queryParameters
+            queryParameters: combinedQueryParameters
         )
         
         switch config.type.endpoint {
@@ -103,7 +108,10 @@ final class RMSearchViewViewModel {
         }
     }
     
-    private func fetch<T: JsonModel>(_ request: RMRequest, for type: T.Type) {
+    private func fetch<T: ResponseModel>(
+        _ request: RMRequest,
+        for type: T.Type
+    ) {
         service.execute(
             request,
             expecting: type
@@ -121,12 +129,12 @@ final class RMSearchViewViewModel {
         noResultsHandler?()
     }
     
-    private func processSearchResults(for model: some JsonModel) {
+    private func processSearchResults(for model: any ResponseModel) {
         
-        var results: RMSearchResultType?
-        var nextUrl: String?
+        var results: RMSearchResultType
         
-        if let characterResults = cast(model, to: RMGetCharactersResponse.self) {
+        switch model {
+        case let characterResults as RMGetCharactersResponse:
             results = .characters(characterResults.results
                 .compactMap {
                     .init(
@@ -136,38 +144,40 @@ final class RMSearchViewViewModel {
                     )
                 }
             )
-            nextUrl = characterResults.info.next
-            
-        } else if let locationResults = cast(model, to: RMGetLocationsResponse.self) {
+        case let locationResults as RMGetLocationsResponse:
             results = .locations(locationResults.results
                 .compactMap {
                     .init(location: $0)
                 }
             )
-            nextUrl = locationResults.info.next
             
-        } else if let episodeResults = cast(model, to: RMGetEpisodesResponse.self) {
+        case let episodeResults as RMGetEpisodesResponse:
             results = .episodes(episodeResults.results
                 .compactMap {
-                    .init(episodeDataURL: URL(string: $0.url), service: service)
+                    .init(
+                        episodeDataURL: URL(string: $0.url),
+                        service: service
+                    )
                 }
             )
-            nextUrl = episodeResults.info.next
-        }
-    
-        if let results {
-            searchResultModel = model
-            searchResultHandler?(.init(resultType: results, and: nextUrl, service: service))
-        } else {
+        default:
             handleNoResults()
+            return
         }
+        
+        searchResultModel = model
+        searchResultHandler?(.init(
+            resultType: results,
+            and: model.info.next,
+            service: service)
+        )
     }
     
-    private func cast<T>(_ model: (any JsonModel)?, to type: T.Type) -> T? {
-        if let res = model as? T {
-            return res
-        }
-        return nil
+    private func cast<T>(
+        _ model: (any ResponseModel)?,
+        to type: T.Type
+    ) -> T? {
+        return model as? T
     }
     
     // MARK: - Computed Properties
@@ -182,12 +192,25 @@ final class RMSearchViewViewModel {
     
     private var queryItems: [URLQueryItem] {
         optionMap
-            .enumerated()
-            .compactMap { _, element in
-                return URLQueryItem(
-                    name: element.key.queryArgument,
-                    value: element.value
+            .compactMap {
+                URLQueryItem(
+                    name: $0.key.queryArgument,
+                    value: $0.value
                 )
             }
+    }
+    
+    private var queryParameters: [URLQueryItem] {
+        [URLQueryItem(
+            name: "name",
+            value: searchText.addingPercentEncoding(
+                withAllowedCharacters: .urlQueryAllowed
+            )
+        )
+        ]
+    }
+    
+    private var combinedQueryParameters: [URLQueryItem] {
+        queryParameters + queryItems
     }
 }

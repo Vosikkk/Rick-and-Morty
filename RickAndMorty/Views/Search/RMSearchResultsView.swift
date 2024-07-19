@@ -13,6 +13,16 @@ protocol RMSearchResultsViewDelegate: AnyObject {
         _ sender: RMSearchResultsView,
         didTapLocationAt index: Int
     )
+    
+    func rmSearchResultsView(
+        _ sender: RMSearchResultsView,
+        didTapCharacterAt index: Int
+    )
+    
+    func rmSearchResultsView(
+        _ sender: RMSearchResultsView,
+        didTapEpisodeAt index: Int
+    )
 }
 
 /// Shows search results UI (table or collection as needed)
