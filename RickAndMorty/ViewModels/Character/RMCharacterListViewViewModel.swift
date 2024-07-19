@@ -232,8 +232,9 @@ extension RMCharacterListViewViewModel: UICollectionViewDelegateFlowLayout {
         sizeForItemAt indexPath: IndexPath
     ) -> CGSize {
        
-        let isIphone = UIDevice.current.userInterfaceIdiom == .phone
-        let width: CGFloat = isIphone ? (collectionView.bounds.width - 30) / 2 : (collectionView.bounds.width - 50) / 4
+        let width: CGFloat = UIDevice.isiPhone ?
+        (collectionView.bounds.width - 30) / 2 :
+        (collectionView.bounds.width - 50) / 4
        
         return CGSize(
             width: width,

@@ -14,4 +14,8 @@ extension UIView {
     }
 }
 
+extension UIDevice {
+    static let isiPhone: Bool = UIDevice.current.userInterfaceIdiom == .phone
+}
+
 

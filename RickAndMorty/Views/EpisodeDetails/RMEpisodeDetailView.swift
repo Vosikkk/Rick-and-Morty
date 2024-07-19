@@ -214,7 +214,8 @@ private extension RMEpisodeDetailView {
         let item = NSCollectionLayoutItem(
            layoutSize: .init(
                widthDimension: .fractionalWidth(
-                   Constants.CharacterItem.width
+                UIDevice.isiPhone ? Constants.CharacterItem.width :
+                    Constants.CharacterItem.width / 2
                ),
                heightDimension: .fractionalHeight(
                    Constants.CharacterItem.height
@@ -235,10 +236,13 @@ private extension RMEpisodeDetailView {
                 Constants.CharacterGroup.width
                ),
                heightDimension: .absolute(
-                Constants.CharacterGroup.height
+                UIDevice.isiPhone ?
+                Constants.CharacterGroup.height :
+                    Constants.CharacterGroup.height + 60
                )
            ),
-           subitems: [item, item]
+           subitems: UIDevice.isiPhone ? 
+           [item, item] : [item, item, item, item]
        )
        
        return NSCollectionLayoutSection(group: group)

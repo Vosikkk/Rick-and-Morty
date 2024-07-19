@@ -133,12 +133,14 @@ extension RMSearchResultsView: UICollectionViewDelegateFlowLayout {
         
         if viewModel is RMCharacterCollectionViewCellViewModel {
             return CGSize(
-                width: characterWidth,
+                width: UIDevice.isiPhone ?
+                characterWidth : iPadCharacterWidth,
                 height: characterHeight
             )
         } else {
             return CGSize(
-                width: episodeWidth,
+                width: UIDevice.isiPhone ?
+                episodeWidth : iPadEpisodeWidth,
                 height: episodeHeight
             )
         }
@@ -147,13 +149,21 @@ extension RMSearchResultsView: UICollectionViewDelegateFlowLayout {
     // MARK: - UI Size Helpers Computed Properties
     
     var episodeWidth: CGFloat {
-        collectionView.bounds.width - 20
+        _bounds.width - 20
+    }
+    
+    var iPadEpisodeWidth: CGFloat {
+        (_bounds.width - 50) / 4
     }
     
     var episodeHeight: CGFloat { 100 }
     
     var characterWidth: CGFloat {
         (_bounds.width - 30) / 2
+    }
+    
+    var iPadCharacterWidth: CGFloat {
+        (_bounds.width - 50) / 4
     }
     
     var characterHeight: CGFloat {

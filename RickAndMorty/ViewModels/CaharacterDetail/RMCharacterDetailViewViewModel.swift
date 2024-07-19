@@ -101,7 +101,9 @@ final class RMCharacterDetailViewViewModel {
         let item = NSCollectionLayoutItem(
             layoutSize: NSCollectionLayoutSize(
                 widthDimension: .fractionalWidth(
-                    Constants.InfoSection.ItemLayout.widthDimension
+                    UIDevice.isiPhone ?
+                    Constants.InfoSection.ItemLayout.widthDimension :
+                        Constants.InfoSection.ItemLayout.widthDimension / 2
                 ),
                 heightDimension: .fractionalHeight(
                     Constants.InfoSection.ItemLayout.heightDimension
@@ -124,7 +126,8 @@ final class RMCharacterDetailViewViewModel {
                     Constants.InfoSection.GroupLayout.heightDimension
                 )
             ),
-            subitems: [item, item]
+            subitems: UIDevice.isiPhone ? [item, item] :
+                [item, item, item, item]
         )
         let section = NSCollectionLayoutSection(group: group)
         return section
@@ -152,7 +155,9 @@ final class RMCharacterDetailViewViewModel {
         let group = NSCollectionLayoutGroup.horizontal(
             layoutSize: NSCollectionLayoutSize(
                 widthDimension: .fractionalWidth(
-                    Constants.EpisodeSection.GroupLayout.widthDimension
+                    UIDevice.isiPhone ?
+                    Constants.EpisodeSection.GroupLayout.widthDimension :
+                        Constants.EpisodeSection.GroupLayout.widthDimension / 2
                 ),
                 heightDimension: .absolute(
                     Constants.EpisodeSection.GroupLayout.heightDimension
