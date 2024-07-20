@@ -17,12 +17,14 @@ protocol RMEpisodeListViewViewModelDelegate: AnyObject {
 
 ///  View Model to handle episode list view logic
 final class RMEpisodeListViewViewModel: NSObject {
-   
+    
     public weak var delegate: RMEpisodeListViewViewModelDelegate?
     
     public var shouldShowLoadIndicator: Bool {
         apiInfo?.next != nil
     }
+    
+    private let dataProcessor: DataProcessor<RMEpisode, RMCharacterEpisodeCollectionViewCellViewModel>
     
     private let service: Service
     
@@ -38,34 +40,30 @@ final class RMEpisodeListViewViewModel: NSObject {
         .systemMint
     ]
     
-    private var episodes: [RMEpisode] = [] {
-        didSet {
-            cellViewModels.append(
-                contentsOf: createViewModels(
-                    from: episodes,
-                    startingAt: calculator._lastIndex
-                )
-            )
-        }
+    
+    private var cellViewModels: [RMCharacterEpisodeCollectionViewCellViewModel] {
+        dataProcessor.cellViewModels
     }
     
-    private var cellViewModels: [RMCharacterEpisodeCollectionViewCellViewModel] = []
+    private var apiInfo: Info? {
+        dataProcessor.apiInfo
+    }
     
-    private var apiInfo: Info? = nil
-    
-    private var calculator: CalculatorIndexPaths = .init()
+    private var calculator: CalculatorIndexPaths
     
     private var isLoadingMoreEpisodes: Bool = false {
         didSet {
             if isLoadingMoreEpisodes,
-               calculator._lastIndex != episodes.endIndex {
-                calculator._lastIndex = episodes.endIndex
+               calculator._lastIndex != dataProcessor.items.endIndex {
+                calculator._lastIndex = dataProcessor.items.endIndex
             }
         }
     }
     
     init(service: Service) {
         self.service = service
+        self.dataProcessor = DataProcessor()
+        self.calculator = .init()
     }
     
     
@@ -75,10 +73,17 @@ final class RMEpisodeListViewViewModel: NSObject {
             RMRequest(endpoint: .episode),
             expecting: RMGetEpisodesResponse.self
         ) { [weak self] res in
-            
+            guard let self else { return }
             switch res {
             case .success(let responseModel):
-                self?.handleInitial(response: responseModel)
+                
+                dataProcessor.handleInitial(
+                    response: responseModel
+                ) { self.map($0) }
+                
+                DispatchQueue.mainAsyncIfNeeded {
+                    self.delegate?.didLoadInitialEpisodes()
+                }
             case .failure(let failure):
                 print(failure)
             }
@@ -103,7 +108,21 @@ final class RMEpisodeListViewViewModel: NSObject {
             guard let self else { return }
             switch res {
             case .success(let responseModel):
-                handleAdditional(response: responseModel)
+                
+                dataProcessor.handleAdditional(
+                    response: responseModel,
+                    fromIndex: calculator._lastIndex
+                ) { self.map($0) }
+                
+                let indexPathsToAdd = calculator.calculateIndexPaths(
+                    count: responseModel.results.count
+                )
+
+                DispatchQueue.mainAsyncIfNeeded {
+                    self.delegate?.didLoadMoreEpisodes(with: indexPathsToAdd)
+                    self.isLoadingMoreEpisodes = false
+                }
+            
             case .failure(let failure):
                 print(String(describing: failure))
                 isLoadingMoreEpisodes = false
@@ -111,35 +130,22 @@ final class RMEpisodeListViewViewModel: NSObject {
         }
     }
     
-    private func handleAdditional(response: RMGetEpisodesResponse) {
-        apiInfo = response.info
-        episodes.append(contentsOf: response.results)
-        let indexPathsToAdd = calculator.calculateIndexPaths(count: response.results.count)
-        DispatchQueue.mainAsyncIfNeeded{
-            self.delegate?.didLoadMoreEpisodes(with: indexPathsToAdd)
-            self.isLoadingMoreEpisodes = false
-        }
+    
+    private func episode(at index: Int) -> RMEpisode? {
+        return dataProcessor.item(at: index)
     }
     
-    private func handleInitial(response: RMGetEpisodesResponse) {
-        apiInfo = response.info
-        episodes = response.results
-        DispatchQueue.mainAsyncIfNeeded { [weak self] in
-            self?.delegate?.didLoadInitialEpisodes()
-        }
-    }
     
-    private func createViewModels(
-        from episodes: [RMEpisode],
-        startingAt index: Int
+    private func map(
+        _ elements: ArraySlice<RMEpisode>
     ) -> [RMCharacterEpisodeCollectionViewCellViewModel] {
-        return episodes[index...]
-            .map {
-                .init(
-                    episodeDataURL: URL(string: $0.url),
-                    service: service,
-                    borderColor: borderColors.randomElement() ?? .systemBlue
-                )
+        
+        return elements.compactMap {
+            .init(
+                episodeDataURL: URL(string: $0.url),
+                service: service,
+                borderColor: borderColors.randomElement() ?? .systemBlue
+            )
         }
     }
 }
@@ -213,7 +219,9 @@ extension RMEpisodeListViewViewModel: UICollectionViewDelegate {
     ) {
         
         collectionView.deselectItem(at: indexPath, animated: true)
-        delegate?.didSelectEpisode(episodes[indexPath.row])
+        if let episode = episode(at: indexPath.row) {
+            delegate?.didSelectEpisode(episode)
+         }
     }
 }
 

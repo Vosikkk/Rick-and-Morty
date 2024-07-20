@@ -236,7 +236,6 @@
 				388CA44D2C2F512C00E28FFC /* Settings */,
 				388C09292C2E1777004393CA /* EpisodeDetail */,
 				381AB8442C2B02E0003D477F /* CaharacterDetail */,
-				380F249E2C4B15D10086D0FD /* DataProcessor.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -258,6 +257,7 @@
 			children = (
 				380AB8F22C28C64000777B61 /* RMImageLoader.swift */,
 				38862BB92C2C905D0020081E /* RMAPICacheManager.swift */,
+				380F249E2C4B15D10086D0FD /* DataProcessor.swift */,
 			);
 			path = Managers;
 			sourceTree = "<group>";

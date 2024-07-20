@@ -28,28 +28,24 @@ final class RMCharacterListViewViewModel: NSObject {
     
     private let service: Service
     
+    private let dataProcessor: DataProcessor<RMCharacter, RMCharacterCollectionViewCellViewModel>
+    
     private var calculator: CalculatorIndexPaths
     
-    private var characters: [RMCharacter] = [] {
-        didSet {
-            cellViewModels.append(
-                contentsOf: createViewModels(
-                    from: characters, 
-                    startingAt: calculator._lastIndex
-                )
-            )
-        }
+    
+    private var cellViewModels: [RMCharacterCollectionViewCellViewModel] {
+        dataProcessor.cellViewModels
     }
     
-    private var cellViewModels: [RMCharacterCollectionViewCellViewModel] = []
-    
-    private var apiInfo: Info? = nil
+    private var apiInfo: Info? {
+        dataProcessor.apiInfo
+    }
     
     private var isLoadingMoreCharacters: Bool = false {
         didSet {
             if isLoadingMoreCharacters,
-                calculator._lastIndex != characters.endIndex {
-                calculator._lastIndex = characters.endIndex
+               calculator._lastIndex != dataProcessor.items.endIndex {
+                calculator._lastIndex = dataProcessor.items.endIndex
             }
         }
     }
@@ -58,6 +54,7 @@ final class RMCharacterListViewViewModel: NSObject {
     
     init(service: Service) {
         self.service = service
+        self.dataProcessor = DataProcessor()
         calculator = .init()
     }
     
@@ -70,10 +67,19 @@ final class RMCharacterListViewViewModel: NSObject {
             RMRequest(endpoint: .character),
             expecting: RMGetCharactersResponse.self
         ) { [weak self] res in
+            guard let self else { return }
             
             switch res {
-            case .success(let model):
-                self?.handleInitial(response: model)
+                
+            case .success(let responseModel):
+                dataProcessor.handleInitial(
+                    response: responseModel
+                ) { self.map($0) }
+                
+                DispatchQueue.mainAsyncIfNeeded {
+                    self.delegate?.didLoadInitialCharacters()
+                }
+                
             case .failure(let failure):
                 print(String(describing: failure))
             }
@@ -99,7 +105,21 @@ final class RMCharacterListViewViewModel: NSObject {
             guard let self else { return }
             switch res {
             case .success(let model):
-                handleAdditional(response: model)
+                
+                dataProcessor.handleAdditional(
+                    response: model,
+                    fromIndex: calculator._lastIndex
+                ) { self.map($0) }
+                
+                DispatchQueue.mainAsyncIfNeeded {
+                    self.delegate?.didLoadMoreCharacters(
+                        with: self.calculator.calculateIndexPaths(
+                            count: model.results.count
+                        )
+                    )
+                    self.isLoadingMoreCharacters = false
+                }
+                
             case .failure(let failure):
                 print(String(describing: failure))
                 isLoadingMoreCharacters = false
@@ -109,44 +129,23 @@ final class RMCharacterListViewViewModel: NSObject {
     
     // MARK: - Private methods
     
-    private func handleInitial(response: RMGetCharactersResponse) {
-        apiInfo = response.info
-        characters = response.results
-        DispatchQueue.mainAsyncIfNeeded { [weak self] in
-            self?.delegate?.didLoadInitialCharacters()
-        }
-    }
-    
-    private func handleAdditional(response: RMGetCharactersResponse) {
-        apiInfo = response.info
-        characters.append(contentsOf: response.results)
-        
-        DispatchQueue.mainAsyncIfNeeded { [weak self] in
-            guard let self else { return }
-            delegate?.didLoadMoreCharacters(
-                with: calculator.calculateIndexPaths(
-                    count: response.results.count
-                )
-            )
-            isLoadingMoreCharacters = false
-        }
-    }
-    
-    private func createViewModels(
-        from characters: [RMCharacter],
-        startingAt index: Int
+    private func map(
+        _ elements: ArraySlice<RMCharacter>
     ) -> [RMCharacterCollectionViewCellViewModel] {
-        
-        return characters[index...]
-            .map {
-                .init(
-                    characterName: $0.name,
-                    characterStatus: $0.status,
-                    characterImageUrl: URL(string: $0.image),
-                    service: service
-                )
-            }
+        return elements.compactMap {
+            .init(
+                characterName: $0.name,
+                characterStatus: $0.status,
+                characterImageUrl: URL(string: $0.image),
+                service: service
+            )
+        }
     }
+    
+    private func character(at index: Int) -> RMCharacter? {
+        return dataProcessor.item(at: index)
+    }
+    
 }
 
 
@@ -218,7 +217,9 @@ extension RMCharacterListViewViewModel: UICollectionViewDelegate {
         didSelectItemAt indexPath: IndexPath
     ) {
         collectionView.deselectItem(at: indexPath, animated: true)
-        delegate?.didSelectCharacter(characters[indexPath.row])
+        if let character = character(at: indexPath.row) {
+            delegate?.didSelectCharacter(character)
+        }
     }
 }
 

@@ -100,29 +100,17 @@ final class RMSearchResultViewModel {
                 fetchResults(
                     for: request,
                     expecting: RMGetCharactersResponse.self,
-                    map: { response in
-                        response.compactMap {
-                            RMCharacterCollectionViewCellViewModel(
-                                characterName: $0.name,
-                                characterStatus: $0.status,
-                                characterImageUrl: URL(string: $0.image),
-                                service: self.service
-                            )
-                        }
-                    },
+                    map: { self.mapCharactersVMs(from: $0) },
                     completion: completion
                 )
             }
         case is RMLocationTableViewCellViewModel:
             return { [weak self] request, completion in
-                self?.fetchResults(
+                guard let self else { return }
+                fetchResults(
                     for: request,
                     expecting: RMGetLocationsResponse.self,
-                    map: { response in
-                        response.compactMap {
-                            RMLocationTableViewCellViewModel(location: $0)
-                        }
-                    },
+                    map: { self.mapLocationsVms(from: $0) },
                     completion: completion
                 )
             }
@@ -132,15 +120,8 @@ final class RMSearchResultViewModel {
                 guard let self else { return }
                 fetchResults(
                     for: request,
-                    expecting: RMGetLocationsResponse.self,
-                    map: { response in
-                        response.compactMap {
-                            RMCharacterEpisodeCollectionViewCellViewModel(
-                                episodeDataURL: URL(string:$0.url),
-                                service: self.service
-                            )
-                        }
-                    },
+                    expecting: RMGetEpisodesResponse.self,
+                    map: { self.mapEpisodesVms(from: $0) },
                     completion: completion
                 )
             }
@@ -183,6 +164,38 @@ final class RMSearchResultViewModel {
             guard let self else { return }
             isLoadingMoreResults = false
             completion(calculator.calculateIndexPaths(count: data.count))
+        }
+    }
+    
+    private func mapCharactersVMs(
+        from elements: [RMCharacter]
+    ) -> [RMCharacterCollectionViewCellViewModel] {
+        elements.compactMap {
+            .init(
+                characterName: $0.name,
+                characterStatus: $0.status,
+                characterImageUrl: URL(string: $0.image),
+                service: service
+            )
+        }
+    }
+    
+    private func mapEpisodesVms(
+        from elements: [RMEpisode]
+    ) -> [RMCharacterEpisodeCollectionViewCellViewModel] {
+        elements.compactMap {
+            .init(
+                episodeDataURL: URL(string:$0.url),
+                service: service
+            )
+        }
+    }
+    
+    private func mapLocationsVms(
+        from elements: [RMLocation]
+    ) -> [RMLocationTableViewCellViewModel] {
+        elements.compactMap {
+            .init(location: $0)
         }
     }
 }

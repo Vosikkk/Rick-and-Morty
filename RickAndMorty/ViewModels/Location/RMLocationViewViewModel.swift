@@ -14,56 +14,52 @@ protocol RMLocationViewViewModelDelegate: AnyObject {
 
 final class RMLocationViewViewModel {
     
+    // MARK: - Private Properties
+    
+    private let dataProcessor: DataProcessor<RMLocation, RMLocationTableViewCellViewModel>
+    
+    private let service: Service
+
+    private var calculator: CalculatorIndexPaths
+    
+    private var didFinishPagination: (() -> Void)?
+    
+    private var apiInfo: Info? {
+        dataProcessor.apiInfo
+    }
+    
+    // MARK: - Public Properties
+    
     public weak var delegate: RMLocationViewViewModelDelegate?
     
-    private var dataProcessor: DataProcessor<RMLocation, RMLocationTableViewCellViewModel>
-    
-    public var isLoadingMoreLocations: Bool = false 
-//    {
-//        didSet {
-//            if isLoadingMoreLocations,
-//               calculator._lastIndex != locations.endIndex {
-//                calculator._lastIndex = locations.endIndex
-//            }
-//        }
-//    }
+    public var isLoadingMoreLocations: Bool = false {
+        didSet {
+            if isLoadingMoreLocations,
+                calculator._lastIndex != dataProcessor.items.endIndex {
+                calculator._lastIndex = dataProcessor.items.endIndex
+            }
+        }
+    }
     
     public var shouldShowLoadIndicator: Bool {
         apiInfo?.next != nil
     }
     
-    private var didFinishPagination: (() -> Void)?
-    
-//    private var locations: [RMLocation] = [] {
-//        didSet {
-//            cellViewModels.append(
-//                contentsOf: createViewModels(
-//                    from: locations,
-//                    startingAt: calculator._lastIndex
-//                )
-//            )
-//        }
-//    }
-    
-    private var calculator: CalculatorIndexPaths = .init()
-    
-    private var hasMoreResults: Bool {
-        false
-    }
-    
-    private(set) var apiInfo: Info?
-    
     public var cellViewModels: [RMLocationTableViewCellViewModel] {
         return dataProcessor.cellViewModels
     }
     
-    private let service: Service
+    
+    // MARK: - Init 
     
     init(service: Service) {
         self.service = service
         self.dataProcessor = DataProcessor()
+        self.calculator = .init()
     }
     
+    
+    // MARK: - Methods 
     
     public func registerDidFinishPaginationBlock(
         _ block: @escaping () -> Void
@@ -76,17 +72,19 @@ final class RMLocationViewViewModel {
             RMRequest(endpoint: .location),
             expecting: RMGetLocationsResponse.self
         ) { [weak self] res in
+            guard let self else { return }
+    
             switch res {
-            case .success(let resp):
-                self?.dataProcessor.handleInitial(response: resp, createViewModels: {
-                    $0.map {
-                        RMLocationTableViewCellViewModel(location: $0)
-                    }
-                })
+            case .success(let responseModel):
+                
+                dataProcessor.handleInitial(
+                    response: responseModel
+                ) { self.map($0) }
+               
                 DispatchQueue.mainAsyncIfNeeded {
-                    self?.delegate?.didFetchInitialLocations()
+                    self.delegate?.didFetchInitialLocations()
                 }
-                //self?.handleInitial(response: resp)
+            
             case .failure(let error):
                 print(error)
                 break
@@ -114,8 +112,17 @@ final class RMLocationViewViewModel {
             guard let self else { return }
             switch res {
             case .success(let responseModel):
-                break
-               //  handleAdditional(response: responseModel)
+                
+                dataProcessor.handleAdditional(
+                    response: responseModel,
+                    fromIndex: calculator._lastIndex
+                ) { self.map($0) }
+                
+                DispatchQueue.mainAsyncIfNeeded {
+                    self.isLoadingMoreLocations = false
+                    self.didFinishPagination?()
+                }
+            
             case .failure(let failure):
                 print(String(describing: failure))
                 isLoadingMoreLocations = false
@@ -123,35 +130,16 @@ final class RMLocationViewViewModel {
         }
     }
     
-//    private func handleAdditional(response: RMGetLocationsResponse) {
-//        apiInfo = response.info
-//        locations.append(contentsOf: response.results)
-//        DispatchQueue.mainAsyncIfNeeded { [weak self] in
-//            self?.isLoadingMoreLocations = false
-//            self?.didFinishPagination?()
-//        }
-//    }
-//    
-//    private func handleInitial(response: RMGetLocationsResponse) {
-//        apiInfo = response.info
-//        locations = response.results
-//        DispatchQueue.mainAsyncIfNeeded { [weak self] in
-//            self?.delegate?.didFetchInitialLocations()
-//        }
-//    }
-    
-    private func createViewModels(
-        from locations: [RMLocation],
-        startingAt index: Int
-    ) -> [RMLocationTableViewCellViewModel] {
-        return locations[index...]
-            .map {
-                RMLocationTableViewCellViewModel(location: $0)
-            }
-    }
-    
-    
     public func location(at index: Int) -> RMLocation? {
         return dataProcessor.item(at: index)
+    }
+    
+    private func map(
+        _ elements: ArraySlice<RMLocation>
+    ) -> [RMLocationTableViewCellViewModel] {
+       
+        return elements.compactMap {
+            .init(location: $0)
+        }
     }
 }
