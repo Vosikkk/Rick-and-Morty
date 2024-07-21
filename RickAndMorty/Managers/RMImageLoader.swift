@@ -7,7 +7,7 @@
 import Foundation
 import UIKit
 
-final class RMImageLoader {
+ final class RMImageLoader {
     
     typealias Completion = (Result<Data, Error>) -> Void
     
@@ -20,7 +20,7 @@ final class RMImageLoader {
     /// - Parameters:
     ///   - url: Source url
     ///   - completion: Callback
-    public func downloadImage(_ url: URL, completion: @escaping Completion) {
+     func downloadImage(_ url: URL, completion: @escaping Completion) {
         let key = url.absoluteString as NSString
         if let data = imageDataCache.object(forKey: key) {
             completion(.success(data as Data))

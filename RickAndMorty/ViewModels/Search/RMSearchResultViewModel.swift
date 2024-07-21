@@ -7,7 +7,6 @@
 
 import Foundation
 
-
 final class RMSearchResultViewModel {
     
     private(set) var data: [any Hashable]
@@ -15,7 +14,7 @@ final class RMSearchResultViewModel {
     private var calculator: CalculatorIndexPaths
     
     private let service: Service
-    
+
     
     public private(set) var isLoadingMoreResults: Bool = false {
         didSet {
@@ -30,27 +29,6 @@ final class RMSearchResultViewModel {
         nextUrl != nil
     }
     
-    
-    convenience init(
-        resultType: RMSearchResultType,
-        and nextUrl: String?,
-        service: Service
-    ) {
-        var data: [any Hashable]
-        switch resultType {
-        case .characters(let existingData):
-            data = existingData
-        case .locations(let existingData):
-            data = existingData
-        case  .episodes(let existingData):
-            data = existingData
-        }
-        self.init(
-            nextUrl: nextUrl,
-            existingData: data,
-            service: service
-        )
-    }
     
     init(
         nextUrl: String?,
@@ -75,23 +53,29 @@ final class RMSearchResultViewModel {
         
         isLoadingMoreResults = true
         
-        guard let request = RMRequest(url: url) else {
+        guard let request = RMRequest(url: url), 
+              let firstElement = data.first else {
             isLoadingMoreResults = false
             return
         }
         
-         if let firstElement = data.first,
-            let fetchHandler = getFetchHandler(for: firstElement) {
-            fetchHandler(request, completion)
-         } else {
-             isLoadingMoreResults = false
-         }
+        
+        let fetchHandler = getFetchHandler(for: firstElement)
+        fetchHandler?(request) { result in
+            switch result {
+            case .success(let indexPaths):
+                completion(indexPaths)
+            case .failure(let failure):
+                print(failure)
+                self.isLoadingMoreResults = false
+            }
+        }
     }
     
     
-    private func getFetchHandler<T: Hashable>(
-        for element: T
-    ) -> ((RMRequest, @escaping ([IndexPath]) -> Void) -> Void)? {
+    private func getFetchHandler(
+        for element: any Hashable
+    ) -> ((RMRequest, @escaping (Result<[IndexPath], Error>) -> Void) -> Void)? {
         
         switch element {
         case is RMCharacterCollectionViewCellViewModel:
@@ -100,7 +84,7 @@ final class RMSearchResultViewModel {
                 fetchResults(
                     for: request,
                     expecting: RMGetCharactersResponse.self,
-                    map: { self.mapCharactersVMs(from: $0) },
+                    map: CharacterMapper(service: service).map,
                     completion: completion
                 )
             }
@@ -110,7 +94,7 @@ final class RMSearchResultViewModel {
                 fetchResults(
                     for: request,
                     expecting: RMGetLocationsResponse.self,
-                    map: { self.mapLocationsVms(from: $0) },
+                    map: LocationMapper().map,
                     completion: completion
                 )
             }
@@ -121,7 +105,7 @@ final class RMSearchResultViewModel {
                 fetchResults(
                     for: request,
                     expecting: RMGetEpisodesResponse.self,
-                    map: { self.mapEpisodesVms(from: $0) },
+                    map: EpisodeMapper(service: service).map,
                     completion: completion
                 )
             }
@@ -135,18 +119,19 @@ final class RMSearchResultViewModel {
         for request: RMRequest,
         expecting: T.Type,
         map: @escaping (T.ResultResponse) -> [any Hashable],
-        completion: @escaping ([IndexPath]) -> Void
+        completion: @escaping (Result<[IndexPath], Error>) -> Void
     ) {
         service.execute(request, expecting: T.self) { [weak self] result in
             switch result {
             case .success(let respModel):
                 self?.update(
                     nextUrl: respModel.info.next,
-                    data: map(respModel.results),
-                    completion: completion
-                )
+                    data: map(respModel.results)) { indexPaths in
+                        completion(.success(indexPaths))
+                    }
             case .failure(let failure):
                 self?.isLoadingMoreResults = false
+                completion(.failure(failure))
                 print(failure)
             }
         }
@@ -164,38 +149,6 @@ final class RMSearchResultViewModel {
             guard let self else { return }
             isLoadingMoreResults = false
             completion(calculator.calculateIndexPaths(count: data.count))
-        }
-    }
-    
-    private func mapCharactersVMs(
-        from elements: [RMCharacter]
-    ) -> [RMCharacterCollectionViewCellViewModel] {
-        elements.compactMap {
-            .init(
-                characterName: $0.name,
-                characterStatus: $0.status,
-                characterImageUrl: URL(string: $0.image),
-                service: service
-            )
-        }
-    }
-    
-    private func mapEpisodesVms(
-        from elements: [RMEpisode]
-    ) -> [RMCharacterEpisodeCollectionViewCellViewModel] {
-        elements.compactMap {
-            .init(
-                episodeDataURL: URL(string:$0.url),
-                service: service
-            )
-        }
-    }
-    
-    private func mapLocationsVms(
-        from elements: [RMLocation]
-    ) -> [RMLocationTableViewCellViewModel] {
-        elements.compactMap {
-            .init(location: $0)
         }
     }
 }

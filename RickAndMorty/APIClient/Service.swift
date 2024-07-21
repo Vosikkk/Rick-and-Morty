@@ -8,7 +8,7 @@
 import Foundation
 
 ///  Each who wants work with client have to implment the protocol
- protocol Service {
+protocol Service {
     
      var imageLoader: RMImageLoader { get }
      

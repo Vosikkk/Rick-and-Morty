@@ -111,7 +111,7 @@ final class RMSearchViewViewModel {
     private func fetch<T: ResponseModel>(
         _ request: RMRequest,
         for type: T.Type
-    ) {
+    )  {
         service.execute(
             request,
             expecting: type
@@ -131,35 +131,27 @@ final class RMSearchViewViewModel {
     
     private func processSearchResults(for model: any ResponseModel) {
         
-        var results: RMSearchResultType
+        let searchResVM: RMSearchResultViewModel
         
         switch model {
         case let characterResults as RMGetCharactersResponse:
-            results = .characters(characterResults.results
-                .compactMap {
-                    .init(
-                        characterName: $0.name,
-                        characterStatus: $0.status,
-                        characterImageUrl: URL(string: $0.image),
-                        service: service
-                    )
-                }
+            searchResVM = RMSearchResultViewModel(
+                nextUrl: model.info.next,
+                existingData: CharacterMapper(service: service).map(from: characterResults.results),
+                service: service
             )
         case let locationResults as RMGetLocationsResponse:
-            results = .locations(locationResults.results
-                .compactMap {
-                    .init(location: $0)
-                }
+            searchResVM = RMSearchResultViewModel(
+                nextUrl: model.info.next,
+                existingData: LocationMapper().map(from: locationResults.results),
+                service: service
             )
             
         case let episodeResults as RMGetEpisodesResponse:
-            results = .episodes(episodeResults.results
-                .compactMap {
-                    .init(
-                        episodeDataURL: URL(string: $0.url),
-                        service: service
-                    )
-                }
+            searchResVM = RMSearchResultViewModel(
+                nextUrl: model.info.next,
+                existingData: EpisodeMapper(service: service).map(from: episodeResults.results),
+                service: service
             )
         default:
             handleNoResults()
@@ -167,11 +159,7 @@ final class RMSearchViewViewModel {
         }
         
         searchResultModel = model
-        searchResultHandler?(.init(
-            resultType: results,
-            and: model.info.next,
-            service: service)
-        )
+        searchResultHandler?(searchResVM)
     }
     
     private func cast<T>(
