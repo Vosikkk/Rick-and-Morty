@@ -26,7 +26,7 @@ final class RMSearchViewViewModel {
     
     private var searchText: String = ""
     
-    private var searchResultHandler: ((RMSearchResultViewModel) -> Void)?
+    private var searchResultHandler: ((any SearchResultViewModel) -> Void)?
     
     private var noResultsHandler: (() -> Void)?
     
@@ -42,7 +42,7 @@ final class RMSearchViewViewModel {
     // MARK: - Methods
     
     public func registerSearchResultsHandler(
-        _ block: @escaping (RMSearchResultViewModel) -> Void
+        _ block: @escaping (any SearchResultViewModel) -> Void
     ) {
         self.searchResultHandler = block
     }
@@ -131,27 +131,39 @@ final class RMSearchViewViewModel {
     
     private func processSearchResults(for model: any ResponseModel) {
         
-        let searchResVM: RMSearchResultViewModel
+        let searchResVM: any SearchResultViewModel
         
         switch model {
         case let characterResults as RMGetCharactersResponse:
+            let mapper = CharacterMapper(service: service)
+            let viewModels = mapper.map(from: characterResults.results)
             searchResVM = RMSearchResultViewModel(
-                nextUrl: model.info.next,
-                existingData: CharacterMapper(service: service).map(from: characterResults.results),
-                service: service
+                data: viewModels,
+                nextUrl: characterResults.info.next,
+                service: service,
+                mapper: mapper,
+                type: RMGetCharactersResponse.self
             )
         case let locationResults as RMGetLocationsResponse:
+            let mapper = LocationMapper()
+            let viewModels = mapper.map(from: locationResults.results)
             searchResVM = RMSearchResultViewModel(
-                nextUrl: model.info.next,
-                existingData: LocationMapper().map(from: locationResults.results),
-                service: service
+                data: viewModels,
+                nextUrl: locationResults.info.next,
+                service: service,
+                mapper: mapper,
+                type: RMGetLocationsResponse.self
             )
-            
+
         case let episodeResults as RMGetEpisodesResponse:
+            let mapper = EpisodeMapper(service: service)
+            let viewModels = mapper.map(from: episodeResults.results)
             searchResVM = RMSearchResultViewModel(
-                nextUrl: model.info.next,
-                existingData: EpisodeMapper(service: service).map(from: episodeResults.results),
-                service: service
+                data: viewModels,
+                nextUrl: episodeResults.info.next,
+                service: service,
+                mapper: mapper,
+                type: RMGetEpisodesResponse.self
             )
         default:
             handleNoResults()

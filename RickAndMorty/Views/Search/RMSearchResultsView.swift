@@ -33,7 +33,7 @@ final class RMSearchResultsView: UIView {
     weak var delegate: RMSearchResultsViewDelegate?
     
     
-    private(set) var searchVM: RMSearchResultViewModel? {
+    private(set) var searchVM: (any SearchResultViewModel)? {
         didSet {
             if searchVM?.data.first is RMLocationTableViewCellViewModel {
                 setupTableView()
@@ -99,7 +99,7 @@ final class RMSearchResultsView: UIView {
         collectionView.collectionViewLayout.invalidateLayout()
     }
     
-    public func configure(vm: RMSearchResultViewModel) {
+    public func configure(vm: any SearchResultViewModel) {
         searchVM = vm
     }
     
@@ -170,7 +170,7 @@ extension RMSearchResultsView: UIScrollViewDelegate {
     
     private func handlePagination(
         scrollView: UIScrollView,
-        searchResVM: RMSearchResultViewModel
+        searchResVM: any SearchResultViewModel
     ) {
         
         Timer.scheduledTimer(

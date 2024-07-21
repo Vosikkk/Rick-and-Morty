@@ -7,14 +7,36 @@
 
 import Foundation
 
-final class RMSearchResultViewModel {
+protocol SearchResultViewModel {
     
-    private(set) var data: [any Hashable]
+    associatedtype ViewModel: Hashable
+    
+    var data: [ViewModel] { get }
+    
+    var nextUrl: String? { get }
+    
+    var isLoadingMoreResults: Bool { get }
+    
+    var shouldShowLoadIndicator: Bool { get }
+    
+    func fetchAdditionalResults(completion: @escaping ([IndexPath]) -> Void)
+}
+
+
+final class RMSearchResultViewModel<Mapper: Map, T: ResponseModel>: SearchResultViewModel {
+    
+    typealias ViewModel = Mapper.ViewModel
+    
+    private(set) var data: [ViewModel]
     private(set) var nextUrl: String?
+    
     private var calculator: CalculatorIndexPaths
     
     private let service: Service
-
+    
+    private let mapper: Mapper
+    
+    private let type: T.Type
     
     public private(set) var isLoadingMoreResults: Bool = false {
         didSet {
@@ -31,20 +53,24 @@ final class RMSearchResultViewModel {
     
     
     init(
+        data: [ViewModel],
         nextUrl: String?,
-        existingData: [any Hashable],
-        service: Service
+        service: Service,
+        mapper: Mapper,
+        type: T.Type
     ) {
+        self.data = data
         self.nextUrl = nextUrl
-        self.data = existingData
         self.service = service
-        calculator = .init(lastIndex: data.endIndex)
+        self.mapper = mapper
+        self.type = type
+        self.calculator = .init(lastIndex: data.endIndex)
     }
     
     
-    public func fetchAdditionalResults(
-        completion: @escaping ([IndexPath]) -> Void
-    ) {
+    
+    func fetchAdditionalResults(completion: @escaping ([IndexPath]) -> Void) {
+       
         guard !isLoadingMoreResults,
               let nextURLString = nextUrl,
               let url = URL(string: nextURLString) else {
@@ -53,94 +79,32 @@ final class RMSearchResultViewModel {
         
         isLoadingMoreResults = true
         
-        guard let request = RMRequest(url: url), 
-              let firstElement = data.first else {
+        guard let request = RMRequest(url: url) else {
             isLoadingMoreResults = false
             return
         }
         
-        
-        let fetchHandler = getFetchHandler(for: firstElement)
-        fetchHandler?(request) { result in
+        service.execute(request, expecting: type) { [weak self] result in
+            guard let self else { return }
             switch result {
-            case .success(let indexPaths):
-                completion(indexPaths)
+            case .success(let responseModel):
+                if let resp = responseModel.results as? [Mapper.JsModel] {
+                    update(nextUrl: responseModel.info.next,
+                           data: mapper.map(from: resp),
+                           completion: completion
+                    )
+            }
             case .failure(let failure):
-                print(failure)
-                self.isLoadingMoreResults = false
-            }
-        }
-    }
-    
-    
-    private func getFetchHandler(
-        for element: any Hashable
-    ) -> ((RMRequest, @escaping (Result<[IndexPath], Error>) -> Void) -> Void)? {
-        
-        switch element {
-        case is RMCharacterCollectionViewCellViewModel:
-            return { [weak self] request, completion in
-                guard let self else { return }
-                fetchResults(
-                    for: request,
-                    expecting: RMGetCharactersResponse.self,
-                    map: CharacterMapper(service: service).map,
-                    completion: completion
-                )
-            }
-        case is RMLocationTableViewCellViewModel:
-            return { [weak self] request, completion in
-                guard let self else { return }
-                fetchResults(
-                    for: request,
-                    expecting: RMGetLocationsResponse.self,
-                    map: LocationMapper().map,
-                    completion: completion
-                )
-            }
-
-        case is RMCharacterEpisodeCollectionViewCellViewModel:
-            return { [weak self] request, completion in
-                guard let self else { return }
-                fetchResults(
-                    for: request,
-                    expecting: RMGetEpisodesResponse.self,
-                    map: EpisodeMapper(service: service).map,
-                    completion: completion
-                )
-            }
-        default:
-            return nil
-        }
-    }
-    
-    
-    private func fetchResults<T: ResponseModel>(
-        for request: RMRequest,
-        expecting: T.Type,
-        map: @escaping (T.ResultResponse) -> [any Hashable],
-        completion: @escaping (Result<[IndexPath], Error>) -> Void
-    ) {
-        service.execute(request, expecting: T.self) { [weak self] result in
-            switch result {
-            case .success(let respModel):
-                self?.update(
-                    nextUrl: respModel.info.next,
-                    data: map(respModel.results)) { indexPaths in
-                        completion(.success(indexPaths))
-                    }
-            case .failure(let failure):
-                self?.isLoadingMoreResults = false
-                completion(.failure(failure))
+                isLoadingMoreResults = false
                 print(failure)
             }
         }
     }
-  
-
+    
+    
     private func update(
         nextUrl: String?,
-        data: [any Hashable],
+        data: [Mapper.ViewModel],
         completion: @escaping ([IndexPath]) -> Void
     ) {
         self.nextUrl = nextUrl
