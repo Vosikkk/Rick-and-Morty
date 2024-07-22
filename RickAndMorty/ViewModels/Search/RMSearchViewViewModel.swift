@@ -129,40 +129,35 @@ final class RMSearchViewViewModel {
         noResultsHandler?()
     }
     
-    private func processSearchResults(for model: any ResponseModel) {
+    private func processSearchResults(for model: some ResponseModel) {
         
         let searchResVM: any SearchResultViewModel
         
         switch model {
         case let characterResults as RMGetCharactersResponse:
-            let mapper = CharacterMapper(service: service)
-            let viewModels = mapper.map(from: characterResults.results)
+            let dataProcessor = DataProcessorrr<CharacterMapper, RMGetCharactersResponse>(mapper: CharacterMapper(service: service))
+            dataProcessor.handleInitial(response: characterResults)
             searchResVM = RMSearchResultViewModel(
-                data: viewModels,
-                nextUrl: characterResults.info.next,
                 service: service,
-                mapper: mapper,
+                dataProcessor: dataProcessor,
                 type: RMGetCharactersResponse.self
             )
+        
         case let locationResults as RMGetLocationsResponse:
-            let mapper = LocationMapper()
-            let viewModels = mapper.map(from: locationResults.results)
+            let dataProcessor = DataProcessorrr<LocationMapper, RMGetLocationsResponse>(mapper: LocationMapper())
+            dataProcessor.handleInitial(response: locationResults)
             searchResVM = RMSearchResultViewModel(
-                data: viewModels,
-                nextUrl: locationResults.info.next,
                 service: service,
-                mapper: mapper,
+                dataProcessor: dataProcessor,
                 type: RMGetLocationsResponse.self
             )
 
         case let episodeResults as RMGetEpisodesResponse:
-            let mapper = EpisodeMapper(service: service)
-            let viewModels = mapper.map(from: episodeResults.results)
+            let dataProcessor = DataProcessorrr<EpisodeMapper, RMGetEpisodesResponse>(mapper: EpisodeMapper(service: service))
+            dataProcessor.handleInitial(response: episodeResults)
             searchResVM = RMSearchResultViewModel(
-                data: viewModels,
-                nextUrl: episodeResults.info.next,
                 service: service,
-                mapper: mapper,
+                dataProcessor: dataProcessor,
                 type: RMGetEpisodesResponse.self
             )
         default:
