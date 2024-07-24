@@ -7,42 +7,6 @@
 
 import Foundation
 
-
-final class DataProcessor<T: JsonModel, U: Hashable> {
-    
-    private(set) var items: [T] = []
-    private(set) var cellViewModels: [U] = []
-    
-    private(set) var apiInfo: Info?
-    
-    func handleInitial<E: ResponseModel>(
-        response: E,
-        createViewModels: (ArraySlice<T>) -> [U]
-    ) {
-        apiInfo = response.info
-        items = response.results as! [T]
-        cellViewModels = createViewModels(items[...])
-    }
-    
-    func handleAdditional<E: ResponseModel>(
-        response: E,
-        fromIndex index: Int,
-        createViewModels: (ArraySlice<T>) -> [U]
-    ) {
-        apiInfo = response.info
-        items.append(contentsOf: response.results as! [T])
-        cellViewModels.append(contentsOf: createViewModels(items[index...]))
-    }
-    
-    func item(at index: Int) -> T? {
-        guard index < items.count, index >= 0 else {
-            return nil
-        }
-        return items[index]
-    }
-}
-
-
 protocol DataProcess {
    
     associatedtype Model: JsonModel
@@ -54,15 +18,15 @@ protocol DataProcess {
     
     var apiInfo: Info? { get }
     
-    func handleInitial(response: Response)
+    func handleInitial(_ response: Response)
     
-    func handleAdditional(response: Response)
+    func handleAdditional(_ response: Response)
     
     func item(at index: Int) -> Model?
 }
 
 
-final class DataProcessorrr<Mapper: Map, Resp: ResponseModel>: DataProcess 
+final class DataProcessor<Mapper: Map, Resp: ResponseModel>: DataProcess 
 where Mapper.JsModel == Resp.ResultResponse {
     
     typealias Model = Mapper.JsModel
@@ -82,11 +46,11 @@ where Mapper.JsModel == Resp.ResultResponse {
     }
     
     
-    func handleInitial(response: Response) {
+    func handleInitial(_ response: Response) {
         updateData(with: response)
     }
     
-    func handleAdditional(response: Response) {
+    func handleAdditional(_ response: Response) {
         appendData(with: response)
     }
     

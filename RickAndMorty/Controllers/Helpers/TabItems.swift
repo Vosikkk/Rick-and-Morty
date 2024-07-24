@@ -11,6 +11,7 @@ import UIKit
 protocol TabItem {
     var title: String { get }
     var image: UIImage? { get }
+  
 }
 
 
@@ -18,6 +19,7 @@ protocol TabItem {
 /// Represents the title, icon, and each instance of the view controller for a tab.
 enum TabItems: Int, CaseIterable, TabItem {
     case characters = 1, locations, episodes, settings
+  
     
     var title: String {
         switch self {

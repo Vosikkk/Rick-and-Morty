@@ -8,13 +8,15 @@
 import UIKit
 
 /// Controller to show info about single character
-final class RMCharacterDetailViewController: UIViewController {
+final class RMCharacterDetailViewController: UIViewController, CoordinatedController {
 
     private let detailVM: RMCharacterDetailViewViewModel
     
     private let detailView: RMCharacterDetailView
     
     private let service: Service
+    
+    weak var coordinator: Coordinator?
     
     // MARK: - Init
     
@@ -141,11 +143,10 @@ extension RMCharacterDetailViewController: UICollectionViewDataSource {
             break
         case .episodes:
             let episodes = detailVM.episodes
-            let vc = RMEpisodeDetailViewController(
+            coordinator?.push(RMEpisodeDetailViewController(
                 url: URL(string: episodes[indexPath.row]),
                 service: service
-            )
-            navigationController?.pushViewController(vc, animated: true)
+            ))
         }
     }
     

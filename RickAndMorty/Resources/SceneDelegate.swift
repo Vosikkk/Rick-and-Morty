@@ -10,16 +10,27 @@ import UIKit
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
-
+    var coordinators: [Coordinator] = []
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         
         guard let windowScene = (scene as? UIWindowScene) else { return }
+       
+        let tabBar = RMTabViewController()
         
-        let vc = RMTabViewController()
+        let service: Service = RMService(cache: RMAPICacheManager(), imageLoader: RMImageLoader())
+        let viewControllers = TabItems.allCases
+            .map {
+                let nav = UINavigationController()
+                let coordinator = BaseCoordinator(navigationController: nav, service: service, tab: $0)
+                coordinator.start()
+                coordinators.append(coordinator)
+                return nav
+            }
+        tabBar.setViewControllers(viewControllers, animated: true)
         
         let window = UIWindow(windowScene: windowScene)
-        window.rootViewController = vc
+        window.rootViewController = tabBar
         window.makeKeyAndVisible()
         self.window = window
     }

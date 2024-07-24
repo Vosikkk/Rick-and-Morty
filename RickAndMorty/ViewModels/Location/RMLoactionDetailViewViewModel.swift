@@ -16,7 +16,7 @@ public enum SectionType {
     case characters(vm: [RMCharacterCollectionViewCellViewModel])
 }
 
-final class RMLoactionDetailViewViewModel: DetailViewModel {
+final class RMLoactionDetailViewViewModel {
     
     typealias DataInfo = (data: RMLocation, characters: [RMCharacter])
     
@@ -50,6 +50,7 @@ final class RMLoactionDetailViewViewModel: DetailViewModel {
         let location = data.data
         let characters = data.characters
         let createdString = dateFormatter.createShortDate(from: location.created)
+        let characterMapper = CharacterMapper(service: service)
         cellViewModels = [
             .information(vm: [
                 .init(title: "Location Name", value: location.name),
@@ -58,14 +59,7 @@ final class RMLoactionDetailViewViewModel: DetailViewModel {
                 .init(title: "Created", value: createdString),
             ]),
             .characters(vm:
-                characters.compactMap {
-                    return RMCharacterCollectionViewCellViewModel(
-                        characterName: $0.name,
-                        characterStatus: $0.status,
-                        characterImageUrl: URL(string: $0.image),
-                        service: service
-                    )
-                }
+                 characterMapper.map(from: characters)
             )
         ]
     }
@@ -86,6 +80,9 @@ final class RMLoactionDetailViewViewModel: DetailViewModel {
         }
     }
     
+    func character(at index: Int) -> RMCharacter? {
+        return data?.characters[index] 
+    }
     
     
     func fetchRelatedItems(for data: RMLocation) {

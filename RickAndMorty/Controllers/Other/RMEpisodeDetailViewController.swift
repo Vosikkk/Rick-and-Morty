@@ -8,13 +8,14 @@
 import UIKit
 
 /// VC to show details about single episode
-final class RMEpisodeDetailViewController: UIViewController {
+final class RMEpisodeDetailViewController: UIViewController, CoordinatedController {
 
     private let service: Service
     private let episodeDetailVM: RMEpisodeDetailViewViewModel
     
     private let detailView: RMEpisodeDetailView = RMEpisodeDetailView()
     
+    weak var coordinator: Coordinator?
     
     // MARK: - Init
     
@@ -84,7 +85,6 @@ extension RMEpisodeDetailViewController: RMEpisodeDetailViewDelegate {
             service: service
         )
         vc.title = character.name
-        vc.navigationItem.largeTitleDisplayMode = .never
-        navigationController?.pushViewController(vc, animated: true)
+        coordinator?.push(vc)
     }
 }

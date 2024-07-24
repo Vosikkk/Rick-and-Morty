@@ -11,8 +11,9 @@ import UIKit
 import SwiftUI
 
 /// Controller to show various app options and settings
-final class RMSettingsViewController: UIViewController {
-
+final class RMSettingsViewController: UIViewController, CoordinatedController {
+    
+    weak var coordinator: (any Coordinator)?
     
     private var settingsHostingVC: UIHostingController<RMSettingsView>?
     

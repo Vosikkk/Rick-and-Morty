@@ -92,7 +92,7 @@ final class RMSearchResultViewModel<DataProcessor: DataProcess, T: ResponseModel
                     return
                 }
                 
-                dataProcessor.handleAdditional(response: response)
+                dataProcessor.handleAdditional(response)
                 DispatchQueue.mainAsyncIfNeeded {
                     self.isLoadingMoreResults = false
                     completion(self.calculator.calculateIndexPaths(

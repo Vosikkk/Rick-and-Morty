@@ -9,8 +9,10 @@ import UIKit
 
 
 /// Controller to show and search for Locations
-final class RMLocationViewController: UIViewController {
+final class RMLocationViewController: UIViewController, CoordinatedController {
+   
     
+    weak var coordinator: Coordinator?
     
     private let primaryView: RMLocationView
     
@@ -56,8 +58,8 @@ final class RMLocationViewController: UIViewController {
     @objc
     private func didTapSearch() {
         let vc = RMSearchViewController(config: .init(type: .location), service: service)
-        vc.navigationItem.largeTitleDisplayMode = .never
-        navigationController?.pushViewController(vc, animated: true)
+        vc.coordinator = coordinator
+        coordinator?.push(vc)
     }
     
     private func setConstraints() {
@@ -83,7 +85,7 @@ extension RMLocationViewController: RMLocationViewDelegate {
         didSelect location: RMLocation
     ) {
         let vc = RMLocationDetailViewController(location: location, service: service)
-        vc.navigationItem.largeTitleDisplayMode = .never
-        navigationController?.pushViewController(vc, animated: true)
+        vc.coordinator = coordinator
+        coordinator?.push(vc)
     }
 }

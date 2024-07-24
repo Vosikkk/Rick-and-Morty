@@ -14,9 +14,11 @@ protocol RMLocationViewViewModelDelegate: AnyObject {
 
 final class RMLocationViewViewModel {
     
+    typealias ViewModel = RMLocationTableViewCellViewModel
+    
     // MARK: - Private Properties
     
-    private let dataProcessor: DataProcessor<RMLocation, RMLocationTableViewCellViewModel>
+    private let dataProcessor: DataProcessor<LocationMapper, RMGetLocationsResponse>
     
     private let service: Service
 
@@ -45,7 +47,7 @@ final class RMLocationViewViewModel {
         apiInfo?.next != nil
     }
     
-    public var cellViewModels: [RMLocationTableViewCellViewModel] {
+    public var cellViewModels: [ViewModel] {
         return dataProcessor.cellViewModels
     }
     
@@ -54,7 +56,7 @@ final class RMLocationViewViewModel {
     
     init(service: Service) {
         self.service = service
-        self.dataProcessor = DataProcessor()
+        self.dataProcessor = .init(mapper: LocationMapper())
         self.calculator = .init()
     }
     
@@ -76,10 +78,7 @@ final class RMLocationViewViewModel {
     
             switch res {
             case .success(let responseModel):
-                
-                dataProcessor.handleInitial(
-                    response: responseModel
-                ) { self.map($0) }
+                dataProcessor.handleInitial(responseModel)
                
                 DispatchQueue.mainAsyncIfNeeded {
                     self.delegate?.didFetchInitialLocations()
@@ -113,10 +112,7 @@ final class RMLocationViewViewModel {
             switch res {
             case .success(let responseModel):
                 
-                dataProcessor.handleAdditional(
-                    response: responseModel,
-                    fromIndex: calculator._lastIndex
-                ) { self.map($0) }
+                dataProcessor.handleAdditional(responseModel)
                 
                 DispatchQueue.mainAsyncIfNeeded {
                     self.isLoadingMoreLocations = false
@@ -132,14 +128,5 @@ final class RMLocationViewViewModel {
     
     public func location(at index: Int) -> RMLocation? {
         return dataProcessor.item(at: index)
-    }
-    
-    private func map(
-        _ elements: ArraySlice<RMLocation>
-    ) -> [RMLocationTableViewCellViewModel] {
-       
-        return elements.compactMap {
-            .init(location: $0)
-        }
     }
 }

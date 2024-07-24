@@ -9,7 +9,7 @@ import UIKit
 
 
 ///  Configurable controller to search
-final class RMSearchViewController: UIViewController {
+final class RMSearchViewController: UIViewController, CoordinatedController {
     
     private let config: Config
     
@@ -18,6 +18,8 @@ final class RMSearchViewController: UIViewController {
     private let searchVM: RMSearchViewViewModel
     
     private let service: Service
+    
+    weak var coordinator: Coordinator?
     
     // MARK: - Init
     
@@ -91,31 +93,27 @@ extension RMSearchViewController: RMSearchViewDelegate {
             url: URL(string: episode.url),
             service: service
         )
-        vc.navigationItem.largeTitleDisplayMode = .never
-        navigationController?.pushViewController(vc, animated: true)
+        vc.coordinator = coordinator
+        coordinator?.push(vc)
     }
     
     
     func rmSearchView(_ sender: RMSearchView, didSelectCharacter character: RMCharacter) {
-        let vc = RMCharacterDetailViewController(
+        coordinator?.push(RMCharacterDetailViewController(
             viewModel: .init(
                 character: character,
                 service: service
             ),
             service: service
-        )
-        vc.navigationItem.largeTitleDisplayMode = .never
-        navigationController?.pushViewController(vc, animated: true)
+        ))
     }
     
     
     func rmSearchView(_ sender: RMSearchView, didSelectLocation location: RMLocation) {
-        let vc = RMLocationDetailViewController(
+        coordinator?.push(RMLocationDetailViewController(
             location: location,
             service: service
-        )
-        vc.navigationItem.largeTitleDisplayMode = .never
-        navigationController?.pushViewController(vc, animated: true)
+        ))
     }
     
     func rmSearchView(

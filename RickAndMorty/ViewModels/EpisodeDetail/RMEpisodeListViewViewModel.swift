@@ -18,13 +18,15 @@ protocol RMEpisodeListViewViewModelDelegate: AnyObject {
 ///  View Model to handle episode list view logic
 final class RMEpisodeListViewViewModel: NSObject {
     
+    typealias ViewModel = RMCharacterEpisodeCollectionViewCellViewModel
+    
     public weak var delegate: RMEpisodeListViewViewModelDelegate?
     
     public var shouldShowLoadIndicator: Bool {
         apiInfo?.next != nil
     }
     
-    private let dataProcessor: DataProcessor<RMEpisode, RMCharacterEpisodeCollectionViewCellViewModel>
+    private let dataProcessor: DataProcessor<EpisodeMapper, RMGetEpisodesResponse>
     
     private let service: Service
     
@@ -41,7 +43,7 @@ final class RMEpisodeListViewViewModel: NSObject {
     ]
     
     
-    private var cellViewModels: [RMCharacterEpisodeCollectionViewCellViewModel] {
+    private var cellViewModels: [ViewModel] {
         dataProcessor.cellViewModels
     }
     
@@ -62,7 +64,9 @@ final class RMEpisodeListViewViewModel: NSObject {
     
     init(service: Service) {
         self.service = service
-        self.dataProcessor = DataProcessor()
+        self.dataProcessor = DataProcessor(
+            mapper: EpisodeMapper(service: service)
+        )
         self.calculator = .init()
     }
     
@@ -77,9 +81,7 @@ final class RMEpisodeListViewViewModel: NSObject {
             switch res {
             case .success(let responseModel):
                 
-                dataProcessor.handleInitial(
-                    response: responseModel
-                ) { self.map($0) }
+                dataProcessor.handleInitial(responseModel)
                 
                 DispatchQueue.mainAsyncIfNeeded {
                     self.delegate?.didLoadInitialEpisodes()
@@ -109,10 +111,7 @@ final class RMEpisodeListViewViewModel: NSObject {
             switch res {
             case .success(let responseModel):
                 
-                dataProcessor.handleAdditional(
-                    response: responseModel,
-                    fromIndex: calculator._lastIndex
-                ) { self.map($0) }
+                dataProcessor.handleAdditional(responseModel)
                 
                 let indexPathsToAdd = calculator.calculateIndexPaths(
                     count: responseModel.results.count
@@ -133,20 +132,6 @@ final class RMEpisodeListViewViewModel: NSObject {
     
     private func episode(at index: Int) -> RMEpisode? {
         return dataProcessor.item(at: index)
-    }
-    
-    
-    private func map(
-        _ elements: ArraySlice<RMEpisode>
-    ) -> [RMCharacterEpisodeCollectionViewCellViewModel] {
-        
-        return elements.compactMap {
-            .init(
-                episodeDataURL: URL(string: $0.url),
-                service: service,
-                borderColor: borderColors.randomElement() ?? .systemBlue
-            )
-        }
     }
 }
 

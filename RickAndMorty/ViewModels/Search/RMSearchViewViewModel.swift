@@ -135,8 +135,13 @@ final class RMSearchViewViewModel {
         
         switch model {
         case let characterResults as RMGetCharactersResponse:
-            let dataProcessor = DataProcessorrr<CharacterMapper, RMGetCharactersResponse>(mapper: CharacterMapper(service: service))
-            dataProcessor.handleInitial(response: characterResults)
+            let dataProcessor = DataProcessor<CharacterMapper, RMGetCharactersResponse>(
+                mapper: CharacterMapper(
+                    service: service
+                )
+            )
+            dataProcessor.handleInitial(characterResults)
+            
             searchResVM = RMSearchResultViewModel(
                 service: service,
                 dataProcessor: dataProcessor,
@@ -144,8 +149,10 @@ final class RMSearchViewViewModel {
             )
         
         case let locationResults as RMGetLocationsResponse:
-            let dataProcessor = DataProcessorrr<LocationMapper, RMGetLocationsResponse>(mapper: LocationMapper())
-            dataProcessor.handleInitial(response: locationResults)
+            let dataProcessor = DataProcessor<LocationMapper, RMGetLocationsResponse>(
+                mapper: LocationMapper()
+            )
+            dataProcessor.handleInitial(locationResults)
             searchResVM = RMSearchResultViewModel(
                 service: service,
                 dataProcessor: dataProcessor,
@@ -153,8 +160,12 @@ final class RMSearchViewViewModel {
             )
 
         case let episodeResults as RMGetEpisodesResponse:
-            let dataProcessor = DataProcessorrr<EpisodeMapper, RMGetEpisodesResponse>(mapper: EpisodeMapper(service: service))
-            dataProcessor.handleInitial(response: episodeResults)
+            let dataProcessor = DataProcessor<EpisodeMapper, RMGetEpisodesResponse>(
+                mapper: EpisodeMapper(
+                    service: service
+                )
+            )
+            dataProcessor.handleInitial(episodeResults)
             searchResVM = RMSearchResultViewModel(
                 service: service,
                 dataProcessor: dataProcessor,

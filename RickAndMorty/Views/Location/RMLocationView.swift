@@ -17,7 +17,7 @@ protocol RMLocationViewDelegate: AnyObject {
 
 
 final class RMLocationView: UIView {
-
+    
     public weak var delegate: RMLocationViewDelegate?
     
     private var locationVM: RMLocationViewViewModel? {

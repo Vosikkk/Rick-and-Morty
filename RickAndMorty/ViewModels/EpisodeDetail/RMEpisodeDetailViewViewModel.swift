@@ -8,31 +8,12 @@
 import Foundation
 
 
-protocol DetailViewModel {
-    associatedtype T: Decodable
-    var service: Service { get }
-    var endpointUrl: URL? { get }
-    var data: (data: T, characters: [RMCharacter])? { get }
-   
-    func fetchData()
-    func createCellViewModels()
-    func fetchRelatedItems(for data: T)
-}
-
-extension DetailViewModel{
-    public func character(at index: Int) -> RMCharacter? {
-        guard let data = data else { return nil }
-        return data.characters[index]
-    }
-}
-
-
 protocol RMEpisodeDetailViewViewModelDelegate: AnyObject {
     func didFetchEpisodeDetails()
 }
 
 
-final class RMEpisodeDetailViewViewModel: DetailViewModel {
+final class RMEpisodeDetailViewViewModel {
    
     private let dateFormatter: FormatterOfDate = .init()
     
@@ -85,6 +66,7 @@ final class RMEpisodeDetailViewViewModel: DetailViewModel {
         let episode = data.data
         let characters = data.characters
         let createdString = dateFormatter.createShortDate(from: episode.created)
+        let characterMapper = CharacterMapper(service: service)
         cellViewModels = [
             .information(vm: [
                 .init(title: "Episode Name", value: episode.name),
@@ -92,15 +74,7 @@ final class RMEpisodeDetailViewViewModel: DetailViewModel {
                 .init(title: "Episode", value: episode.episode),
                 .init(title: "Created", value: createdString)
             ]),
-            .characters(vm: characters.compactMap {
-                                return RMCharacterCollectionViewCellViewModel(
-                                    characterName: $0.name,
-                                    characterStatus: $0.status,
-                                    characterImageUrl: URL(string: $0.image),
-                                    service: service
-                                )
-                            }
-                       )
+            .characters(vm: characterMapper.map(from: characters))
         ]
     }
     

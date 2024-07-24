@@ -7,7 +7,7 @@
 
 import UIKit
 
-final class RMLocationDetailViewController: UIViewController {
+final class RMLocationDetailViewController: UIViewController, CoordinatedController {
    
     private let service: Service
     
@@ -15,6 +15,7 @@ final class RMLocationDetailViewController: UIViewController {
     
     private let detailView: RMLocationDetailView = RMLocationDetailView()
     
+    weak var coordinator: Coordinator?
     
     // MARK: - Init
     
@@ -87,7 +88,6 @@ extension RMLocationDetailViewController: RMLocationDetailViewDelegate {
             service: service
         )
         vc.title = character.name
-        vc.navigationItem.largeTitleDisplayMode = .never
-        navigationController?.pushViewController(vc, animated: true)
+        coordinator?.push(vc)
     }
 }
