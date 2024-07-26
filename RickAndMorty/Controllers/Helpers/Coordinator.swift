@@ -73,3 +73,4 @@ final class BaseCoordinator: Coordinator {
         navigationController.setViewControllers([vc], animated: true)
     }
 }
+

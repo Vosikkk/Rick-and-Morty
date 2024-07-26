@@ -16,16 +16,17 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         guard let windowScene = (scene as? UIWindowScene) else { return }
        
-        let tabBar = RMTabViewController()
-        
         let service: Service = RMService(cache: RMAPICacheManager(), imageLoader: RMImageLoader())
+        let tabBar = UITabBarController()
+        let coordinatorFactory = CoordinatorFactory(service: service)
+        
         let viewControllers = TabItems.allCases
             .map {
-                let nav = UINavigationController()
-                let coordinator = BaseCoordinator(navigationController: nav, service: service, tab: $0)
+                let navController = UINavigationController()
+                let coordinator = coordinatorFactory.makeCoordinator(navController: navController, tab: $0)
                 coordinator.start()
                 coordinators.append(coordinator)
-                return nav
+                return navController
             }
         tabBar.setViewControllers(viewControllers, animated: true)
         

@@ -27,14 +27,13 @@ public final class RMRequest: Request {
     
     /// Constracted url for the api request in string format
     private var urlString: String {
+        
         var string = Constants.baseUrl
         string += "/"
         string += endpoint.rawValue
         
         if !pathComponents.isEmpty {
-            pathComponents.forEach {
-                string += "/\($0)"
-            }
+            pathComponents.forEach { string += "/\($0)" }
         }
         
         if !queryParameters.isEmpty {
@@ -54,7 +53,7 @@ public final class RMRequest: Request {
     
     /// Computed & constructed API url
     public var url: URL? {
-        URL(string: urlString)
+       URL(string: urlString)
     }
     
     /// Desired http method
@@ -95,8 +94,7 @@ public final class RMRequest: Request {
                     pathComponents = components
                     pathComponents.removeFirst()
                 }
-                if let rmEndpoint = RMEndpoint(
-                    rawValue: endpointString) {
+                if let rmEndpoint = RMEndpoint(rawValue: endpointString) {
                     self.init(endpoint: rmEndpoint, pathComponents: pathComponents)
                     return
                 }

@@ -42,12 +42,7 @@ final class RMService: Service {
                 url: rmRequest.url
             ) {
                 print("Using Cached Api Response")
-                do {
-                    let res = try T.init(json: cachedData)
-                    completion(.success(res))
-                } catch {
-                    completion(.failure(error))
-                }
+                decode(cachedData, completion: completion)
                 return
             }
             
@@ -62,20 +57,30 @@ final class RMService: Service {
                     return
                 }
                 
-                do {
-                    let res = try T.init(json: data)
-                    self?.cache.setCache(
-                        for: rmRequest.endpoint,
-                        url: rmRequest.url,
-                        data: data
-                    )
-                    completion(.success(res))
-                } catch {
-                    completion(.failure(error))
-                }
+                self?.cache.setCache(
+                    for: rmRequest.endpoint,
+                    url: rmRequest.url,
+                    data: data
+                )
+                self?.decode(data, completion: completion)
             }
             task.resume()
         }
+    
+    private func decode<T: JsonModel>(_ data: Data, completion: @escaping (Result<T, Error>) -> Void) {
+        DispatchQueue.global(qos: .background).async {
+            do {
+                let res = try T.init(json: data)
+                DispatchQueue.mainAsyncIfNeeded {
+                    completion(.success(res))
+                }
+            } catch {
+                DispatchQueue.mainAsyncIfNeeded {
+                    completion(.failure(error))
+                }
+            }
+        }
+    }
 }
 
 enum RMServiceError: Error {
