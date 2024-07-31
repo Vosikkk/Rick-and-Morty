@@ -9,21 +9,22 @@ import UIKit
 
 /// Controller to show info about single character
 final class RMCharacterDetailViewController: UIViewController, CoordinatedController {
-
+    
+    weak var coordinator: MainCoordinator?
+    
     private let detailVM: RMCharacterDetailViewViewModel
     
     private let detailView: RMCharacterDetailView
     
     private let service: Service
     
-    weak var coordinator: Coordinator?
     
     // MARK: - Init
     
     init(viewModel: RMCharacterDetailViewViewModel, service: Service) {
         self.service = service
         detailVM = viewModel
-        detailView = RMCharacterDetailView(frame: .zero, vm: detailVM)
+        detailView = RMCharacterDetailView(vm: detailVM)
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -142,11 +143,9 @@ extension RMCharacterDetailViewController: UICollectionViewDataSource {
         case .photo, .information:
             break
         case .episodes:
-            let episodes = detailVM.episodes
-            coordinator?.push(RMEpisodeDetailViewController(
-                url: URL(string: episodes[indexPath.row]),
-                service: service
-            ))
+            coordinator?.episodeDetail(
+                episodeURL: URL(string: detailVM.episodes[indexPath.row])
+            )
         }
     }
     

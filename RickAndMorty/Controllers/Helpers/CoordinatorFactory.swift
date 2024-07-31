@@ -1,5 +1,5 @@
 //
-//  SeparateCoordinators.swift
+//  CoordinatorFactory.swift
 //  RickAndMorty
 //
 //  Created by Саша Восколович on 26.07.2024.
@@ -18,7 +18,11 @@ final class CoordinatorFactory {
     func makeCoordinator(
         navController: UINavigationController = UINavigationController(),
         tab: TabItems) -> Coordinator {
-            BaseCoordinator(navigationController: navController, service: service, tab: tab)
+            MainCoordinator(
+                navigationController: navController,
+                service: service,
+                tabItem: tab
+            )
         }
             
 }

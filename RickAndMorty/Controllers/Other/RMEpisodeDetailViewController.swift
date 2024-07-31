@@ -15,7 +15,8 @@ final class RMEpisodeDetailViewController: UIViewController, CoordinatedControll
     
     private let detailView: RMEpisodeDetailView = RMEpisodeDetailView()
     
-    weak var coordinator: Coordinator?
+    weak var coordinator: MainCoordinator?
+    
     
     // MARK: - Init
     
@@ -77,14 +78,6 @@ extension RMEpisodeDetailViewController: RMEpisodeDetailViewDelegate {
         _ detailView: RMEpisodeDetailView,
         didSelect character: RMCharacter
     ) {
-        let vc = RMCharacterDetailViewController(
-            viewModel: .init(
-                character: character,
-                service: service
-            ),
-            service: service
-        )
-        vc.title = character.name
-        coordinator?.push(vc)
+        coordinator?.characterDetail(character: character)
     }
 }

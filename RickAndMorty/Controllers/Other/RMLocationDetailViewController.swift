@@ -8,20 +8,21 @@
 import UIKit
 
 final class RMLocationDetailViewController: UIViewController, CoordinatedController {
-   
+  
     private let service: Service
     
-    private let locationDetailVM: RMLoactionDetailViewViewModel
+    private let locationDetailVM: RMLocationDetailViewViewModel
     
     private let detailView: RMLocationDetailView = RMLocationDetailView()
     
-    weak var coordinator: Coordinator?
+    weak var coordinator: MainCoordinator?
+     
     
     // MARK: - Init
     
     init(location: RMLocation, service: Service) {
         self.service = service
-        self.locationDetailVM = RMLoactionDetailViewViewModel(
+        self.locationDetailVM = RMLocationDetailViewViewModel(
             endpointUrl: URL(string: location.url),
             service: service
         )
@@ -80,14 +81,6 @@ extension RMLocationDetailViewController: RMLocationDetailViewDelegate {
         _ detailView: RMLocationDetailView,
         didSelect character: RMCharacter
     ) {
-        let vc = RMCharacterDetailViewController(
-            viewModel: .init(
-                character: character,
-                service: service
-            ),
-            service: service
-        )
-        vc.title = character.name
-        coordinator?.push(vc)
+        coordinator?.characterDetail(character: character)
     }
 }

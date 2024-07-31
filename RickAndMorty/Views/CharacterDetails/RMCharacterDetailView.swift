@@ -23,7 +23,7 @@ final class RMCharacterDetailView: UIView {
     
     
     // MARK: - Init
-    init(frame: CGRect, vm: RMCharacterDetailViewViewModel) {
+    init(frame: CGRect = .zero, vm: RMCharacterDetailViewViewModel) {
         detailVM = vm
         super.init(frame: frame)
         translatesAutoresizingMaskIntoConstraints = false

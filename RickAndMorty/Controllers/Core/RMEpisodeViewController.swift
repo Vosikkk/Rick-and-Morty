@@ -10,11 +10,12 @@ import UIKit
 /// Controller to show and search for Episodes
 final class RMEpisodeViewController: UIViewController, CoordinatedController {
     
-    weak var coordinator: Coordinator?
     
     private let episodeListView: RMEpisodeListView
     
     private let service: Service
+    
+    weak var coordinator: MainCoordinator?
     
     init(service: Service) {
         self.service = service
@@ -54,9 +55,7 @@ final class RMEpisodeViewController: UIViewController, CoordinatedController {
     
     @objc
     private func didTapSearch() {
-        let vc = RMSearchViewController(config: .init(type: .episode), service: service)
-        vc.coordinator = coordinator
-        coordinator?.push(vc)
+        coordinator?.search(config: .init(type: .episode))
     }
     
     private func setupView() {
@@ -80,11 +79,7 @@ extension RMEpisodeViewController: RMEpisodeListViewDelegate {
         _ episodeListView: RMEpisodeListView,
         didSelectEpisode episode: RMEpisode
     ) {
-        let detailVC = RMEpisodeDetailViewController(
-            url: URL(string: episode.url),
-            service: service
-        )
-        detailVC.coordinator = coordinator
-        coordinator?.push(detailVC)
+        
+        coordinator?.episodeDetail(episodeURL: URL(string: episode.url))
     }
 }

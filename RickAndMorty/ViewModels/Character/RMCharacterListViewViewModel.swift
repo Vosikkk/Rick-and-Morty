@@ -143,7 +143,6 @@ extension RMCharacterListViewViewModel: UICollectionViewDataSource {
         _ collectionView: UICollectionView,
         numberOfItemsInSection section: Int
     ) -> Int {
-        
         cellViewModels.count
     }
     

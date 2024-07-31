@@ -10,17 +10,17 @@ import Foundation
 ///  Each who wants work with client have to implment the protocol
 protocol Service {
     
-     var imageLoader: RMImageLoader { get }
-     
+    var imageLoader: RMImageLoader { get }
+    
     func execute<T: JsonModel>(
-        _ request: some Request,
+        _ request: Request,
         expecting type: T.Type,
         completion: @escaping (Result<T, Error>) -> Void)
 }
 
 extension Service {
    
-    func request(from rmRequest: some Request) -> URLRequest? {
+    func request(from rmRequest: Request) -> URLRequest? {
         guard let url = rmRequest.url,
               let rm = rmRequest as? RMRequest else { return nil }
         

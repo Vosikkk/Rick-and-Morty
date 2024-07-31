@@ -16,7 +16,7 @@ public enum SectionType {
     case characters(vm: [RMCharacterCollectionViewCellViewModel])
 }
 
-final class RMLoactionDetailViewViewModel {
+final class RMLocationDetailViewViewModel {
     
     typealias DataInfo = (data: RMLocation, characters: [RMCharacter])
     

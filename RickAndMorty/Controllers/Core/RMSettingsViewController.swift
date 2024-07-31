@@ -13,7 +13,7 @@ import SwiftUI
 /// Controller to show various app options and settings
 final class RMSettingsViewController: UIViewController, CoordinatedController {
     
-    weak var coordinator: (any Coordinator)?
+    weak var coordinator: MainCoordinator?
     
     private var settingsHostingVC: UIHostingController<RMSettingsView>?
     

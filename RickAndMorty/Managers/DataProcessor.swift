@@ -7,6 +7,7 @@
 
 import Foundation
 
+
 protocol DataProcess {
    
     associatedtype Model: JsonModel
@@ -40,9 +41,13 @@ where Mapper.JsModel == Resp.ResultResponse {
     
     private let mapper: Mapper
     
-    init(items: [Model] = [], mapper: Mapper) {
-        self.items = items
+    init(mapper: Mapper) {
         self.mapper = mapper
+    }
+    
+    convenience init(response: Resp, mapper: Mapper) {
+        self.init(mapper: mapper)
+        handleInitial(response)
     }
     
     

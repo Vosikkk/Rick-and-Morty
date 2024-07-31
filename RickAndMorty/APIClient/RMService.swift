@@ -28,7 +28,7 @@ final class RMService: Service {
     ///   - type: The type of object we expect to getback
     ///   - completion: Call back with data or error
     func execute<T: JsonModel>(
-        _ request: some Request,
+        _ request: Request,
         expecting type: T.Type,
         completion: @escaping (Result<T, Error>) -> Void) {
             

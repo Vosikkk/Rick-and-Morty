@@ -19,8 +19,9 @@ final class RMSearchViewController: UIViewController, CoordinatedController {
     
     private let service: Service
     
-    weak var coordinator: Coordinator?
+    weak var coordinator: MainCoordinator?
     
+ 
     // MARK: - Init
     
     init(config: Config, service: Service) {
@@ -89,45 +90,28 @@ final class RMSearchViewController: UIViewController, CoordinatedController {
 extension RMSearchViewController: RMSearchViewDelegate {
     
     func rmSearchView(_ sender: RMSearchView, didSelectEpisode episode: RMEpisode) {
-        let vc = RMEpisodeDetailViewController(
-            url: URL(string: episode.url),
-            service: service
-        )
-        vc.coordinator = coordinator
-        coordinator?.push(vc)
+        coordinator?.episodeDetail(episodeURL: URL(string: episode.url))
     }
     
     
     func rmSearchView(_ sender: RMSearchView, didSelectCharacter character: RMCharacter) {
-        coordinator?.push(RMCharacterDetailViewController(
-            viewModel: .init(
-                character: character,
-                service: service
-            ),
-            service: service
-        ))
+        coordinator?.characterDetail(character: character)
     }
     
     
     func rmSearchView(_ sender: RMSearchView, didSelectLocation location: RMLocation) {
-        coordinator?.push(RMLocationDetailViewController(
-            location: location,
-            service: service
-        ))
+        coordinator?.locationDetail(location: location)
     }
     
     func rmSearchView(
         _ sender: RMSearchView,
         didSelectOption option: RMSearchInputViewViewModel.DynamicOption
     ) {
-        let vc = RMSearchOptionPickerViewController(option) { [weak self] selection in
-            DispatchQueue.main.async {
+        coordinator?.searchOptionPicker(option: option) { [weak self] selection in
+            DispatchQueue.mainAsyncIfNeeded {
                 self?.searchVM.set(value: selection, for: option)
             }
         }
-        vc.sheetPresentationController?.detents = [.medium()]
-        vc.sheetPresentationController?.prefersGrabberVisible = true
-        present(vc, animated: true)
     }
 }
 

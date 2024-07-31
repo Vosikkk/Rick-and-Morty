@@ -9,8 +9,8 @@ import UIKit
 
 /// Controller to show and search for Characters
 final class RMCharacterViewController: UIViewController, CoordinatedController {
-    
-    weak var coordinator: Coordinator?
+   
+    weak var coordinator: MainCoordinator?
     
     private let charactersListView: RMCharacterListView
     
@@ -65,10 +65,7 @@ final class RMCharacterViewController: UIViewController, CoordinatedController {
     
     @objc
     private func didTapSearch() {
-        coordinator?.push(RMSearchViewController(
-            config: .init(type: .character),
-            service: service
-        ))
+        coordinator?.search(config: .init(type: .character))
     }
 }
 
@@ -81,12 +78,6 @@ extension RMCharacterViewController: RMCharacterListViewDelegate {
         _ characterListView: RMCharacterListView,
         didSelectCharacter character: RMCharacter
     ) {
-        coordinator?.push(RMCharacterDetailViewController(
-            viewModel: .init(
-                character: character,
-                service: service
-            ),
-            service: service
-        ))
+        coordinator?.characterDetail(character: character)
     }
 }

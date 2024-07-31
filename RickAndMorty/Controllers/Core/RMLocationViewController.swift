@@ -12,13 +12,14 @@ import UIKit
 final class RMLocationViewController: UIViewController, CoordinatedController {
    
     
-    weak var coordinator: Coordinator?
+    weak var coordinator: MainCoordinator?
     
     private let primaryView: RMLocationView
     
     private let locationVM: RMLocationViewViewModel
     
     private let service: Service
+
     
     
     init(service: Service) {
@@ -57,9 +58,7 @@ final class RMLocationViewController: UIViewController, CoordinatedController {
     
     @objc
     private func didTapSearch() {
-        let vc = RMSearchViewController(config: .init(type: .location), service: service)
-        vc.coordinator = coordinator
-        coordinator?.push(vc)
+        coordinator?.search(config: .init(type: .location))
     }
     
     private func setConstraints() {
@@ -84,8 +83,6 @@ extension RMLocationViewController: RMLocationViewDelegate {
         _ locationView: RMLocationView,
         didSelect location: RMLocation
     ) {
-        let vc = RMLocationDetailViewController(location: location, service: service)
-        vc.coordinator = coordinator
-        coordinator?.push(vc)
+        coordinator?.locationDetail(location: location)
     }
 }

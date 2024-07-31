@@ -10,8 +10,9 @@ import UIKit
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
+    
     var coordinators: [Coordinator] = []
-
+    
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         
         guard let windowScene = (scene as? UIWindowScene) else { return }
@@ -20,15 +21,15 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let tabBar = UITabBarController()
         let coordinatorFactory = CoordinatorFactory(service: service)
         
-        let viewControllers = TabItems.allCases
-            .map {
-                let navController = UINavigationController()
-                let coordinator = coordinatorFactory.makeCoordinator(navController: navController, tab: $0)
-                coordinator.start()
-                coordinators.append(coordinator)
-                return navController
-            }
-        tabBar.setViewControllers(viewControllers, animated: true)
+        let controllers = TabItems.allCases.map {
+            let nav = UINavigationController()
+            let coordinator = coordinatorFactory.makeCoordinator(navController: nav, tab: $0)
+            coordinator.start()
+            coordinators.append(coordinator)
+            return nav
+        }
+        
+        tabBar.setViewControllers(controllers, animated: false)
         
         let window = UIWindow(windowScene: windowScene)
         window.rootViewController = tabBar
