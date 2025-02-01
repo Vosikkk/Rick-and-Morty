@@ -60,10 +60,13 @@ final class MainCoordinator: Coordinator {
     
     private let tabItem: TabItems
     
-    init(navigationController: UINavigationController, service: Service, tabItem: TabItems) {
+    private let modelBuilder: ModelBuilder
+    
+    init(navigationController: UINavigationController, service: Service, tabItem: TabItems, modelBuilder: ModelBuilder) {
         self.navigationController = navigationController
         self.service = service
         self.tabItem = tabItem
+        self.modelBuilder = modelBuilder
         setNavigationController()
     }
     
@@ -82,9 +85,9 @@ final class MainCoordinator: Coordinator {
         case .characters:
             RMCharacterViewController(service: service)
         case .locations:
-            RMLocationViewController(service: service)
+            RMLocationViewController(locationVM: modelBuilder.buildLocationViewModel())
         case .episodes:
-            RMEpisodeViewController(service: service)
+            RMEpisodeViewController(episodeListViewModel: modelBuilder.buildEpisodeListViewViewModel())
         case .settings:
             RMSettingsViewController()
         }

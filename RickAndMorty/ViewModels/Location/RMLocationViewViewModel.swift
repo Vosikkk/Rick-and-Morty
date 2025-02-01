@@ -54,9 +54,9 @@ final class RMLocationViewViewModel {
     
     // MARK: - Init 
     
-    init(service: Service) {
+    init(service: Service, dataProcessor: DataProcessor<LocationMapper, RMGetLocationsResponse>) {
         self.service = service
-        self.dataProcessor = .init(mapper: LocationMapper())
+        self.dataProcessor = dataProcessor
         self.calculator = .init()
     }
     

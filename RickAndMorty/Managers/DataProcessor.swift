@@ -52,23 +52,22 @@ where Mapper.JsModel == Resp.ResultResponse {
     
     
     func handleInitial(_ response: Response) {
-        updateData(with: response)
+        updateData(with: response, append: false)
     }
     
     func handleAdditional(_ response: Response) {
-        appendData(with: response)
+        updateData(with: response, append: true)
     }
     
-    private func updateData(with response: Response) {
+    private func updateData(with response: Response, append: Bool) {
         apiInfo = response.info
-        items = response.results
-        cellViewModels = mapper.map(from: items)
-    }
-    
-    private func appendData(with response: Response) {
-        apiInfo = response.info
-        items.append(contentsOf: response.results)
-        cellViewModels.append(contentsOf: mapper.map(from: response.results))
+        if append {
+            items.append(contentsOf: response.results)
+            cellViewModels.append(contentsOf: mapper.map(from: response.results))
+        } else {
+            items = response.results
+            cellViewModels = mapper.map(from: response.results)
+        }
     }
     
     func item(at index: Int) -> Model? {

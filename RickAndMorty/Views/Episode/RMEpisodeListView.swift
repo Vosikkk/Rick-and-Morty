@@ -51,8 +51,8 @@ final class RMEpisodeListView: UIView {
     }()
     
     // MARK: - Init
-    init(frame: CGRect = .zero, service: Service) {
-        episodeListViewModel = RMEpisodeListViewViewModel(service: service)
+    init(frame: CGRect = .zero, episodeListViewViewModel: RMEpisodeListViewViewModel) {
+        episodeListViewModel = episodeListViewViewModel
         super.init(frame: frame)
         translatesAutoresizingMaskIntoConstraints = false
         addSubview(spinner)

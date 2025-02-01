@@ -32,11 +32,16 @@ final class RMSearchViewViewModel {
     
     private var searchResultModel: (any ResponseModel)?
     
+  
+    private let builder: ModelBuilder
+    
+    
     // MARK: - Init
     
     init(config: Config, service: Service) {
         self.config = config
         self.service = service
+        builder = ModelBuilder(service: service)
     }
     
     // MARK: - Methods
@@ -98,6 +103,7 @@ final class RMSearchViewViewModel {
             queryParameters: combinedQueryParameters
         )
         
+        
         switch config.type.endpoint {
         case .character:
             fetch(request, for: RMGetCharactersResponse.self)
@@ -107,71 +113,30 @@ final class RMSearchViewViewModel {
             fetch(request, for: RMGetEpisodesResponse.self)
         }
     }
+
     
     private func fetch<T: ResponseModel>(
-        _ request: RMRequest,
-        for type: T.Type
+            _ request: RMRequest,
+            for type: T.Type
     )  {
         service.execute(
             request,
             expecting: type
         ) { [weak self] res in
+            guard let self else { return }
             switch res {
             case .success(let model):
-                self?.processSearchResults(for: model)
+                if let vm = builder.buildSearchResultViewModel(kindOf: model) {
+                    searchResultModel = model
+                    searchResultHandler?(vm)
+                }
             case .failure:
-                self?.handleNoResults()
+                noResultsHandler?()
             }
         }
     }
-    
-    private func handleNoResults() {
-        noResultsHandler?()
-    }
-    
-    private func processSearchResults(for model: some ResponseModel) {
-        
-        let searchResVM: any SearchResultViewModel
-        
-        switch model {
-        case let characterResults as RMGetCharactersResponse:
-            searchResVM = RMSearchResultViewModel(
-                service: service,
-                dataProcessor: DataProcessor<CharacterMapper, RMGetCharactersResponse>(
-                    response: characterResults,
-                    mapper: CharacterMapper(service: service)
-                ),
-                type: RMGetCharactersResponse.self
-            )
-        
-        case let locationResults as RMGetLocationsResponse:
-            searchResVM = RMSearchResultViewModel(
-                service: service,
-                dataProcessor: DataProcessor<LocationMapper, RMGetLocationsResponse>(
-                    response: locationResults,
-                    mapper: LocationMapper()
-                ),
-                type: RMGetLocationsResponse.self
-            )
-
-        case let episodeResults as RMGetEpisodesResponse:
-            searchResVM = RMSearchResultViewModel(
-                service: service,
-                dataProcessor: DataProcessor<EpisodeMapper, RMGetEpisodesResponse>(
-                    response: episodeResults,
-                    mapper: EpisodeMapper(service: service)
-                ),
-                type: RMGetEpisodesResponse.self
-            )
-        default:
-            handleNoResults()
-            return
-        }
-        
-        searchResultModel = model
-        searchResultHandler?(searchResVM)
-    }
-    
+   
+       
     private func cast<T>(
         _ model: (any ResponseModel)?,
         to type: T.Type
@@ -213,3 +178,142 @@ final class RMSearchViewViewModel {
         queryParameters + queryItems
     }
 }
+
+
+
+
+final class ModelBuilder {
+    
+    private let service: Service
+    
+    private let dataProcessorFactory: DataProcessorFactory
+    
+    private let fetchStrategy: FetchStrategyFactory
+    
+    private let mapperFactory: MapperFactory
+    
+    init(service: Service) {
+        self.service = service
+        dataProcessorFactory = DataProcessorFactory(service: service)
+        fetchStrategy = FetchStrategyFactory()
+        mapperFactory = MapperFactory()
+    }
+    
+    
+    public func buildLocationViewModel() -> RMLocationViewViewModel {
+        RMLocationViewViewModel(
+            service: service,
+            dataProcessor: dataProcessorFactory.createLocationProcessor(
+                mapper: mapperFactory.locationMapper()
+            )
+        )
+    }
+    
+    
+    public func buildEpisodeListViewViewModel() -> RMEpisodeListViewViewModel {
+        RMEpisodeListViewViewModel(
+            service: service,
+            dataProcessor: dataProcessorFactory.createEpisodeProcessor(
+                mapper: mapperFactory.episodeMapper(
+                    service: service)
+            )
+        )
+    }
+    
+    
+    public func buildSearchResultViewModel(kindOf response: any ResponseModel) -> (any SearchResultViewModel)? {
+        switch response {
+        case let characterResp as RMGetCharactersResponse:
+            return RMSearchResultViewModel(
+                dataProcessor: dataProcessorFactory.createCharacterProcessor(from: characterResp,
+                mapper: mapperFactory.characterMapper(service: service)),
+                strategy: fetchStrategy.charactersStartegy(service: service))
+                
+            
+        case let locationResp as RMGetLocationsResponse:
+            return RMSearchResultViewModel(
+                dataProcessor: dataProcessorFactory.createLocationProcessor(from: locationResp,
+                mapper: mapperFactory.locationMapper()),
+                strategy: fetchStrategy.locationStrategy(service: service))
+            
+        case let episodeResp as RMGetEpisodesResponse:
+            return RMSearchResultViewModel(
+                dataProcessor: dataProcessorFactory.createEpisodeProcessor(from: episodeResp,
+                mapper: mapperFactory.episodeMapper(service: service)),
+                strategy: fetchStrategy.episodeStrategy(service: service))
+        default:
+            return nil
+        }
+    }
+}
+
+
+final class DataProcessorFactory {
+    
+    let service: Service
+    
+    
+    init(service: Service) {
+        self.service = service
+    }
+    
+    public func createCharacterProcessor(
+        from response: RMGetCharactersResponse? = nil, mapper: CharacterMapper
+    ) -> DataProcessor<CharacterMapper, RMGetCharactersResponse> {
+        if let response {
+            return DataProcessor(response: response, mapper: mapper)
+        }
+        return DataProcessor(mapper: mapper)
+    }
+    
+    public func createLocationProcessor(
+        from response: RMGetLocationsResponse? = nil, mapper: LocationMapper
+    ) -> DataProcessor<LocationMapper, RMGetLocationsResponse> {
+        if let response {
+            return DataProcessor(response: response, mapper: mapper)
+        }
+        return DataProcessor(mapper: mapper)
+    }
+    
+    public func createEpisodeProcessor(
+        from response: RMGetEpisodesResponse? = nil, mapper: EpisodeMapper
+    ) -> DataProcessor<EpisodeMapper, RMGetEpisodesResponse> {
+        if let response {
+            return DataProcessor(response: response, mapper: mapper)
+        }
+        return DataProcessor(mapper: mapper)
+    }
+    
+    
+}
+
+struct MapperFactory {
+    
+    public func episodeMapper(service: Service) -> EpisodeMapper {
+        EpisodeMapper(service: service)
+    }
+    
+    public func characterMapper(service: Service) -> CharacterMapper {
+        CharacterMapper(service: service)
+    }
+    
+    public func locationMapper() -> LocationMapper {
+        LocationMapper()
+    }
+}
+
+struct FetchStrategyFactory {
+    
+    public func episodeStrategy(service: Service) -> EpisodeResponse {
+         EpisodeResponse(service: service)
+    }
+    
+    public func locationStrategy(service: Service) -> LocationResponse {
+        LocationResponse(service: service)
+    }
+    
+    public func charactersStartegy(service: Service) -> CharacterResponse {
+        CharacterResponse(service: service)
+    }
+}
+

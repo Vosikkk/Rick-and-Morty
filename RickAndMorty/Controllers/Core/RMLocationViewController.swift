@@ -18,13 +18,8 @@ final class RMLocationViewController: UIViewController, CoordinatedController {
     
     private let locationVM: RMLocationViewViewModel
     
-    private let service: Service
-
-    
-    
-    init(service: Service) {
-        self.service = service
-        locationVM = RMLocationViewViewModel(service: service)
+    init(locationVM: RMLocationViewViewModel) {
+        self.locationVM = locationVM
         primaryView = RMLocationView()
         super.init(nibName: nil, bundle: nil)
     }

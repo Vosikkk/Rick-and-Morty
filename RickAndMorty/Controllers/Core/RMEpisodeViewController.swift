@@ -13,17 +13,15 @@ final class RMEpisodeViewController: UIViewController, CoordinatedController {
     
     private let episodeListView: RMEpisodeListView
     
-    private let service: Service
     
     weak var coordinator: MainCoordinator?
     
-    init(service: Service) {
-        self.service = service
-        episodeListView = RMEpisodeListView(service: service)
+    init(episodeListViewModel: RMEpisodeListViewViewModel) {
+        episodeListView = RMEpisodeListView(episodeListViewViewModel: episodeListViewModel)
         super.init(nibName: nil, bundle: nil)
     }
     
-    @available (*, unavailable)
+    @available(*, unavailable)
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -79,7 +77,6 @@ extension RMEpisodeViewController: RMEpisodeListViewDelegate {
         _ episodeListView: RMEpisodeListView,
         didSelectEpisode episode: RMEpisode
     ) {
-        
         coordinator?.episodeDetail(episodeURL: URL(string: episode.url))
     }
 }

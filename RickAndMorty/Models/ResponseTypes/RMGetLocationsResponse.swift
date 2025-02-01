@@ -13,6 +13,7 @@ struct RMGetLocationsResponse {
 }
 
 extension RMGetLocationsResponse: ResponseModel {
+    
     init(json: Data) throws {
         self = try JSONDecoder().decode(Self.self, from: json)
     }

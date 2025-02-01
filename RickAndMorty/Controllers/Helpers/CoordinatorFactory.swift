@@ -11,8 +11,11 @@ final class CoordinatorFactory {
     
     private let service: Service
     
-    init(service: Service) {
+    private let modelBuilder: ModelBuilder
+    
+    init(service: Service, modelBuilder: ModelBuilder) {
         self.service = service
+        self.modelBuilder = modelBuilder
     }
    
     func makeCoordinator(
@@ -21,7 +24,8 @@ final class CoordinatorFactory {
             MainCoordinator(
                 navigationController: navController,
                 service: service,
-                tabItem: tab
+                tabItem: tab,
+                modelBuilder: modelBuilder
             )
         }
             

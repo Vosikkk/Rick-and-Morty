@@ -12,9 +12,10 @@ import Foundation
     
 }
 
-public protocol ResponseModel: JsonModel {
+protocol ResponseModel: JsonModel {
     associatedtype ResultResponse: JsonModel
-    
+   
     var results: [ResultResponse] { get }
     var info: Info { get }
+    
 }

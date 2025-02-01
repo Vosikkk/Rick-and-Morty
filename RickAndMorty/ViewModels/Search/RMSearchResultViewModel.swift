@@ -21,7 +21,7 @@ public protocol SearchResultViewModel {
 }
 
 
-final class RMSearchResultViewModel<DataProcessor: DataProcess, T: ResponseModel>: SearchResultViewModel {
+final class RMSearchResultViewModel<DataProcessor: DataProcess, Strategy: FetchStrategy>: SearchResultViewModel {
     
     typealias ViewModel = DataProcessor.ViewModel
     
@@ -34,11 +34,11 @@ final class RMSearchResultViewModel<DataProcessor: DataProcess, T: ResponseModel
     
     private var calculator: CalculatorIndexPaths
     
-    private let service: Service
     
     private let dataProcessor: DataProcessor
     
-    private let type: T.Type
+    private let strategy: Strategy
+    
     
     public private(set) var isLoadingMoreResults: Bool = false {
         didSet {
@@ -55,13 +55,11 @@ final class RMSearchResultViewModel<DataProcessor: DataProcess, T: ResponseModel
     
     
     init(
-        service: Service,
         dataProcessor: DataProcessor,
-        type: T.Type
+        strategy: Strategy
     ) {
-        self.service = service
         self.dataProcessor = dataProcessor
-        self.type = type
+        self.strategy = strategy
         self.calculator = .init(lastIndex: dataProcessor.cellViewModels.endIndex)
     }
     
@@ -82,7 +80,7 @@ final class RMSearchResultViewModel<DataProcessor: DataProcess, T: ResponseModel
             return
         }
         
-        service.execute(request, expecting: type) { [weak self] result in
+        strategy.fetch(request: request) {  [weak self] result in
             guard let self else { return }
             switch result {
             case .success(let responseModel):
@@ -107,3 +105,56 @@ final class RMSearchResultViewModel<DataProcessor: DataProcess, T: ResponseModel
     }
 }
 
+
+protocol FetchStrategy {
+    associatedtype Response: ResponseModel
+    func fetch(request: RMRequest, completion: @escaping (Result<Response, Error>) -> Void)
+}
+
+struct CharacterResponse: FetchStrategy {
+    
+    let service: Service
+    
+    func fetch(
+        request: RMRequest,
+        completion: @escaping (Result<RMGetCharactersResponse, any Error>) -> Void
+    ) {
+        service.execute(
+            request,
+            expecting: RMGetCharactersResponse.self,
+            completion: completion
+        )
+    }
+}
+
+struct LocationResponse: FetchStrategy {
+    
+    let service: Service
+    
+    func fetch(
+        request: RMRequest,
+        completion: @escaping (Result<RMGetLocationsResponse, Error>) -> Void
+    ) {
+        service.execute(
+            request,
+            expecting: RMGetLocationsResponse.self,
+            completion: completion
+        )
+    }
+}
+
+struct EpisodeResponse: FetchStrategy {
+    
+    let service: Service
+    
+    func fetch(
+        request: RMRequest,
+        completion: @escaping (Result<RMGetEpisodesResponse, Error>) -> Void
+    ) {
+        service.execute(
+            request,
+            expecting: RMGetEpisodesResponse.self,
+            completion: completion
+        )
+    }
+}

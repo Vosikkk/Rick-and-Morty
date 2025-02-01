@@ -19,7 +19,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
        
         let service: Service = RMService(cache: RMAPICacheManager(), imageLoader: RMImageLoader())
         let tabBar = UITabBarController()
-        let coordinatorFactory = CoordinatorFactory(service: service)
+        let coordinatorFactory = CoordinatorFactory(service: service, modelBuilder: ModelBuilder(service: service))
         
         let controllers = TabItems.allCases.map {
             let nav = UINavigationController()

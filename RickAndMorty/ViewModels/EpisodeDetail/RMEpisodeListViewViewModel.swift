@@ -62,11 +62,9 @@ final class RMEpisodeListViewViewModel: NSObject {
         }
     }
     
-    init(service: Service) {
+    init(service: Service, dataProcessor: DataProcessor<EpisodeMapper, RMGetEpisodesResponse>) {
         self.service = service
-        self.dataProcessor = DataProcessor(
-            mapper: EpisodeMapper(service: service)
-        )
+        self.dataProcessor = dataProcessor
         self.calculator = .init()
     }
     
